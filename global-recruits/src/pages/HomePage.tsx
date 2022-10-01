@@ -6,7 +6,7 @@ import Hero from "../components/Hero";
 export default function HomePage() {
     const [content, setContent] = useState("");
     useEffect(() => {
-        axios.get('https://api.globalrecruits.net/api/HelloWorld?name=GlobalRecruits')
+        axios.get('https://api.globalrecruits.net/HelloWorld?name=GlobalRecruits')
             .then((response: AxiosResponse) => setContent(response.data))
             .catch((error: Error) => console.info("Issue Fetching Data: " + error.message));
     }, [])
