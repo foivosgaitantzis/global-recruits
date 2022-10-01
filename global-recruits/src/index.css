@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	@font-face {
+		font-family: "Lexend";
+		src: url('/fonts/Lexend.ttf') format('truetype')
+	}
+}
+
+.gradient {
+    background: linear-gradient(90deg, black 0%, #89CFF1 100%);
+}
