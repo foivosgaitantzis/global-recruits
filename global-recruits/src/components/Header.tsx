@@ -17,7 +17,7 @@ export default function Header() {
     }, [])
 
     return (
-        <nav className={"absolute w-full top-0 text-white " + ((invertHeaderColors || displayNavMenu) && "gradient")}>
+        <nav className={"absolute w-full top-0 text-black " + ((invertHeaderColors || displayNavMenu) && "gradient")}>
             <div className="py-4 px-4">
                 <div className="flex lg:hidden" onClick={() => setDisplayNavMenu(!displayNavMenu)}>
                     <button className="focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out">
