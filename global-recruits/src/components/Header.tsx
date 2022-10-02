@@ -49,6 +49,10 @@ export default function Header() {
                     </button>
                 </div>
             </div>
+            {
+
+                <hr className={(!displayNavMenu && "border-0") + " lg:border-t border-black"} />
+            }
         </nav>
     );
 }
