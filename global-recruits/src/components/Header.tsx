@@ -28,7 +28,7 @@ export default function Header() {
                     </button>
                 </div>
                 <div className={"w-full flex-grow lg:flex lg:items-center p-4 lg:p-0 text-center container mx-auto " + (!displayNavMenu && "hidden")}>
-                    <ul className="list-reset lg:flex justify-end flex-1 items-center text-xl lg:text-2xl font-bold">
+                    <ul className="list-reset lg:flex justify-end flex-1 items-center text-xl lg:text-xl font-bold">
                         {true ?
                             <>
                                 <li className="mr-3">
@@ -45,7 +45,7 @@ export default function Header() {
                         }
                     </ul>
                     <button
-                        className={"mx-auto lg:mx-0 hover:underline text-base lg:text-xl font-bold rounded-full mt-4 lg:mt-0 py-4 px-8 shadow focus:outline-none focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out bg-black text-white"}>Get Started
+                        className={"mx-auto lg:mx-0 hover:underline text-base lg:text-lg font-bold rounded-full mt-4 lg:mt-0 py-3 px-6 shadow focus:outline-none focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out bg-black text-white"}>Get Started
                     </button>
                 </div>
             </div>
