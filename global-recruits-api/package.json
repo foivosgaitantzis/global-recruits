@@ -1,7 +1,10 @@
 {
   "name": "global-recruits-api",
   "version": "1.0.0",
-  "description": "",
+  "description": "Global Recruits Service Implementation using NodeJS Azure Functions",
+  "author": "Foivos Gaitantzis",
+  "private": "true",
+  "license": "GlobalRecruits",
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
@@ -9,7 +12,10 @@
     "start": "func start",
     "test": "echo \"No tests yet...\""
   },
-  "dependencies": {},
+  "dependencies": {
+    "@mailchimp/mailchimp_marketing": "^3.0.78",
+    "@types/mailchimp__mailchimp_marketing": "^3.0.6"
+  },
   "devDependencies": {
     "@azure/functions": "^3.0.0",
     "@types/node": "16.x",

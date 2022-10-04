@@ -12,3 +12,7 @@
 .gradient {
     background: linear-gradient(90deg, white 0%, #89CFF1 100%);
 }
+
+.gradient-text {
+	background: linear-gradient(90deg, black 0%, #89CFF1 100%);
+}

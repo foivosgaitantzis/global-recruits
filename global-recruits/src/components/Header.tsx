@@ -2,22 +2,10 @@ import { useLayoutEffect, useState } from "react";
 import Button from "./common/Button";
 
 export default function Header() {
-    const [invertHeaderColors, setInvertHeaderColors] = useState(false);
     const [displayNavMenu, setDisplayNavMenu] = useState(false);
 
-    useLayoutEffect(() => {
-        const handleScroll = () => {
-            const scrollPos = window.scrollY;
-            setInvertHeaderColors(scrollPos > 10);
-        }
-        window.addEventListener('scroll', handleScroll);
-        return () => {
-            window.removeEventListener('scroll', handleScroll);
-        }
-    }, [])
-
     return (
-        <nav className={"absolute w-full top-0 text-black " + ((invertHeaderColors || displayNavMenu) && "gradient")}>
+        <nav className={"absolute w-full top-0 text-black " + ((displayNavMenu) && "gradient")}>
             <div className="py-4 px-4">
                 <div className="flex lg:hidden" onClick={() => setDisplayNavMenu(!displayNavMenu)}>
                     <button className="focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out">
@@ -49,10 +37,7 @@ export default function Header() {
                     </div>
                 </div>
             </div>
-            {
-
-                <hr className={(!displayNavMenu && "border-0") + " lg:border-t border-black"} />
-            }
+            {/* <hr className={(!displayNavMenu && "border-0") + " lg:border-t border-black"} /> */}
         </nav>
     );
 }
