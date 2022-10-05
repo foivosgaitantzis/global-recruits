@@ -3,8 +3,7 @@
 
 name: Deploy Global Recruits API (Azure Functions)
 
-on:
-  workflow_dispatch
+on: workflow_dispatch
 
 env:
   AZURE_FUNCTIONAPP_PACKAGE_PATH: './global-recruits-api' # set this to the path to your web app project, defaults to the repository root
