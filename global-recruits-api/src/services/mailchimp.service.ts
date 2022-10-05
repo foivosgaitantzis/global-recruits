@@ -28,16 +28,12 @@ export async function createMailChimpContact(emailAddress: string): Promise<Mail
     if (!mailChimpAudienceID) {
         throw new Error("Could not find the Environment Variable: [MAILCHIMP_AUDIENCEID]");
     }
-    try {
-        const response = await mailchimp.lists.addListMember(mailChimpAudienceID, {
-            "email_address": emailAddress,
-            "status": "subscribed"
-        });
-        return <MailChimpContact> {
-            id: response.id,
-            emailAddress: response.email_address
-        }
-    } catch (error: any) {
-        throw new Error(error.response.text);
+    const response = await mailchimp.lists.addListMember(mailChimpAudienceID, {
+        "email_address": emailAddress,
+        "status": "subscribed"
+    });
+    return <MailChimpContact>{
+        id: response.id,
+        emailAddress: response.email_address
     }
 }

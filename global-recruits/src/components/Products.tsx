@@ -4,9 +4,9 @@ import SectionTitle from "./common/SectionTitle";
 export default function Products() {
     return (
         <section id="products" className="bg-[#D9D9D9] bg-opacity-40">
-            <div className="mt-10 py-10 container mx-auto px-12 md:px-4">
+            <div className="mt-24 py-10 container mx-auto px-12 md:px-4">
                 <SectionTitle>Products</SectionTitle>
-                <div className="grid md:grid-cols-2">
+                <div className="flex flex-col sm:flex-row justify-center">
                     <Product type="basic" price="19.99">
                         <li>How to Write a Perfect Email</li>
                         <li>Create A College-Level Highlight Video</li>
@@ -16,7 +16,7 @@ export default function Products() {
                         <li>Ask Division 1 Players Anything!</li>
                     </Product>
                     <Product type="global" price="49.99">
-                        <li>Free Access to The Basic Package</li>
+                        <li className="font-bold">Free Access to The Basic Package</li>
                         <li>Live Q&As With College and Pro Athletes</li>
                         <li>Live Q&As With College Coaches</li>
                         <li>Personalized Basketball And Weight-Lifting Workouts</li>

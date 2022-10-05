@@ -1,7 +1,7 @@
 export default function FeatureCard(props: { icon: "book" | "group" | "trophy", header: string, children: string, }) {
     return (
         <div className="block mx-auto mt-12">
-            <div className="w-12 mx-auto mb-4">
+            <div className="w-10 mx-auto mb-4">
                 {props.icon === "book"
                     ? <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
                         viewBox="0 0 482.204 482.204" xmlSpace="preserve">
@@ -63,7 +63,7 @@ export default function FeatureCard(props: { icon: "book" | "group" | "trophy", 
                             : null
                 }
             </div>
-            <div className="text-lg text-justify">
+            <div className="text-lg text-left">
                 <span className="font-bold">{props.header}</span>
                 <br />
                 {props.children}

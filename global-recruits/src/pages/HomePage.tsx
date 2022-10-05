@@ -1,6 +1,8 @@
 import axios, { AxiosResponse } from "axios";
 import { useEffect, useState } from "react";
+import FAQs from "../components/FAQs";
 import Features from "../components/Features";
+import FilipposGkogkos from "../components/FilipposGkogkos";
 import Header from "../components/Header";
 import Hero from "../components/Hero";
 import Products from "../components/Products";
@@ -18,6 +20,8 @@ export default function HomePage() {
             <Hero />
             <Features />
             <Products />
+            <FilipposGkogkos />
+            <FAQs />
             <br /> 
             <br />
             <br />

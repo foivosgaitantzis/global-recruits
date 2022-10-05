@@ -19,13 +19,6 @@ export default function Hero() {
                     <div className="w-full h-1/3 sm:w-1/2 lg:w-1/3 sm:h-fit flex flex-col items-center justify-center text-center m-auto">
                         <span className="text-2xl font-bold my-4">STAY IN THE LOOP !</span>
                         <MailingListSubscribe />
-                        <div className="mt-5 sm:w-2/3 flex items-center justify-center">
-                            <img className="w-6" src="exclamation.png" />
-                            <div className="px-2 text-sm text-left">
-                                Please enter a valid email address
-                            </div>
-
-                        </div>
                     </div>
                 </div>
             </section>

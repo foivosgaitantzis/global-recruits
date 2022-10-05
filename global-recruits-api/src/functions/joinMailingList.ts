@@ -14,13 +14,13 @@ const joinMailingList: AzureFunction = async function (context: Context, req: Ht
             body: await createMailChimpContact(req.body.email_address)
         }
     } catch (error: any) {
-        context.log.error(error.message);
+        context.log.info(error.response.text);
         context.res = {
             headers: {
                 'Content-Type': 'application/json'
             },
-            status: error.message.status,
-            body: error.message
+            status: error.status ?? "400",
+            body: error.response.text ?? { error: "An Unexpected Error Occured" }
         }
     }
 }
