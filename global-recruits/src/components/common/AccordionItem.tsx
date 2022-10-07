@@ -5,12 +5,12 @@ export default function AccordionItem(props: any) {
     const ref: any = useRef(null);
 
     return (
-        <div className="w-full text-left">
-            <button onClick={() => handleSetIndex(props.index)} className='gradient-text text-white flex w-full justify-between p-4 rounded hover:underline font-bold text-lg rounded-full shadow'>
-                <div className='flex'>
+        <div className="w-full sm:w-3/4 text-left">
+            <button onClick={() => handleSetIndex(props.index)} className='gradient-text text-white flex w-full justify-between p-4 rounded hover:underline font-bold text-lg rounded-xl '>
+                <div className='flex px-4'>
                     <div className='font-bold'>{props.title}</div>
                 </div>
-                <div className="flex items-center justify-center my-auto ml-2">
+                <div className="flex items-center justify-center my-auto px-4">
                     {
                         (props.activeIndex === props.index)
                             ? <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
@@ -22,7 +22,7 @@ export default function AccordionItem(props: any) {
                     }
                 </div>
             </button>
-            <div className="w-full transition-all duration-500 linear overflow-hidden my-4 px-4 text-lg " style={{ maxHeight: props.activeIndex === props.index ? ref.current.clientHeight + "px" : "0" }}>
+            <div className="w-full transition-all duration-500 linear overflow-hidden my-4 px-8 text-lg " style={{ maxHeight: props.activeIndex === props.index ? ref.current.clientHeight + "px" : "0" }}>
                 <div ref={ref}>
                     {props.children}
                 </div>

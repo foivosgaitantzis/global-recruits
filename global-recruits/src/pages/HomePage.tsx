@@ -3,17 +3,12 @@ import { useEffect, useState } from "react";
 import FAQs from "../components/FAQs";
 import Features from "../components/Features";
 import FilipposGkogkos from "../components/FilipposGkogkos";
+import Footer from "../components/Footer";
 import Header from "../components/Header";
 import Hero from "../components/Hero";
 import Products from "../components/Products";
 
 export default function HomePage() {
-    const [content, setContent] = useState("");
-    useEffect(() => {
-        /*axios.get(process.env.REACT_APP_API_BASE_URL + '/HelloWorld?name=GlobalRecruits')
-            .then((response: AxiosResponse) => setContent(response.data))
-            .catch((error: Error) => console.info("Issue Fetching Data: " + error.message));*/
-    }, [])
     return (
         <div className="font-custom">
             <Header />
@@ -22,10 +17,7 @@ export default function HomePage() {
             <Products />
             <FilipposGkogkos />
             <FAQs />
-            <br /> 
-            <br />
-            <br />
-            <br />
+            <Footer />
         </div>
     );
 }

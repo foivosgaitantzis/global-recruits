@@ -13,8 +13,8 @@ export default function FilipposGkogkos() {
                         “Global Recruits is a worldwide community of high-school athletes who are actively pursuing their dreams of becoming college athletes. A team of recruiting experts and former college athletes are available to answer your questions, including teaching you the lessons required to get recruited. Connect with fellow athletes, get access to Division 1 workouts, hear from professional athletes & much more.”
                         </div>
                     </div>
-                    <div className="w-full sm:w-1/4 mx-0 sm:mx-4 flex items-center">
-                        <img src="filip.png" />
+                    <div className="w-full sm:w-1/4 mx-0 sm:mx-4 flex items-center text-center justify-center">
+                        <img src="filip.png" className="w-3/4 sm:w-full lg:w-1/2" />
                     </div>
                 </div>
         </section>
