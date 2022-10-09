@@ -1,5 +1,6 @@
 import Button from "./common/Button";
 import MailingListSubscribe from "./common/MailingListSubscribe";
+import scrollToDiv from "./common/scrollToDiv";
 
 export default function Hero() {
     return (
@@ -14,7 +15,7 @@ export default function Hero() {
                             <br />
                             Become a College <span className="font-bold">Athlete.</span>
                         </div>
-                        <Button text="FIND OUT MORE" fontSizeClass="lg" />
+                        <Button text="FIND OUT MORE" fontSizeClass="lg" onClick={() => scrollToDiv("features")} />
                     </div>
                     <div className="w-full h-1/3 sm:w-1/2 lg:w-1/3 sm:h-fit flex flex-col items-center justify-center text-center m-auto">
                         <span className="text-2xl font-bold my-4">STAY IN THE LOOP !</span>

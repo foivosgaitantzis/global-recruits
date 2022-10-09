@@ -1,5 +1,6 @@
 import { useLayoutEffect, useState } from "react";
 import Button from "./common/Button";
+import scrollToDiv from "./common/scrollToDiv";
 
 export default function Header() {
     const [displayNavMenu, setDisplayNavMenu] = useState(false);
@@ -20,20 +21,20 @@ export default function Header() {
                         {true ?
                             <>
                                 <li className="mr-3">
-                                    <a className="inline-block no-underline hover:underline py-2 px-7" href="#!">About</a>
+                                    <a className="inline-block no-underline hover:underline py-2 px-7" href="#!" onClick={() => scrollToDiv("features")} >About</a>
                                 </li>
                                 <li className="mr-3">
-                                    <a className="inline-block no-underline hover:underline py-2 px-7" href="#!">FAQ</a>
+                                    <a className="inline-block no-underline hover:underline py-2 px-7" href="#!" onClick={() => scrollToDiv("faqs")} >FAQ</a>
                                 </li>
                                 <li className="mr-3">
-                                    <a className="inline-block hover:underline py-2 px-7" href="#!">Team</a>
+                                    <a className="inline-block hover:underline py-2 px-7" href="#!" onClick={() => scrollToDiv("products")} >Team</a>
                                 </li>
                             </>
                             : null
                         }
                     </ul>
                     <div className="mt-4 lg:mt-0"> 
-                        <Button text="GET STARTED" fontSizeClass="lg" />
+                        <Button text="GET STARTED" fontSizeClass="lg" onClick={() => scrollToDiv("products")} />
                     </div>
                 </div>
             </div>
