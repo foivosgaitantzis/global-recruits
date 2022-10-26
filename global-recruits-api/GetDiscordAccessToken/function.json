@@ -8,7 +8,7 @@
       "methods": [
         "post"
       ],
-      "route": "mailinglist"
+      "route": "auth"
     },
     {
       "type": "http",
@@ -16,5 +16,5 @@
       "name": "res"
     }
   ],
-  "scriptFile": "../dist/src/functions/joinMailingList.js"
+  "scriptFile": "../dist/src/functions/getDiscordAccessToken.js"
 }

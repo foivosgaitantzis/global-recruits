@@ -1,6 +1,6 @@
-import Button from "./common/Button";
-import MailingListSubscribe from "./common/MailingListSubscribe";
-import scrollToDiv from "./common/scrollToDiv";
+import Button from "../common/Button";
+import MailingListSubscribe from "../common/MailingListSubscribe";
+import scrollToDiv from "../common/scrollToDiv";
 
 export default function Hero() {
     return (

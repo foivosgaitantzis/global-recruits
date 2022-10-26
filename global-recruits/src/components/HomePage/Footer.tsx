@@ -9,7 +9,7 @@ export default function Footer() {
                         <a href="#">Privacy</a>
                         <a href="#" className="font-bold">Download Discord Now →</a>
                     </div>
-                    <div className="flex flex-col m-auto mt-8 sm:mt-0 w-fit text-center">
+                    <div className="flex flex-col m-auto mt-8 md:mt-0 w-fit text-center">
                         <span className="font-bold">FOLLOW GLOBALRECRUITS</span>
                         <div className="flex justify-center my-2">
                             <div className="rounded-full gradient-text p-3 w-12 mx-4">

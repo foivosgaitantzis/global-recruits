@@ -1,6 +1,6 @@
 import { useState } from "react";
-import AccordionItem from "./common/AccordionItem";
-import SectionTitle from "./common/SectionTitle";
+import AccordionItem from "../common/AccordionItem";
+import SectionTitle from "../common/SectionTitle";
 
 export default function FAQs() {
     const [activeIndex, setActiveIndex] = useState(0);

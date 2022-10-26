@@ -1,10 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
 
-const sleep = (ms: any) => new Promise(
-    resolve => setTimeout(resolve, ms)
-);
-
 export default function MailingListSubscribe() {
     const [emailAddress, setEmailAddress] = useState("");
     const [mailingListStatus, setMailingListStatus] = useState({
@@ -25,8 +21,10 @@ export default function MailingListSubscribe() {
                         isProcessing: true,
                         message: "Adding you to our mailing List"
                     });
-                    await axios.post(apiBaseUrl + "/join-mailing-list", {
-                        email_address: emailAddress
+                    await axios.post(apiBaseUrl + "/mailinglist", {
+                        data: {
+                            emailAddress: emailAddress
+                        }
                     })
                     setMailingListStatus({
                         isError: false,
@@ -42,7 +40,7 @@ export default function MailingListSubscribe() {
                                 isError: true,
                                 isSuccessful: false,
                                 isProcessing: false,
-                                message: "You are already a member"
+                                message: "You are already a member :)"
                             });
                         } else {
                             setMailingListStatus({

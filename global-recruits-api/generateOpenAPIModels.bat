@@ -1,0 +1,1 @@
+npx swagger-typescript-api -p ./src/specification/global-recruits.yaml -o ./ -n ./src/models/GlobalRecruits.ts --axios

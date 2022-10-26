@@ -1,17 +1,22 @@
-import { MailChimpContact } from "../models/MailChimpContact";
+import { generateConfigurationErrorMessage } from "../helpers/errorGenerator";
+import { JoinMailingListRequestBody } from "../models/GlobalRecruits";
 
 var mailchimp = require("@mailchimp/mailchimp_marketing");
 
 const mailChimpAPIKey = process.env["MAILCHIMP_APIKEY"];
 const mailChimpServer = process.env["MAILCHIMP_SERVER"];
-const mailChimpAudienceID = process.env["MAILCHIMP_AUDIENCEID"]; // f0fc08e589
+const mailChimpAudienceID = process.env["MAILCHIMP_AUDIENCEID"];
 
 if (!mailChimpAPIKey) {
-    throw new Error("Could not find the Environment Variable: [MAILCHIMP_APIKEY]");
+    throw new Error(generateConfigurationErrorMessage("MAILCHIMP_APIKEY"));
 }
 
 if (!mailChimpServer) {
-    throw new Error("Could not find the Environment Variable: [MAILCHIMP_SERVER]");
+    throw new Error(generateConfigurationErrorMessage("MAILCHIMP_SERVER"));
+}
+
+if (!mailChimpAudienceID) {
+    throw new Error(generateConfigurationErrorMessage("MAILCHIMP_AUDIENCEID"));
 }
 
 mailchimp.setConfig({
@@ -21,19 +26,11 @@ mailchimp.setConfig({
 
 /**
  * Service Functions that Creates a Subscribed MailChimp Contact
- * @param emailAddress The Email Address of the Contact
- * @returns The Member ID & Email Address of the Contact
+ * @param requestBody The POST /mailinglist Request Body
  */
-export async function createMailChimpContact(emailAddress: string): Promise<MailChimpContact> {
-    if (!mailChimpAudienceID) {
-        throw new Error("Could not find the Environment Variable: [MAILCHIMP_AUDIENCEID]");
-    }
-    const response = await mailchimp.lists.addListMember(mailChimpAudienceID, {
-        "email_address": emailAddress,
+export async function createMailChimpContact(requestBody: JoinMailingListRequestBody) {
+    await mailchimp.lists.addListMember(mailChimpAudienceID, {
+        "email_address": requestBody.data.emailAddress,
         "status": "subscribed"
     });
-    return <MailChimpContact>{
-        id: response.id,
-        emailAddress: response.email_address
-    }
 }

@@ -1,5 +1,5 @@
-import Product from "./common/Product";
-import SectionTitle from "./common/SectionTitle";
+import Product from "./Product";
+import SectionTitle from "../common/SectionTitle";
 
 export default function Products() {
     return (

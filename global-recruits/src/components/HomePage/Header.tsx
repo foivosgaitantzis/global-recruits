@@ -1,6 +1,7 @@
-import { useLayoutEffect, useState } from "react";
-import Button from "./common/Button";
-import scrollToDiv from "./common/scrollToDiv";
+import { useState } from "react";
+import { navigateToDiscordLogin } from "../../util/auth.service";
+import Button from "../common/Button";
+import scrollToDiv from "../common/scrollToDiv";
 
 export default function Header() {
     const [displayNavMenu, setDisplayNavMenu] = useState(false);
@@ -34,7 +35,7 @@ export default function Header() {
                         }
                     </ul>
                     <div className="mt-4 lg:mt-0"> 
-                        <Button text="GET STARTED" fontSizeClass="lg" onClick={() => scrollToDiv("products")} />
+                        <Button text="Login" fontSizeClass="lg" onClick={() => navigateToDiscordLogin()} />
                     </div>
                 </div>
             </div>

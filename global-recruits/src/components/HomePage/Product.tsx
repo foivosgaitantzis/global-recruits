@@ -1,4 +1,4 @@
-import Button from "./Button";
+import Button from "../common/Button";
 
 export default function Product(props: { type: "basic" | "global", children: any, price: string }) {
     return (
@@ -45,14 +45,14 @@ export default function Product(props: { type: "basic" | "global", children: any
                                 <svg className="w-10 mx-2" version="1.1" xmlns="http://www.w3.org/2000/svg" fill="white" xmlnsXlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
                                     viewBox="0 0 54.391 54.391" xmlSpace="preserve">
                                     <g>
-                                        <polygon points="0.285,19.392 24.181,49.057 13.342,19.392 	" />
-                                        <polygon points="15.472,19.392 27.02,50.998 38.795,19.392 	" />
-                                        <polygon points="29.593,49.823 54.105,19.392 40.929,19.392 	" />
-                                        <polygon points="44.755,3.392 29.297,3.392 39.896,16.437 	" />
-                                        <polygon points="38.094,17.392 27.195,3.979 16.297,17.392 	" />
-                                        <polygon points="25.094,3.392 9.625,3.392 14.424,16.525 	" />
-                                        <polygon points="7.959,4.658 0,17.392 12.611,17.392 	" />
-                                        <polygon points="54.391,17.392 46.424,4.645 41.674,17.392 	" />
+                                        <polygon points="0.285,19.392 24.181,49.057 13.342,19.392" />
+                                        <polygon points="15.472,19.392 27.02,50.998 38.795,19.392" />
+                                        <polygon points="29.593,49.823 54.105,19.392 40.929,19.392" />
+                                        <polygon points="44.755,3.392 29.297,3.392 39.896,16.437" />
+                                        <polygon points="38.094,17.392 27.195,3.979 16.297,17.392" />
+                                        <polygon points="25.094,3.392 9.625,3.392 14.424,16.525" />
+                                        <polygon points="7.959,4.658 0,17.392 12.611,17.392" />
+                                        <polygon points="54.391,17.392 46.424,4.645 41.674,17.392" />
                                     </g>
                                 </svg>
                                 <svg className="w-10 mx-2" viewBox="0 0 71 55" fill="white" xmlns="http://www.w3.org/2000/svg">
@@ -77,7 +77,7 @@ export default function Product(props: { type: "basic" | "global", children: any
                 </ul>
             </div>
             <div className="text-center py-8">
-                <Button text="Coming Soon" color={props.type == "basic" ? "gradient" : "white"} />
+                <Button text="Coming Soon" color={props.type === "basic" ? "gradient" : "white"} />
             </div>
         </div>
     );
