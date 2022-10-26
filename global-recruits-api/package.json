@@ -6,7 +6,7 @@
   "private": "true",
   "license": "GlobalRecruits",
   "scripts": {
-    "build": "npm run executeSchemaOperations && tsc",
+    "build": "tsc",
     "watch": "tsc -w",
     "prestart": "npm run build",
     "start": "func start",
