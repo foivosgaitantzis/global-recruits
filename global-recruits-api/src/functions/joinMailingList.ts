@@ -1,5 +1,5 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
-import { JoinMailingListRequestBody, MailChimpErrorResponse, ValidationErrorsResponse } from "../models/GlobalRecruits";
+import { JoinMailingListRequestBody, ErrorResponse, ValidationErrorsResponse } from "../models/GlobalRecruits";
 import { createMailChimpContact } from "../services/mailchimp.service";
 import { getOpenApiPath, getRequestBodySchema, validateSchemaTuples } from "../validation/schemaValidation";
 
@@ -30,7 +30,7 @@ const joinMailingListFunction: AzureFunction = async function (context: Context,
                     'Content-Type': 'application/json'
                 },
                 status: error.status ?? "500",
-                body: <MailChimpErrorResponse>{
+                body: <ErrorResponse>{
                     title: responseData?.title ?? "An Unexpected Error Occured",
                     detail: responseData?.detail,
                     instance: responseData?.instance

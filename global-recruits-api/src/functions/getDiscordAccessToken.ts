@@ -1,6 +1,8 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import axios from "axios";
+import { generateErrorResponse } from "../errors/helper";
 import { GetDiscordAccessTokenResponse, ValidationErrorsResponse } from "../models/GlobalRecruits";
+import { checkMemberInServer, getUserData } from "../services/discordApi.service";
 import { getDiscordAccessToken } from "../services/discordAuth.service";
 import { validateHeaders } from "../validation/getDiscordAccessToken";
 import { getOpenApiPath, getParameterSchemas, validateSchemaTuples } from "../validation/schemaValidation";
@@ -25,9 +27,10 @@ const getDiscordAccessTokenFunction: AzureFunction = async function (context: Co
     }
 
     if (validationErrors.length <= 0) {
-
         try {
             const authorizationTokenResponse: GetDiscordAccessTokenResponse = await getDiscordAccessToken(grantType, req.headers);
+            /*const userData = await getUserData(authorizationTokenResponse.access_token);
+            await checkMemberInServer(userData.id);*/
             context.res = {
                 headers: {
                     'Content-Type': 'application/json'
@@ -36,14 +39,8 @@ const getDiscordAccessTokenFunction: AzureFunction = async function (context: Co
                 body: authorizationTokenResponse
             }
         } catch (error: any) {
-            context.log.info(error.response?.data);
-            context.res = {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                status: 401,
-                body: error.response?.data
-            }
+            context.log.info(error.message);
+            context.res = generateErrorResponse(error);
         }
     } else {
         // Output Validation Errors

@@ -28,13 +28,12 @@ export default function Profile() {
                 setName(response.data.username + ":" + response.data.discriminator);
                 setEmail(response.data.email);
             } catch (error: any) {
-                console.log("Error detected");
+                navigate("/");
             }
         }
 
         executeToken();
-    }, []);
-
+    }, [email, name]);
 
     return (
         <div className="text-xl text-center">

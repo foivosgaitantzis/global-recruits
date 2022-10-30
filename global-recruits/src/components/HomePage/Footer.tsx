@@ -5,9 +5,9 @@ export default function Footer() {
             <div className="container mx-auto my-8">
                 <div className="grid md:grid-cols-2 text-lg">
                     <div className="flex flex-col m-auto text-left w-fit">
-                        <a href="#">Terms & Conditions</a>
-                        <a href="#">Privacy</a>
-                        <a href="#" className="font-bold">Download Discord Now →</a>
+                        <a href="#!">Terms & Conditions</a>
+                        <a href="#!">Privacy</a>
+                        <a href="#!" className="font-bold">Download Discord Now →</a>
                     </div>
                     <div className="flex flex-col m-auto mt-8 md:mt-0 w-fit text-center">
                         <span className="font-bold">FOLLOW GLOBALRECRUITS</span>

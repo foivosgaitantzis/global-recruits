@@ -11,14 +11,13 @@
 
 export type ValidationErrorsResponse = { title: string; detail: string; pointer: string }[];
 
-export interface JoinMailingListRequestBody {
-  data: { emailAddress: string };
+export interface ErrorResponse {
+  title?: string;
+  detail?: string;
 }
 
-export interface MailChimpErrorResponse {
-  title: string;
-  detail: string;
-  instance: string;
+export interface JoinMailingListRequestBody {
+  data: { emailAddress: string };
 }
 
 export interface GetDiscordAccessTokenResponse {
@@ -168,7 +167,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @secure
      */
     joinMailingList: (data: JoinMailingListRequestBody, params: RequestParams = {}) =>
-      this.request<void, ValidationErrorsResponse | MailChimpErrorResponse>({
+      this.request<void, ValidationErrorsResponse | ErrorResponse>({
         path: `/mailinglist`,
         method: "POST",
         body: data,

@@ -10,9 +10,9 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<HomePage />}></Route>
-        <Route path="/dashboard" element={<NotFoundPage />}></Route>
         <Route path="/authenticate" element={<Authenticate />}></Route>
         <Route path="/profile" element={<Profile />}></Route>
+        <Route path="*" element={<NotFoundPage />}></Route>
       </Routes>
     </BrowserRouter>
   )

@@ -1,12 +1,17 @@
 import axios from "axios";
+import { ForbiddenError, UnauthorizedError } from "../errors/CustomErrors";
 import { generateConfigurationErrorMessage } from "../helpers/errorGenerator";
 import { GetDiscordAccessTokenResponse } from "../models/GlobalRecruits";
+import { getGuildMemberData } from "./discordApi.service";
 
-const APIENDPOINT = "https://discord.com/api/v10";
-
+const discordApiUrl = process.env["DISCORD_APIURL"];
 const discordClientId = process.env["DISCORD_CLIENTID"];
 const discordClientSecret = process.env["DISCORD_CLIENTSECRET"];
 const discordRedirectUri = process.env["DISCORD_REDIRECTURI"];
+
+if (!discordApiUrl) {
+    throw new Error(generateConfigurationErrorMessage("DISCORD_APIURL"));
+}
 
 if (!discordClientId) {
     throw new Error(generateConfigurationErrorMessage("DISCORD_CLIENTID"));
@@ -47,17 +52,20 @@ async function getDiscordAccessTokenFromAuthorizationCode(authorizationCode: str
         ["code", authorizationCode],
         ["redirect_uri", discordRedirectUri]
     ]);
-    const response = await axios.post(
-        APIENDPOINT + '/oauth2/token',
-        data.toString(),
-        {
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
+    try {
+        const response = await axios.post(
+            discordApiUrl + '/oauth2/token',
+            data.toString(),
+            {
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                }
             }
-        }
-    );
-
-    return response.data as GetDiscordAccessTokenResponse;
+        );
+        return response.data as GetDiscordAccessTokenResponse;
+    } catch (error: any) {
+        throw new UnauthorizedError(error.message);
+    }
 }
 
 /**
@@ -72,15 +80,49 @@ async function getDiscordAccessTokenFromRefreshToken(refreshToken: string): Prom
         ["grant_type", "refresh_token"],
         ["refresh_token", refreshToken]
     ]);
-    const response = await axios.post(
-        APIENDPOINT + '/oauth2/token',
-        data.toString(),
-        {
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
+    try {
+        const response = await axios.post(
+            discordApiUrl + '/oauth2/token',
+            data.toString(),
+            {
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                }
             }
-        }
-    );
+        );
+        return response.data as GetDiscordAccessTokenResponse;
+    } catch (error: any) {
+        throw new UnauthorizedError(error.message);
+    }
+}
 
-    return response.data as GetDiscordAccessTokenResponse;
+/**
+ * Utility Function that Throws an Error if Member is not in Guild
+ * @param userId The User ID to Check for
+ */
+export async function checkMemberInGuild(userId: string) {
+    try {
+        const data = await getGuildMemberData(userId);
+        console.log(JSON.stringify(data));
+    } catch (error: any) {
+        throw new ForbiddenError("The User is NOT a Guild Member OR Something has went horribly wrong!");
+    }
+}
+
+/**
+ * Utility Function that Throws an Error if Member is not in Role
+ * @param userId The User ID to Check for
+ * @notes To Add a New Role add an Environment Variable: DISCORD_ROLE_{RoleName} = {RoleId}
+ */
+export async function checkMemberInRoles(userId: string, roles: string[]) {
+    try {
+        const data = await getGuildMemberData(userId);
+        roles.forEach((role: string) => {
+            if (!data.roles.find((userRole: string) => userRole === role)) {
+                throw new ForbiddenError("The User does not belong in Role: " + role); 
+            }
+        });
+    } catch (error: any) {
+        throw new ForbiddenError("The User is NOT a Guild Member OR Something has went horribly wrong!");
+    }
 }

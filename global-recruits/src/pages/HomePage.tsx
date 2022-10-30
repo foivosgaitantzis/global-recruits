@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import Page from "../components/common/Page";
 import FAQs from "../components/HomePage/FAQs";
 import Features from "../components/HomePage/Features";
 import FilipposGkogkos from "../components/HomePage/FilipposGkogkos";
@@ -8,14 +10,16 @@ import Products from "../components/HomePage/Products";
 
 export default function HomePage() {
     return (
-        <div className="font-custom">
-            <Header />
-            <Hero />
-            <Features />
-            <Products />
-            <FilipposGkogkos />
-            <FAQs />
-            <Footer />
-        </div>
+        <Page>
+            <div className="font-custom">
+                <Header />
+                <Hero />
+                <Features />
+                <Products />
+                <FilipposGkogkos />
+                <FAQs />
+                <Footer />
+            </div>
+        </Page>
     );
 }

@@ -64,7 +64,8 @@ paths:
           $ref: '#/components/responses/ValidationErrorsResponse'
         401:
           description: Invalid Authorization Code OR Refresh Token Provided
-
+        403: 
+          description: Not a Member of the Global Recruits Guild
 
 components:
   requestBodies:
@@ -96,7 +97,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/MailChimpErrorResponse'
+            $ref: '#/components/schemas/ErrorResponse'
           examples:
             MailChimpError:
               $ref: '#/components/examples/MailChimpErrorResponse'
@@ -133,6 +134,15 @@ components:
           pointer:
             type: string
 
+    ErrorResponse:
+      title: ErrorResponse
+      type: object
+      properties:
+        title:
+          type: string
+        detail: 
+          type: string
+
     # POST /mailinglist
     JoinMailingListRequestBody:
       title: JoinMailingListRequestBody
@@ -148,20 +158,6 @@ components:
             emailAddress:
               type: string
               format: email
-    MailChimpErrorResponse:
-      title: MailChimpErrorResponse
-      type: object
-      required: 
-        - title
-        - detail
-        - instance
-      properties:
-        title:
-          type: string
-        detail: 
-          type: string
-        instance:
-          type: string
     
     # POST /auth
     GetDiscordAccessTokenResponse:
@@ -205,8 +201,7 @@ components:
     MailChimpErrorResponse:
       value: {
         title: "Member Exists",
-        detail: "contact@globalrecruits.net is already a list member. Use PUT to insert or update list members.",
-        instance: "f70b8942-15f6-df09-b7d7-6dcfa5ae3ff7"
+        detail: "contact@globalrecruits.net is already a list member. Use PUT to insert or update list members."
       }
     
     # POST /auth

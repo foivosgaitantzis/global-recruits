@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { nanoid } from 'nanoid';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 export interface GetDiscordAccessToken {
     access_token: string,
@@ -14,13 +15,20 @@ const discordApiUrl = process.env.REACT_APP_DISCORD_API_URL;
 const discordClientId = process.env.REACT_APP_DISCORD_CLIENTID;
 const discordRedirectUri = process.env.REACT_APP_DISCORD_REDIRECTURI;
 
-export async function navigateToDiscordLogin(route?: string) {
+/**
+ * Navigate to the Discord Authentication Page
+ */
+export async function navigateToDiscordLogin() {
     if (!discordClientId || !discordApiUrl || !discordRedirectUri) {
         return;
     }
+    const path = !window.location.pathname || window.location.pathname === "/"
+        ? "/profile"
+        : window.location.pathname;
+
     const stateParameter = nanoid();
-    localStorage.setItem(stateParameter, route ?? "/profile");
-    
+    localStorage.setItem(stateParameter, path);
+
     const query = {
         client_id: discordClientId,
         redirect_uri: discordRedirectUri,
@@ -31,15 +39,19 @@ export async function navigateToDiscordLogin(route?: string) {
 
     const encodedQueryString = new URLSearchParams(query).toString();
     window.location.href = discordApiUrl + "/oauth2/authorize?" + encodedQueryString;
-}  
+}
 
-export async function setTokenDetailsFromSource(code: string) {
+/**
+ * Utility Function that Gets Bearer Token from API
+ * @param code The code Query Parameter in the Callback URL
+ */
+export async function getTokenDetailsFromSource(code: string) {
     if (!apiBaseUrl) {
         return;
     }
     try {
         const response = await axios.post(
-            apiBaseUrl + "/auth?grantType=authorization_code", 
+            apiBaseUrl + "/auth?grantType=authorization_code",
             undefined,
             {
                 headers: {
@@ -49,6 +61,6 @@ export async function setTokenDetailsFromSource(code: string) {
         );
         localStorage.setItem("DiscordTokenDetails", JSON.stringify(response.data));
     } catch (error: any) {
-        console.log("PROBLEM");
+        
     }
 }

@@ -11,7 +11,7 @@ export default function NotFoundPage() {
                     <span className="text-3xl font-bold mt-6 mb-4">404 - PAGE NOT FOUND</span>
                     <span className="text-xl font-bold">The page you are looking for might have been had its name changed or is temporarily unavailable</span>
                     <span className="text-xl font-bold mb-4"></span>
-                    <Button color="black" text="GO TO HOMEPAGE" fontSizeClass="lg" onClick={() => navigate("/")} />
+                    <Button color="white" text="GO TO HOMEPAGE" fontSizeClass="lg" onClick={() => navigate("/")} />
                 </div>
             </section>
         </div>
