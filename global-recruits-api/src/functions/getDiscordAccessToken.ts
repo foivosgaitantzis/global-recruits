@@ -2,7 +2,7 @@ import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import axios from "axios";
 import { generateErrorResponse } from "../errors/helper";
 import { GetDiscordAccessTokenResponse, ValidationErrorsResponse } from "../models/GlobalRecruits";
-import { checkMemberInServer, getUserData } from "../services/discordApi.service";
+import { getUserData } from "../services/discordApi.service";
 import { getDiscordAccessToken } from "../services/discordAuth.service";
 import { validateHeaders } from "../validation/getDiscordAccessToken";
 import { getOpenApiPath, getParameterSchemas, validateSchemaTuples } from "../validation/schemaValidation";
