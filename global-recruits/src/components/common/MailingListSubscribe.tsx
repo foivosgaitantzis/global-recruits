@@ -37,8 +37,8 @@ export default function MailingListSubscribe() {
                         const errorData: any = error.response?.data;
                         if (errorData.title === "Member Exists") {
                             setMailingListStatus({
-                                isError: true,
-                                isSuccessful: false,
+                                isError: false,
+                                isSuccessful: true,
                                 isProcessing: false,
                                 message: "You are already a member :)"
                             });

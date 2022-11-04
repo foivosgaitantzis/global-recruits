@@ -11,7 +11,7 @@
     "prestart": "npm run build",
     "start": "func start",
     "test": "echo \"No tests yet...\"",
-    "executeSchemaOperations": "generateOpenAPIModels && node ./src/specification/convertSchema.js"
+    "schema": "generateOpenAPIModels && node ./src/specification/convertSchema.js"
   },
   "dependencies": {
     "@apidevtools/json-schema-ref-parser": "^9.0.9",
@@ -20,7 +20,8 @@
     "ajv": "^8.11.0",
     "ajv-formats": "^2.1.1",
     "axios": "^0.21.4",
-    "fs": "^0.0.1-security"
+    "fs": "^0.0.1-security",
+    "stripe": "^10.15.0"
   },
   "devDependencies": {
     "@azure/functions": "^3.0.0",

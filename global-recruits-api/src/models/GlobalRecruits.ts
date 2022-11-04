@@ -16,6 +16,11 @@ export interface ErrorResponse {
   detail?: string;
 }
 
+export enum ProductTypeEnum {
+  Gold = "Gold",
+  Basic = "Basic",
+}
+
 export interface JoinMailingListRequestBody {
   data: { emailAddress: string };
 }
@@ -26,6 +31,26 @@ export interface GetDiscordAccessTokenResponse {
   expires_in: number;
   refresh_token: string;
   scope: string;
+}
+
+export interface CreateStripeCustomerRequestBody {
+  data: { firstName: string; lastName: string; emailAddress: string };
+}
+
+export interface GetMemberDataResponse {
+  data: {
+    stripeCustomerId: string;
+    discordUserId: string;
+    firstName: string;
+    lastName: string;
+    paymentMethod?: { paymentMethodId: string; cardBrand: string; last4: string; expMonth: number; expYear: number };
+    subscription?: { subscriptionId: string; productType: ProductTypeEnum };
+    guildRoles?: string[];
+  };
+}
+
+export interface CreateStripeSubscriptionRequestBody {
+  data: { productType: ProductTypeEnum };
 }
 
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, ResponseType } from "axios";
@@ -190,6 +215,100 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/auth`,
         method: "POST",
         query: query,
+        secure: true,
+        ...params,
+      }),
+  };
+  member = {
+    /**
+     * @description Creates a New Customer on Stripe - Links with Discord Account
+     *
+     * @tags stripe, discordAuth
+     * @name CreateStripeCustomer
+     * @summary Creates a New Customer on Stripe
+     * @request POST:/member
+     * @secure
+     */
+    createStripeCustomer: (data: CreateStripeCustomerRequestBody, params: RequestParams = {}) =>
+      this.request<void, ValidationErrorsResponse | void | ErrorResponse>({
+        path: `/member`,
+        method: "POST",
+        body: data,
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description Gets Member Data from Both Stripe & Discord
+     *
+     * @tags stripe, discordAuth
+     * @name GetMemberData
+     * @summary Gets Member data
+     * @request GET:/member
+     * @secure
+     */
+    getMemberData: (
+      query?: { expand?: ("paymentMethod" | "subscription" | "guildRoles")[] },
+      params: RequestParams = {},
+    ) =>
+      this.request<GetMemberDataResponse, ValidationErrorsResponse | void | ErrorResponse>({
+        path: `/member`,
+        method: "GET",
+        query: query,
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description Gets the Member's Avatar from Discord
+     *
+     * @tags discordAuth
+     * @name GetMemberAvatar
+     * @summary Gets Member Avatar
+     * @request GET:/member/avatar
+     * @secure
+     */
+    getMemberAvatar: (params: RequestParams = {}) =>
+      this.request<File, void | ErrorResponse>({
+        path: `/member/avatar`,
+        method: "GET",
+        secure: true,
+        format: "blob",
+        ...params,
+      }),
+  };
+  subscription = {
+    /**
+     * @description Creates a New Stripe Subscription for Customer using Stripe Price identifier
+     *
+     * @tags stripe, discordAuth
+     * @name CreateStripeSubscription
+     * @summary Creates a New Stripe Subscription
+     * @request POST:/subscription
+     * @secure
+     */
+    createStripeSubscription: (data: CreateStripeSubscriptionRequestBody, params: RequestParams = {}) =>
+      this.request<void, ValidationErrorsResponse | void | ErrorResponse>({
+        path: `/subscription`,
+        method: "POST",
+        body: data,
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description Cancels an Existing Stripe Subscription
+     *
+     * @tags stripe, discordAuth
+     * @name CancelStripeSubscription
+     * @summary Cancels Stripe Subscription
+     * @request DELETE:/subscription
+     * @secure
+     */
+    cancelStripeSubscription: (params: RequestParams = {}) =>
+      this.request<void, void | ErrorResponse>({
+        path: `/subscription`,
+        method: "DELETE",
         secure: true,
         ...params,
       }),

@@ -21,16 +21,14 @@ const getDiscordAccessTokenFunction: AzureFunction = async function (context: Co
 
     const grantType = queryParameters.grantType as "authorization_code" | "refresh_token";
 
-    // Additional Header Validation
-    if (validationErrors.length === 0) {;
-        validationErrors.push(...validateHeaders(grantType, req.headers));
-    }
+    validationErrors.push(...validateHeaders(grantType, req.headers));
 
     if (validationErrors.length <= 0) {
         try {
             const authorizationTokenResponse: GetDiscordAccessTokenResponse = await getDiscordAccessToken(grantType, req.headers);
             /*const userData = await getUserData(authorizationTokenResponse.access_token);
             await checkMemberInServer(userData.id);*/
+            context.log.info("BEARER TOKEN: " + authorizationTokenResponse.access_token);
             context.res = {
                 headers: {
                     'Content-Type': 'application/json'

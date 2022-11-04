@@ -17,9 +17,6 @@ const joinMailingListFunction: AzureFunction = async function (context: Context,
         try {
             await createMailChimpContact(requestBody);
             context.res = {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
                 status: 201
             }
         } catch (error: any) {

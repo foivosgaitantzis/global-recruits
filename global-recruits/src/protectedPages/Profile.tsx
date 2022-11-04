@@ -1,45 +1,46 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { GetDiscordAccessToken, navigateToDiscordLogin } from "../util/auth.service";
+import LoadingPage from "../pages/LoadingPage";
+import { get } from "../util/axios.service";
 
 const discordApiUrl = process.env.REACT_APP_DISCORD_API_URL;
 
 export default function Profile() {
-    const [name, setName] = useState("");
-    const [email, setEmail] = useState("");
+    const [memberData, setMemberData] = useState<any>();
+    const [avatar, setAvatar] = useState<any>();
+    const [loaded, setLoaded] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
-        async function executeToken() {
-            const discordTokenDetailsText = localStorage.getItem("DiscordTokenDetails");
-            if (!discordTokenDetailsText) {
-                navigate("/");
-                return;
-            }
-            const accessTokenStorage: GetDiscordAccessToken = JSON.parse(discordTokenDetailsText)
-
+        async function getMemberData() {
             try {
-                const response = await axios.get(discordApiUrl + "/users/@me", {
-                    headers: {
-                        Authorization: "Bearer " + accessTokenStorage.access_token
+                const response = await get(undefined, "/member");
+                const avatarResponse = await get(undefined, "/member/avatar", undefined, "blob");
+                if (response) {
+                    setMemberData(response.data.data);
+                    if (avatarResponse) {
+                        const imageObjectUrl = URL.createObjectURL(avatarResponse.data);
+                        setAvatar(imageObjectUrl);
                     }
-                });
-                setName(response.data.username + ":" + response.data.discriminator);
-                setEmail(response.data.email);
+                    setLoaded(true);
+                } else {
+                    navigate("/");
+                }
             } catch (error: any) {
                 navigate("/");
             }
         }
 
-        executeToken();
-    }, [email, name]);
+        getMemberData();
+    }, []);
 
     return (
-        <div className="text-xl text-center">
-            Hello <span className="font-bold">{name}</span>!
-            <br />
-            Your Email: {email}
+        loaded
+        ? <div className="text-xl text-center flex flex-col items-center justify-center">
+            <div className="my-4">Hello <span className="font-bold">{memberData?.firstName + " " + memberData?.lastName}</span>!</div>
+            <div><img src={avatar} alt="icons" /></div>
         </div>
+        : <LoadingPage />
     );
 }

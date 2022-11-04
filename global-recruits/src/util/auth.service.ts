@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { nanoid } from 'nanoid';
-import { useNavigate, useSearchParams } from 'react-router-dom';
 
 export interface GetDiscordAccessToken {
     access_token: string,
@@ -33,7 +32,7 @@ export async function navigateToDiscordLogin() {
         client_id: discordClientId,
         redirect_uri: discordRedirectUri,
         response_type: "code",
-        scope: "email guilds guilds.join",
+        scope: "identify email guilds guilds.join",
         state: stateParameter
     }
 
@@ -45,7 +44,7 @@ export async function navigateToDiscordLogin() {
  * Utility Function that Gets Bearer Token from API
  * @param code The code Query Parameter in the Callback URL
  */
-export async function getTokenDetailsFromSource(code: string) {
+export async function getTokenDetailsFromSource(code: string): Promise<string | undefined> {
     if (!apiBaseUrl) {
         return;
     }
@@ -59,8 +58,45 @@ export async function getTokenDetailsFromSource(code: string) {
                 }
             }
         );
-        localStorage.setItem("DiscordTokenDetails", JSON.stringify(response.data));
+        const discordTokenDetails: GetDiscordAccessToken = response.data;
+        if (discordTokenDetails) {
+            localStorage.setItem("DiscordTokenDetails", JSON.stringify(discordTokenDetails));
+        }
+        return discordTokenDetails?.access_token;
     } catch (error: any) {
-        
+        // Do Nothing
+        return;
+    }
+}
+
+/**
+ * Utility Function that Refreshes Bearer Token from API
+ */
+export async function getRefreshTokenDetailsFromSource() {
+    const discordTokenDetailsText = localStorage.getItem("DiscordTokenDetails");
+    if (!apiBaseUrl || !discordTokenDetailsText) {
+        return;
+    }
+    const discordTokenDetails: GetDiscordAccessToken = JSON.parse(discordTokenDetailsText);
+    try {
+        const response = await axios.post(
+            apiBaseUrl + "/auth?grantType=refresh_token",
+            undefined,
+            {
+                headers: {
+                    "X-Refresh-Token": discordTokenDetails.refresh_token
+                }
+            }
+        );
+        console.log("Previous Token: " + discordTokenDetails.access_token);
+        const freshDiscordTokenDetails: GetDiscordAccessToken = response.data;
+        if (freshDiscordTokenDetails) {
+            localStorage.setItem("DiscordTokenDetails", JSON.stringify(freshDiscordTokenDetails));                      
+        }
+        console.log("New Token: " + freshDiscordTokenDetails.access_token);
+        return freshDiscordTokenDetails?.access_token;
+    } catch (error: any) {
+        // Do Nothing
+        return;
     }
 }

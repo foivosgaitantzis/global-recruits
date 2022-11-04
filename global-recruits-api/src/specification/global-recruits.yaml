@@ -1,38 +1,40 @@
-openapi: '3.0.0'
+openapi: "3.0.0"
 info:
-  version: '1.0.0'
+  version: "1.0.0"
   title: Global Recruits API
   description: The Global Recruits API Specification
 servers:
   - url: https://api.globalrecruits.net
     description: Production Environment
-tags: 
+  - url: http://localhost:7071
+    description: Development Environment
+tags:
   - name: mailingList
   - name: discordAuth
 security:
-  - BearerAuth: [] 
+  - BearerAuth: []
 
 paths:
   /mailinglist:
     post:
       security: [] # No Auth Required
-      tags: [ mailingList ]
+      tags: [mailingList]
       operationId: JoinMailingList
-      summary: Adds User to Mailing List 
+      summary: Adds User to Mailing List
       description: Adds an Email Address to the MailChimp Mailing List
-      requestBody: 
-        $ref: '#/components/requestBodies/JoinMailingListRequestBody'
+      requestBody:
+        $ref: "#/components/requestBodies/JoinMailingListRequestBody"
       responses:
         201:
           description: Successfully Joined Mailing List
         400:
-          $ref: '#/components/responses/ValidationErrorsResponse'
+          $ref: "#/components/responses/ValidationErrorsResponse"
         500:
-          $ref: '#/components/responses/MailChimpErrorResponse'
+          $ref: "#/components/responses/MailChimpErrorResponse"
   /auth:
     post:
       security: [] # No Auth Required
-      tags: [ discordAuth ]
+      tags: [discordAuth]
       operationId: GetDiscordAccessToken
       summary: Retrieves Discord Access Token
       description: Authentication for Discord - Code Exchange/Refresh Token Renewal
@@ -47,7 +49,7 @@ paths:
           name: X-Refresh-Token
           schema:
             type: string
-            example: 
+            example:
               value: "D43f5y0ahjqew82jZ4NViEr2YafMKhue"
         - in: query
           name: grantType
@@ -59,26 +61,151 @@ paths:
               value: "authorization_code"
       responses:
         201:
-          $ref: '#/components/responses/GetDiscordAccessTokenResponse'
+          $ref: "#/components/responses/GetDiscordAccessTokenResponse"
         400:
-          $ref: '#/components/responses/ValidationErrorsResponse'
+          $ref: "#/components/responses/ValidationErrorsResponse"
         401:
           description: Invalid Authorization Code OR Refresh Token Provided
-        403: 
-          description: Not a Member of the Global Recruits Guild
+  /member:
+    post:
+      tags: [stripe, discordAuth]
+      operationId: CreateStripeCustomer
+      summary: Creates a New Customer on Stripe
+      description: Creates a New Customer on Stripe - Links with Discord Account
+      requestBody:
+        $ref: "#/components/requestBodies/CreateStripeCustomerRequestBody"
+      responses:
+        201:
+          description: Successfully Created a New Stripe Customer
+        400:
+          $ref: "#/components/responses/ValidationErrorsResponse"
+        409:
+          $ref: "#/components/responses/MemberAlreadyExistsErrorResponse"
+        401:
+          description: Invalid Discord OAuth Bearer Token Provided
+        500: 
+          $ref: "#/components/responses/InternalServerErrorResponse"    
+    get: 
+      tags: [stripe, discordAuth]
+      operationId: GetMemberData
+      summary: Gets Member data
+      description: Gets Member Data from Both Stripe & Discord
+      parameters:
+        - in: query
+          name: expand
+          schema:
+            type: array
+            items:
+              type: string
+              enum: 
+                - paymentMethod
+                - subscription
+                - guildRoles
+            example:
+              value: "payment_method,subscription"
+      responses: 
+        200:
+          $ref: "#/components/responses/GetMemberDataResponse"
+        400:
+          $ref: "#/components/responses/ValidationErrorsResponse"
+        401:
+          description: Invalid Discord OAuth Bearer Token Provided
+        404: 
+          description: Member NOT Found
+        500: 
+          $ref: "#/components/responses/InternalServerErrorResponse"   
+  /member/avatar:
+    get: 
+      tags: [discordAuth]
+      operationId: GetMemberAvatar
+      summary: Gets Member Avatar 
+      description: Gets the Member's Avatar from Discord
+      responses:
+        200:
+          description: Gets Member Avatar from Discord
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        401:
+          description: Invalid Discord OAuth Bearer Token Provided
+        500: 
+          $ref: "#/components/responses/InternalServerErrorResponse"   
+  /subscription:
+    post:
+      tags: [stripe, discordAuth]
+      operationId: CreateStripeSubscription
+      summary: Creates a New Stripe Subscription
+      description: Creates a New Stripe Subscription for Customer using Stripe Price identifier
+      requestBody:
+        $ref: "#/components/requestBodies/CreateStripeSubscriptionRequestBody"
+      responses:
+        201:
+          description: Successfully Created a New Stripe Subscription
+          headers:
+            X-Client-Secret:
+              schema:
+                type: string
+                example: 
+                  value: "pi_1FrQwrBnheRwo4ja2X6HjbH7_secret_2t2eCpfTmVuFI9fh8i6wt7dyn"
+        400:
+          $ref: "#/components/responses/ValidationErrorsResponse"
+        # Maybe a Subscription ALREADY exists for this Price/Product Code - ?
+        401:
+          description: Invalid Discord OAuth Bearer Token Provided
+        500: 
+          $ref: "#/components/responses/InternalServerErrorResponse"   
+    delete:
+      tags: [stripe, discordAuth]
+      operationId: CancelStripeSubscription
+      summary: Cancels Stripe Subscription
+      description: Cancels an Existing Stripe Subscription
+      responses:
+        200:
+          description: "Successfully Cancelled the Stripe Subscription"
+        404: 
+          description: "Customer doesn't have a Subscription"
+        401:
+          description: Invalid Discord OAuth Bearer Token Provided
+        500: 
+          $ref: "#/components/responses/InternalServerErrorResponse"   
+
 
 components:
   requestBodies:
     # POST /mailinglist
-    JoinMailingListRequestBody: 
+    JoinMailingListRequestBody:
       required: true
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/JoinMailingListRequestBody'
+            $ref: "#/components/schemas/JoinMailingListRequestBody"
           examples:
             JoinMailingList:
-              $ref: '#/components/examples/JoinMailingListRequestBody'
+              $ref: "#/components/examples/JoinMailingListRequestBody"
+    
+    # POST /member
+    CreateStripeCustomerRequestBody:
+      required: true
+      content: 
+        application/json:
+          schema: 
+            $ref: "#/components/schemas/CreateStripeCustomerRequestBody"
+          examples:
+            CreateStripeCustomer:
+              $ref: "#/components/examples/CreateStripeCustomerRequestBody"
+    
+    # POST /subscription
+    CreateStripeSubscriptionRequestBody:
+      required: true
+      content: 
+        application/json:
+          schema: 
+            $ref: "#/components/schemas/CreateStripeSubscriptionRequestBody"
+          examples:
+            CreateStripeSubscription:
+              $ref: "#/components/examples/CreateStripeSubscriptionRequestBody"
 
   responses:
     ValidationErrorsResponse:
@@ -86,10 +213,20 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ValidationErrorsResponse'
+            $ref: "#/components/schemas/ValidationErrorsResponse"
           examples:
             ValidationErrors:
-              $ref: '#/components/examples/ValidationErrorsResponse'
+              $ref: "#/components/examples/ValidationErrorsResponse"
+
+    InternalServerErrorResponse:
+      description: Generic Underlying Service Error Response
+      content:
+        application/json:
+          schema: 
+            $ref: "#/components/schemas/ErrorResponse"
+          examples: 
+            InternalServerError:
+              $ref: "#/components/examples/InternalServerErrorResponse"
 
     # POST /mailinglist
     MailChimpErrorResponse:
@@ -97,39 +234,60 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponse'
+            $ref: "#/components/schemas/ErrorResponse"
           examples:
             MailChimpError:
-              $ref: '#/components/examples/MailChimpErrorResponse'
-    
+              $ref: "#/components/examples/MailChimpErrorResponse"
+
     # POST /auth
-    GetDiscordAccessTokenResponse: 
+    GetDiscordAccessTokenResponse:
       description: Sucessfully Granted a New Access Token
-      content: 
+      content:
         application/json:
           schema:
-            $ref: '#/components/schemas/GetDiscordAccessTokenResponse'
+            $ref: "#/components/schemas/GetDiscordAccessTokenResponse"
           examples:
             DiscordAccessToken:
-              $ref: '#/components/examples/GetDiscordAccessTokenResponse'
-            
-            
+              $ref: "#/components/examples/GetDiscordAccessTokenResponse"
+    
+    # POST /member
+    MemberAlreadyExistsErrorResponse:
+      description: A Member Already Exists Error Response
+      content:
+        application/json:
+          schema: 
+            $ref: "#/components/schemas/ErrorResponse"
+          examples: 
+            InternalServerError:
+              $ref: "#/components/examples/MemberAlreadyExistsErrorResponse"
+
+    # GET /member
+    GetMemberDataResponse:
+      description: The GET Member Data Response
+      content:
+        application/json:
+          schema: 
+            $ref: "#/components/schemas/GetMemberDataResponse"
+          examples:
+            GetMemberDataResponse:
+              $ref: "#/components/examples/GetMemberDataResponse"
+
   schemas:
     ValidationErrorsResponse:
       title: ValidationErrorsResponse
       type: array
       minItems: 1
-      items: 
+      items:
         type: object
         title: ValidationError
-        required: 
+        required:
           - title
           - detail
           - pointer
         properties:
           title:
             type: string
-          detail: 
+          detail:
             type: string
           pointer:
             type: string
@@ -140,30 +298,37 @@ components:
       properties:
         title:
           type: string
-        detail: 
+        detail:
           type: string
+
+    ProductTypeEnum:
+      title: ProductTypeEnum
+      type: string
+      enum: 
+        - Gold
+        - Basic
 
     # POST /mailinglist
     JoinMailingListRequestBody:
       title: JoinMailingListRequestBody
       type: object
-      required: 
+      required:
         - data
       properties:
-        data: 
+        data:
           type: object
           required:
             - emailAddress
-          properties: 
+          properties:
             emailAddress:
               type: string
               format: email
-    
+
     # POST /auth
     GetDiscordAccessTokenResponse:
       title: GetDiscordAccessTokenResponse
       type: object
-      required: 
+      required:
         - access_token
         - token_type
         - expires_in
@@ -180,39 +345,201 @@ components:
           type: string
         scope:
           type: string
+    
+    # POST /member
+    CreateStripeCustomerRequestBody:
+      title: CreateStripeCustomerRequestBody
+      type: object
+      required: 
+        - data
+      properties: 
+        data:
+          type: object
+          required:
+            - firstName
+            - lastName
+            - emailAddress
+          properties:
+            firstName:
+              type: string
+              maxLength: 26
+              minLength: 2
+              pattern: ^[a-zA-Z-'\s]+$
+            lastName: 
+              type: string
+              maxLength: 26
+              minLength: 2
+              pattern: ^[a-zA-Z-'\s]+$
+            emailAddress:
+              type: string
+              format: email
 
-  examples: 
+    # GET /member
+    GetMemberDataResponse:
+      title: GetMemberDataResponse
+      type: object
+      required: 
+        - data
+      properties:
+        data: 
+          type: object
+          required: 
+            - stripeCustomerId
+            - discordUserId
+            - firstName
+            - lastName
+          properties:
+            stripeCustomerId: 
+              type: string
+            discordUserId: 
+              type: string
+            firstName:
+              type: string
+            lastName: 
+              type: string
+            paymentMethod:
+              type: object
+              required: 
+                - paymentMethodId
+                - cardBrand
+                - last4
+                - expMonth
+                - expYear
+              properties:
+                paymentMethodId:
+                  type: string
+                cardBrand:
+                  type: string
+                last4: 
+                  type: string
+                expMonth:
+                  type: number
+                expYear:
+                  type: number
+            subscription: 
+              type: object
+              required:
+                - subscriptionId
+                - productType
+              properties:
+                subscriptionId:
+                  type: string
+                productType:
+                  $ref: "#/components/schemas/ProductTypeEnum"
+            guildRoles: 
+              type: array
+              items: 
+                type: string
+    
+    # POST /subscription
+    CreateStripeSubscriptionRequestBody:
+      title: CreateStripeCustomerRequestBody
+      type: object
+      required: 
+        - data
+      properties:
+        data:
+          type: object
+          required: 
+            - productType
+          properties:
+            productType:
+              $ref: "#/components/schemas/ProductTypeEnum"
+
+  examples:
     ValidationErrorsResponse:
-      value: [
+      value:
+        [
+          {
+            title: "VALIDATION_ERROR",
+            detail: "must have required property 'emailAddress'",
+            pointer: "/data",
+          },
+        ]
+    InternalServerErrorResponse:
+      value:
         {
-          title: "VALIDATION_ERROR",
-          detail: "must have required property 'emailAddress'",
-          pointer: "/data"
+          title: "Internal Server Error"
         }
-      ]
 
     # POST /mailinglist
     JoinMailingListRequestBody:
-      value: {
-        data: {
-          emailAddress: "contact@globalrecruits.net"
+      value: 
+        { 
+          data: { 
+            emailAddress: "contact@globalrecruits.net" 
+          }
         }
-      }
     MailChimpErrorResponse:
-      value: {
-        title: "Member Exists",
-        detail: "contact@globalrecruits.net is already a list member. Use PUT to insert or update list members."
-      }
-    
+      value:
+        {
+          title: "Member Exists",
+          detail: "contact@globalrecruits.net is already a list member. Use PUT to insert or update list members."
+        }
+
     # POST /auth
     GetDiscordAccessTokenResponse:
-      value: {
-        access_token: "6qrZcUqja7812RVdnEKjpzOL4CvHBFG",
-        token_type: "Bearer",
-        expires_in: 604800,
-        refresh_token: "D43f5y0ahjqew82jZ4NViEr2YafMKhue",
-        scope: "identify"
-      }
+      value:
+        {
+          access_token: "6qrZcUqja7812RVdnEKjpzOL4CvHBFG",
+          token_type: "Bearer",
+          expires_in: 604800,
+          refresh_token: "D43f5y0ahjqew82jZ4NViEr2YafMKhue",
+          scope: "identify",
+        }
+
+    # POST /member
+    CreateStripeCustomerRequestBody:
+      value: 
+        {
+          data: {
+            firstName: "GlobalRecruits",
+            lastName: "Administrator",
+            emailAddress: "contact@globalrecruits.net"
+          }
+        }
+    MemberAlreadyExistsErrorResponse:
+      value: 
+        {
+          title: "Member Already Exists"
+        }
+    
+    # GET /member
+    GetMemberDataResponse:
+      value: 
+        {
+          data: {
+            stripeCustomerId: "cus_Mj6xAbVHt2Go2C",
+            discordUserId: "80351110224678912",
+            firstName: "GlobalRecruits",
+            lastName: "Administrator",
+            paymentMethod: {
+              paymentMethodId: "pm_1LzetoDVSlvuFCm7c25PMXv9",
+              cardBrand: "visa",
+              last4: "4242",
+              expMonth: 8,
+              expYear: 2023
+            },
+            subscription: {
+              subscriptionId: "sub_1LzewpBnheRwo4ja4ux3ted6",
+              productType: "Gold"
+            },
+            guildRoles: [
+              'Administrator',
+              'Gold Package',
+              'Basketball'
+            ]
+          }
+        }
+    
+    # POST /subscription
+    CreateStripeSubscriptionRequestBody:
+      value: 
+        {
+          data: {
+            productType: "Gold"
+          }
+        }
 
   securitySchemes:
     BearerAuth:
