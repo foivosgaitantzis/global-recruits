@@ -4,7 +4,7 @@ import Button from "../components/common/Button";
 export default function NotFoundPage() {
     const navigate = useNavigate();
     return (
-        <div className="gradient">
+        <div className="gradient-noimg">
             <section className="h-screen font-custom text-black mx-4 sm:mx-0">
                 <div className="w-full md:w-1/4 m-auto h-full flex flex-col items-center justify-center text-center">
                     <span className="text-8xl font-bold">Oops!</span>

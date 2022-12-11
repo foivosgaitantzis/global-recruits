@@ -1,6 +1,6 @@
 export default function LoadingPage() {
     return (
-        <div className="gradient">
+        <div className="gradient-noimg">
             <section className="h-screen font-custom text-black mx-4 sm:mx-0">
                 <div className="w-full md:w-1/4 m-auto h-full flex flex-col items-center justify-center text-center">
                     <div className="loader ease-linear rounded-full border-4 border-t-4 border-white h-16 w-16 mb-4"></div>

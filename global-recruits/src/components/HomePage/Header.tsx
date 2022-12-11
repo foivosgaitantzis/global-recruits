@@ -1,13 +1,14 @@
 import { useState } from "react";
-import { navigateToDiscordLogin } from "../../util/auth.service";
+import { useNavigate } from "react-router-dom";
 import Button from "../common/Button";
 import scrollToDiv from "../common/scrollToDiv";
 
-export default function Header() {
+export default function Header(props: any) {
+    const navigate = useNavigate();
     const [displayNavMenu, setDisplayNavMenu] = useState(false);
 
     return (
-        <nav className={"absolute w-full top-0 text-black " + ((displayNavMenu) && "gradient border-b border-black")}>
+        <nav className={"w-full top-0 text-black absolute " + ((displayNavMenu) && "gradient border-b border-black")}>
             <div className="py-4 px-4">
                 <div className="flex lg:hidden" onClick={() => setDisplayNavMenu(!displayNavMenu)}>
                     <button className="focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out border">
@@ -21,21 +22,21 @@ export default function Header() {
                     <ul className="list-reset lg:flex justify-end flex-1 items-center text-xl lg:text-xl font-bold">
                         {true ?
                             <>
-                                <li className="mr-3">
+                                <li className="">
                                     <a className="inline-block no-underline hover:underline py-2 px-7" href="#!" onClick={() => scrollToDiv("features")} >About</a>
                                 </li>
-                                <li className="mr-3">
+                                <li className="">
                                     <a className="inline-block no-underline hover:underline py-2 px-7" href="#!" onClick={() => scrollToDiv("faqs")} >FAQ</a>
                                 </li>
-                                <li className="mr-3">
+                                <li className="">
                                     <a className="inline-block hover:underline py-2 px-7" href="#!" onClick={() => scrollToDiv("products")} >Team</a>
                                 </li>
                             </>
                             : null
                         }
                     </ul>
-                    <div className="mt-4 lg:mt-0"> 
-                        <Button text="Login" fontSizeClass="lg" onClick={() => navigateToDiscordLogin()} />
+                    <div className="mt-4 lg:mt-0">
+                        <Button text="Dashboard" fontSizeClass="lg" onClick={() => navigate("/profile")} />
                     </div>
                 </div>
             </div>

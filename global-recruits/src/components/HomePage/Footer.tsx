@@ -10,7 +10,7 @@ export default function Footer() {
                         <a href="#!" className="font-bold">Download Discord Now →</a>
                     </div>
                     <div className="flex flex-col m-auto mt-8 md:mt-0 w-fit text-center">
-                        <span className="font-bold">FOLLOW GLOBALRECRUITS</span>
+                        <span className="font-bold">FOLLOW GlobalRecruits</span>
                         <div className="flex justify-center my-2">
                             <div className="rounded-full gradient-text p-3 w-12 mx-4">
                                 <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" fill="white">
