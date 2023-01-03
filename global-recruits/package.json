@@ -3,7 +3,7 @@
   "author": "Foivos Gaitantzis",
   "description": "The Original Global Recruits 1.0 Landing Page",
   "version": "1.0.0",
-  "homepage": ".",
+  "homepage": "https://www.globalrecruits.net",
   "private": true,
   "dependencies": {
     "@aws-amplify/ui-react": "^4.1.0",
