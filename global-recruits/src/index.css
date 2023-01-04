@@ -8,11 +8,9 @@
 		src: url('/fonts/Lexend.ttf') format('truetype')
 	}
 }
-html,
-body {
-    overflow: hidden;
-    position: relative;
-    height: 100%;
+
+.fix-ios {
+	transform : translate3d(0,0,0);
 }
 
 .gradient-theme {
