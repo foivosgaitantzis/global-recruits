@@ -6,7 +6,7 @@ export default function AccordionItem(props: any) {
 
     return (
         <div className="w-full sm:w-3/4 text-left">
-            <button onClick={() => handleSetIndex(props.index)} className='gradient-text text-white flex w-full justify-between p-4 rounded hover:underline font-bold text-lg rounded-xl '>
+            <button onClick={() => handleSetIndex(props.index)} className='gradient-text text-white flex w-full justify-between p-4 rounded hover:underline font-bold text-md 2xl:text-lg rounded-xl '>
                 <div className='flex px-4'>
                     <div className='font-bold'>{props.title}</div>
                 </div>
@@ -22,7 +22,7 @@ export default function AccordionItem(props: any) {
                     }
                 </div>
             </button>
-            <div className="w-full transition-all duration-500 linear overflow-hidden my-4 px-8 text-lg " style={{ maxHeight: props.activeIndex === props.index ? ref.current.clientHeight + "px" : "0" }}>
+            <div className="w-full transition-all duration-500 linear overflow-hidden my-4 px-8 text-md 2xl:text-lg " style={{ maxHeight: props.activeIndex === props.index ? ref.current.clientHeight + "px" : "0" }}>
                 <div ref={ref}>
                     {props.children}
                 </div>

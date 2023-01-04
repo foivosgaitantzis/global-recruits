@@ -1,12 +1,8 @@
-import { Auth } from "aws-amplify";
-import { Route, Routes, useNavigate } from "react-router-dom";
-import { useStateContext } from "../../shared/state/AppStateProvider";
+import { Route, Routes } from "react-router-dom";
 import DashboardTemplate from "../../shared/templates/DashboardTemplate";
 import { AuthenticatedRoutes } from "../routes";
 
 export default function AppRouting() {
-    const navigate = useNavigate();
-    const details = useStateContext();
     return (
         <DashboardTemplate>
             <Routes>
@@ -18,6 +14,41 @@ export default function AppRouting() {
                 <Route path={AuthenticatedRoutes.dashboard} element={
                     <>
                         Welcome to the Dashboard Home Page!
+                        <br />
+                        Welcome welcome welcome welcome welcome welcome welcome welcome welcome welcome welcome welcome welcome welcome welcome welcome welcome welcome welcome welcome welcome welcome
+                        <br />
+                        welcome welcome welcome welcome welcome
+                        <br />
+                        welcome welcome welcome welcome welcome
+                        <br />
+                        welcome welcome welcome welcome welcome
+                        <br />
+                        welcome welcome welcome welcome welcome
+                        <br />
+                        welcome welcome welcome welcome welcome
+                        <br />
+                        welcome welcome welcome welcome welcome
+                        welcome welcome welcome welcome welcome
+                        <br />
+                        welcome welcome welcome welcome welcome
+                        <br />
+                        welcome welcome welcome welcome welcome
+                        <br />
+                        welcome welcome welcome welcome welcome
+                        <br />
+                        welcome welcome welcome welcome welcome
+                        <br />
+                        welcome welcome welcome welcome welcome welcome welcome welcome welcome welcome
+                        <br />
+                        welcome welcome welcome welcome welcome
+                        <br />
+                        welcome welcome welcome welcome welcome
+                        <br />
+                        welcome welcome welcome welcome welcome
+                        <br />
+                        welcome welcome welcome welcome welcome
+                        <br />
+                        welcome welcome welcome welcome welcome
                     </>
                 } />
                 <Route path={"*"} element={

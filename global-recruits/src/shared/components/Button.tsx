@@ -7,7 +7,7 @@ export default function Button(props: {fontSizeClass?: string, text: string, onC
     }
     return (
         <button
-            className={"hover:underline font-bold rounded-full py-4 px-8 shadow focus:outline-none focus:shadow-outline transition hover:scale-105 duration-300 ease-in-out text-" + (props.fontSizeClass ?? "base") + colorClasses}
+            className={"hover:underline font-bold rounded-full py-3 px-5 shadow focus:outline-none focus:shadow-outline transition hover:scale-105 duration-300 ease-in-out text-" + (props.fontSizeClass ?? "base") + colorClasses}
             onClick={props.onClick}>
                 {props.text}
         </button>

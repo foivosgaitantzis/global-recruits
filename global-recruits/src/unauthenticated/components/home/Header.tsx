@@ -10,7 +10,7 @@ export default function Header(props: any) {
 
     return (
         <nav className={"w-full top-0 text-black absolute " + ((displayNavMenu) && "gradient border-b border-black")}>
-            <div className="py-4 px-4">
+            <div className="py-4 px-8">
                 <div className="flex lg:hidden" onClick={() => setDisplayNavMenu(!displayNavMenu)}>
                     <button className="focus:shadow-outline transform transition hover:scale-105 duration-300 ease-in-out border">
                         <svg className="fill-current h-8 w-8" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -19,8 +19,8 @@ export default function Header(props: any) {
                         </svg>
                     </button>
                 </div>
-                <div className={"w-full flex-grow lg:flex lg:items-center p-4 lg:p-0 text-center container mx-auto " + (!displayNavMenu && "hidden ")}>
-                    <ul className="list-reset lg:flex justify-end flex-1 items-center text-xl lg:text-xl font-bold">
+                <div className={"w-full flex-grow lg:flex lg:items-center p-4 lg:p-0 text-center mx-auto " + (!displayNavMenu && "hidden ")}>
+                    <ul className="list-reset lg:flex justify-end flex-1 items-center text-lg 2xl:text-xl font-bold">
                         {true ?
                             <>
                                 <li className="">
@@ -37,7 +37,7 @@ export default function Header(props: any) {
                         }
                     </ul>
                     <div className="mt-4 lg:mt-0">
-                        <Button text="Dashboard" fontSizeClass="lg" onClick={() => navigate(`${AuthenticatedRoutes.defaultPath}`)} />
+                        <Button text="DASHBOARD" fontSizeClass="md 2xl:text-lg" onClick={() => navigate(`${AuthenticatedRoutes.defaultPath}`)} />
                     </div>
                 </div>
             </div>

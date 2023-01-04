@@ -2,7 +2,7 @@ import FeatureCard from "./FeatureCard";
 
 export default function Features() {
     return (
-        <section id="features" className="mt-24 container mx-auto px-12 md:px-4">
+        <section id="features" className="mt-24 container mx-auto px-16 2xl:px-4">
             <div className="text-2xl text-center font-bold">"Global Recruits is a worldwide community of student-athletes learning from current and former college athletes who are experts in the recruiting process."</div>
             <div className="grid md:grid-cols-3 md:gap-x-16 lg:gap-x-36 mt-16">
                 <FeatureCard header="Perfect your Recruiting Profile." icon="book">Get access to self-paced learning material that will make you stand out to college coaches. Learn how to connect effectively with coaches, create highlight videos, raise your SAT scores & more.</FeatureCard>

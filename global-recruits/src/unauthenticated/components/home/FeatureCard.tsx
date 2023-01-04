@@ -63,7 +63,7 @@ export default function FeatureCard(props: { icon: "book" | "group" | "trophy", 
                             : null
                 }
             </div>
-            <div className="text-lg text-left">
+            <div className="text-md 2xl:text-lg text-left">
                 <span className="font-bold">{props.header}</span>
                 <br />
                 {props.children}

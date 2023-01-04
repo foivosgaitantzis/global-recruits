@@ -4,7 +4,7 @@ export default function Subscription(props: { type: "basic" | "global", children
     return (
         <div className={"flex flex-col w-full sm:w-1/2 lg:w-1/3 mx-0 sm:mx-4 my-4 sm:my-0 rounded-lg border border-black " + (props.type === "global" ? "gradient-text text-white" : "bg-white")} >
             <div className="flex-1 rounded-t rounded-b-none overflow-hidden">
-                <div className="text-center font-bold text-xl p-4">
+                <div className="text-center font-bold text-lg 2xl:text-xl p-4">
                     {props.type === "basic"
                         ? "BASIC PACKAGE"
                         : props.type === "global"
@@ -69,15 +69,15 @@ export default function Subscription(props: { type: "basic" | "global", children
                             : null
                     }
                 </div>
-                <div className="text-center text-xl my-2">
+                <div className="text-center text-lg 2xl:text-xl my-2">
                     ${props.price} /month
                 </div>
-                <ul className="w-full text-left text-lg list-disc list-inside p-4 text-wrap">
+                <ul className="w-full text-left text-md 2xl:text-lg list-disc list-inside p-4 text-wrap">
                     {props.children}
                 </ul>
             </div>
             <div className="text-center py-8">
-                <Button text="Coming Soon" color={props.type === "basic" ? "gradient" : "white"} />
+                <Button text="COMING SOON" fontSizeClass="md 2xl:text-lg" color={props.type === "basic" ? "gradient" : "white"} />
             </div>
         </div>
     );

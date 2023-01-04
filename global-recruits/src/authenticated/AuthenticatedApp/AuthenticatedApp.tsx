@@ -1,8 +1,8 @@
-import { Fragment, useEffect } from "react";
+import { useEffect } from "react";
 import LoadingPage from "../../shared/pages/LoadingPage";
 import { loadMemberDetails } from "../../shared/services/loadMember";
 import { StateActionCreators } from "../../shared/state/actions/actionFunctions";
-import { StateContext, useStateContext, useStateDispatchContext } from "../../shared/state/AppStateProvider";
+import { useStateContext, useStateDispatchContext } from "../../shared/state/AppStateProvider";
 import { MemberLoadedStatus } from "../../shared/state/models/MemberLoadedEnum";
 import AppRouting from "./AppRouting";
 
