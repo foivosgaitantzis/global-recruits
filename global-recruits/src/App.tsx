@@ -40,7 +40,7 @@ export default function App() {
 							</AmplifyProvider>
 						}
 					/>
-					<Route path={UnauthenticatedRoutes.defaultPath} element={<UnauthenticatedApp />} />
+					<Route path={`${UnauthenticatedRoutes.defaultPath}/*`} element={<UnauthenticatedApp />} />
 				</Routes>
 			</BrowserRouter>
 		</Fragment>

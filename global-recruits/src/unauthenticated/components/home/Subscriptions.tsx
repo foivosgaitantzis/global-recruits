@@ -4,7 +4,7 @@ import Subscription from "./Subscription";
 export default function Subscriptions() {
     return (
         <section id="products" className="bg-[#D9D9D9] bg-opacity-40">
-            <div className="mt-24 py-10 container mx-auto px-12 md:px-4">
+            <div className="mt-12 lg:mt-24 py-10 container mx-auto px-12 md:px-4">
                 <SectionTitle>Subscriptions</SectionTitle>
                 <div className="flex flex-col sm:flex-row justify-center">
                     <Subscription type="basic" price="19.99">

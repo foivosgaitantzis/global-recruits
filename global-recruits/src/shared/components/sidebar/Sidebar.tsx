@@ -7,6 +7,7 @@ import { BiStore } from "react-icons/bi";
 import NavButton from "./NavButton";
 import { Auth } from "aws-amplify";
 import { AuthenticatedRoutes } from "../../../authenticated/routes";
+import { UnauthenticatedRoutes } from "../../../unauthenticated/routes";
 
 export default function Sidebar() {
     const user = useStateContext().user;
@@ -20,15 +21,15 @@ export default function Sidebar() {
                     <RoleBadge name="BASIC" />
                 </div>
             </div>
-            <div className="grow flex flex-col justify-start lg:justify-center shrink-0 py-0 lg:py-2 2xl:py-0">
-                <NavButton name="Dashboard" icon={<AiOutlineHome size="20" className="shrink-0" />} navigateTo={`/${AuthenticatedRoutes.defaultPath}`} />
+            <div className="grow flex flex-col justify-start lg:justify-center shrink-0 py-0 lg:py-2 2xl:py-0 min-w-fit">
+                <NavButton name="Dashboard" icon={<AiOutlineHome size="20" className="shrink-0" />} navigateTo={`/${AuthenticatedRoutes.defaultPath}/`} />
                 <NavButton name="My Courses" icon={<FiBookOpen size="20" className="shrink-0"  />} navigateTo={`/${AuthenticatedRoutes.defaultPath}/${AuthenticatedRoutes.courses}`} />
-                <NavButton name="My Recruitment" icon={<TfiBasketball size="20" className="shrink-0" />} role="BASIC"/>
-                <NavButton name="Store" icon={<BiStore size="20" className="shrink-0" />} />
-                <NavButton name="Settings" icon={<FiSettings size="20" className="shrink-0" />} />
+                <NavButton name="My Recruitment" icon={<TfiBasketball size="20" className="shrink-0" />} role="BASIC" navigateTo={`/${AuthenticatedRoutes.defaultPath}/asdf1`} />
+                <NavButton name="Store" icon={<BiStore size="20" className="shrink-0" />} navigateTo={`/${AuthenticatedRoutes.defaultPath}/asdf2`} />
+                <NavButton name="Settings" icon={<FiSettings size="20" className="shrink-0" />} navigateTo={`/${AuthenticatedRoutes.defaultPath}/asdf3`} />
             </div>
-            <div className="pt-2">
-                <NavButton name="Log out" icon={<FiLogOut size="20" />} onClick={() => Auth.signOut()} />
+            <div className="pt-2 flex flex-col">
+                <NavButton name="Log out" icon={<FiLogOut size="20" className="shrink-0" />} navigateTo={`${UnauthenticatedRoutes.logout}`} />
             </div>
         </div>
     );

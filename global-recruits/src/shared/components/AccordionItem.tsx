@@ -1,24 +1,22 @@
 import { useRef } from "react";
 
+import { BsFillCaretDownFill, BsFillCaretUpFill } from "react-icons/bs"
+
 export default function AccordionItem(props: any) {
     const handleSetIndex = (index: any) => (props.activeIndex !== index) ? props.setActiveIndex(index) : props.setActiveIndex(0);
     const ref: any = useRef(null);
 
     return (
         <div className="w-full sm:w-3/4 text-left">
-            <button onClick={() => handleSetIndex(props.index)} className='gradient-text text-white flex w-full justify-between p-4 rounded hover:underline font-bold text-md 2xl:text-lg rounded-xl '>
+            <button onClick={() => handleSetIndex(props.index)} className='gradient-theme flex w-full justify-between p-4 rounded hover:underline font-bold text-md 2xl:text-lg rounded-xl '>
                 <div className='flex px-4'>
                     <div className='font-bold'>{props.title}</div>
                 </div>
                 <div className="flex items-center justify-center my-auto px-4">
                     {
                         (props.activeIndex === props.index)
-                            ? <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z" />
-                            </svg>
-                            : <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z" />
-                            </svg>
+                            ? <BsFillCaretUpFill  />
+                            : <BsFillCaretDownFill  />
                     }
                 </div>
             </button>

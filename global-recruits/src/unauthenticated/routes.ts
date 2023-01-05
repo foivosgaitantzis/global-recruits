@@ -1,5 +1,6 @@
 export const UnauthenticatedRoutes = {
-    defaultPath: "*",
+    defaultPath: "",
     home: "",
-    store: "/store"
+    store: "/store",
+    logout: "/logout"
 }

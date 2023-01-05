@@ -1,6 +1,6 @@
 export default function FilipposGkogkos() {
     return (
-        <section id="features" className="mt-24 container mx-auto px-16 2xl:px-4">
+        <section id="features" className="mt-12 lg:mt-24 container mx-auto px-16 2xl:px-4">
                 <div className="flex flex-col sm:flex-row">
                     <div className="w-full sm:w-3/4 mx-0 sm:mx-4 mb-4 sm:mb-0">
                         <div className="font-bold text-lg 2xl:text-xl">FILIPPOS GKOGKOS</div>

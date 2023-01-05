@@ -5,7 +5,7 @@ import SectionTitle from "../../../shared/components/SectionTitle";
 export default function FAQs() {
     const [activeIndex, setActiveIndex] = useState(0);
     return (
-        <section id="faqs" className="mt-24 container mx-auto px-12 md:px-4">
+        <section id="faqs" className="mt-12 lg:mt-24 container mx-auto px-12 md:px-4">
             <SectionTitle>FAQs</SectionTitle>
             <div className='flex flex-col justify-center items-center'>
                 <AccordionItem title="How do I get access to the tutorials?" index={1} activeIndex={activeIndex} setActiveIndex={setActiveIndex}>
