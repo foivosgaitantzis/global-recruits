@@ -1,5 +1,6 @@
-import { ChangeMemberLoadedStatusAction, ChangeUserAction, StateActions } from "../actions/actions";
+import { ChangeCourseContentAction, ChangeCourseLoadedStatusAction, ChangeMemberLoadedStatusAction, ChangeUserAction, StateActions } from "../actions/actions";
 import { AppStateModel } from "../models/AppStateModel";
+import { LoadedStatus } from "../models/LoadedStatusEnum";
 
 export function AppStateReducer(state: AppStateModel, action: StateActions): AppStateModel {
     switch (action.type) {
@@ -15,6 +16,33 @@ export function AppStateReducer(state: AppStateModel, action: StateActions): App
             return {
                 ...state,
                 memberLoadedStatus: changeMemberLoadedStatusAction.memberLoadedStatus
+            }
+        }
+        case "Change Course Loaded Status": {
+            const changeCourseLoadedStatusAction = action as ChangeCourseLoadedStatusAction;
+            return {
+                ...state,
+                courseContent: {
+                    ...state.courseContent,
+                    [changeCourseLoadedStatusAction.course]: {
+                        ...state.courseContent?.[changeCourseLoadedStatusAction.course],
+                        courseLoaded: changeCourseLoadedStatusAction.courseLoadedStatus
+                    }
+                }
+            }
+        }
+        case "Change Course Content": {
+            const changeCourseLoadedStatusAction = action as ChangeCourseContentAction;
+            return {
+                ...state,
+                courseContent: {
+                    ...state.courseContent,
+                    [changeCourseLoadedStatusAction.course]: {
+                        ...state.courseContent?.[changeCourseLoadedStatusAction.course],
+                        XMLContent: changeCourseLoadedStatusAction.XMLContent,
+                        courseLoaded: state.courseContent?.[changeCourseLoadedStatusAction.course]?.courseLoaded ?? LoadedStatus.LOADED
+                    }
+                }
             }
         }
         default: {

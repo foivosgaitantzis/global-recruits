@@ -1,0 +1,1 @@
+export const BlobStorageUrl = process.env["REACT_APP_BLOB_STORAGE_URL"];

@@ -1,5 +1,10 @@
 export const AuthenticatedRoutes = {
     defaultPath: "dashboard",
+
     dashboard: "",
-    courses: "courses"
+
+    courses: "courses",
+
+    defaultCoursePath: "courses/:courseCode",
+    course: ""
 }

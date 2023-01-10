@@ -1,7 +1,9 @@
-import { MemberLoadedStatus } from "./MemberLoadedEnum";
+import { CourseContentModel } from "./CourseContent";
+import { LoadedStatus } from "./LoadedStatusEnum";
 import { UserModel } from "./User";
 
 export interface AppStateModel {
-    memberLoadedStatus: MemberLoadedStatus,
-    user?: UserModel
+    memberLoadedStatus: LoadedStatus,
+    user?: UserModel,
+    courseContent?: CourseContentModel
 }

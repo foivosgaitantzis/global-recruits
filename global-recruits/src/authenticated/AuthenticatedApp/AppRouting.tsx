@@ -5,6 +5,7 @@ import DashboardTemplate from "../../shared/templates/DashboardTemplate";
 import { AuthenticatedRoutes } from "../routes";
 
 const DashboardHome = React.lazy(() => import('../pages/DashboardHome'));
+const CourseApp = React.lazy(() => import('../CourseApp/CourseApp'));
 
 export default function AppRouting() {
     return (
@@ -16,6 +17,7 @@ export default function AppRouting() {
                             Welcome to the My Courses Page!
                         </>
                     } />
+                    <Route path={`${AuthenticatedRoutes.defaultCoursePath}/*`} element={<CourseApp />} />
                     <Route path={AuthenticatedRoutes.dashboard} element={<DashboardHome />} />
                     <Route path={"*"} element={
                         <>

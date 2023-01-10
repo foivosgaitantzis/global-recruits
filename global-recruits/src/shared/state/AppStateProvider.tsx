@@ -1,7 +1,7 @@
 import { createContext, Dispatch, ReactNode, useContext, useReducer } from "react"
 import { StateActions } from "./actions/actions";
 import { AppStateModel } from "./models/AppStateModel";
-import { MemberLoadedStatus } from "./models/MemberLoadedEnum";
+import { LoadedStatus } from "./models/LoadedStatusEnum";
 import { AppStateReducer } from "./reducers/reducers";
 
 interface AppStateContextProviderProps {
@@ -46,6 +46,6 @@ export function useStateDispatchContext() {
  */
 export function createInitialState(): AppStateModel {
     return {
-        memberLoadedStatus: MemberLoadedStatus.LOADING
+        memberLoadedStatus: LoadedStatus.LOADING
     }
 }

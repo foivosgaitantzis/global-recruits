@@ -3,7 +3,7 @@ import LoadingPage from "../../shared/pages/LoadingPage";
 import { loadMemberDetails } from "../../shared/services/loadMember";
 import { StateActionCreators } from "../../shared/state/actions/actionFunctions";
 import { useStateContext, useStateDispatchContext } from "../../shared/state/AppStateProvider";
-import { MemberLoadedStatus } from "../../shared/state/models/MemberLoadedEnum";
+import { LoadedStatus } from "../../shared/state/models/LoadedStatusEnum";
 import AppRouting from "./AppRouting";
 
 const useMemberLoad = () => {
@@ -11,17 +11,17 @@ const useMemberLoad = () => {
     const memberLoadedStatus = useStateContext().memberLoadedStatus;
 
     useEffect(() => {
-        if (memberLoadedStatus !== MemberLoadedStatus.LOADED && memberLoadedStatus !== MemberLoadedStatus.ERROR) {
+        if (memberLoadedStatus !== LoadedStatus.LOADED && memberLoadedStatus !== LoadedStatus.ERROR) {
             try {
                 loadMemberDetails()
                     .then((memberDetails) => {
                         if (memberDetails) {
-                            setAppState(StateActionCreators.createChangeMemberLoadedStatus(MemberLoadedStatus.LOADED));
+                            setAppState(StateActionCreators.createChangeMemberLoadedStatusAction(LoadedStatus.LOADED));
                             setAppState(StateActionCreators.createChangeUserAction(memberDetails));
                         }
                     })
             } catch (error) {
-                setAppState(StateActionCreators.createChangeMemberLoadedStatus(MemberLoadedStatus.ERROR));
+                setAppState(StateActionCreators.createChangeMemberLoadedStatusAction(LoadedStatus.ERROR));
             }
         }
     });
@@ -32,7 +32,7 @@ export default function AuthenticatedApp() {
 
     const memberLoadedStatus = useStateContext().memberLoadedStatus;
     return (
-        memberLoadedStatus === MemberLoadedStatus.LOADED
+        memberLoadedStatus === LoadedStatus.LOADED
             ? <AppRouting />
             : <LoadingPage />
     );

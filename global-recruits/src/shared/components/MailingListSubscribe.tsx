@@ -4,6 +4,8 @@ import { BsHourglass } from "react-icons/bs"
 import { AiFillCloseCircle } from "react-icons/ai"
 import { IoIosCheckmarkCircle } from "react-icons/io"
 
+const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
+
 export default function MailingListSubscribe() {
     const [emailAddress, setEmailAddress] = useState("");
     const [mailingListStatus, setMailingListStatus] = useState({
@@ -13,7 +15,6 @@ export default function MailingListSubscribe() {
         message: ""
     })
     const joinMailingList = async () => {
-        const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
         if (apiBaseUrl) {
             let emailRegex: RegExp = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
             if (emailAddress && emailRegex.test(emailAddress)) {
