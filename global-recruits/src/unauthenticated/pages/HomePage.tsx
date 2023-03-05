@@ -9,7 +9,7 @@ import Subscriptions from "../components/home/Subscriptions";
 
 export default function HomePage() {
     return (
-        <div className="font-custom">
+        <div className="font-custom text-[#4e2217]">
             <Header />
             <Hero />
             <Features />

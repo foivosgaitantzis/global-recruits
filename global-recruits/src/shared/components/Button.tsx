@@ -1,9 +1,9 @@
 export default function Button(props: {fontSizeClass?: string, text: string, onClick?: any, color?: "black" | "white" | "gradient" }) {
-    let colorClasses = " bg-black text-white";
+    let colorClasses = " bg-[#4e2217] text-white";
     if (props.color === "white") {
-        colorClasses = " bg-white text-black"
+        colorClasses = " bg-white text-[#4e2217]"
     } else if (props.color === "gradient") {
-        colorClasses = " gradient-theme text-black"
+        colorClasses = " gradient-theme text-[#4e2217]"
     }
     return (
         <button

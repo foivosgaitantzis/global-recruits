@@ -4,20 +4,55 @@ export const AmplifyTheme: Theme = {
     name: 'GlobalRecruits Amplify Theme',
     tokens: {
         components: {
-            tabs: {
-                item: {
-                    _active: {
-                        color: "black",
-                        borderColor: "black"
+            link: {
+
+                color: { value: '#4e2217' },
+                active: {
+                    color: 'red'
+                }
+            },
+            textfield: {
+                borderColor: { value: '#4e2217' }
+            },
+            button: {
+                borderColor: { value: '#4e2217'},
+                color: { value: '#4e2217' },
+                _hover: {
+                    backgroundColor: { value: '#4e2217' },
+                    borderColor: { value: '#4e2217' },
+                    color: 'white'
+                },
+                _focus: {
+                    backgroundColor: { value: '#4e2217' },
+                    borderColor: { value: '#4e2217' },
+                    color: 'white'
+                },
+                _active: {
+                    backgroundColor: { value: '#4e2217' },
+                    borderColor: { value: '#4e2217' },
+                    color: 'white'
+                },
+                primary: {
+                    backgroundColor: { value: 'white' },
+                    color: { value: '#4e2217' },
+                    borderColor: { value: '#4e2217' },
+                    _hover: {
+                        backgroundColor: { value: '#4e2217' },
+                        borderColor: { value: '#4e2217' },
                     },
                     _focus: {
-                        color: "black"
+                        backgroundColor: { value: '#4e2217' },
+                        borderColor: { value: '#4e2217' },
                     },
-                    _hover: {
-                        color: "black"
-                    }
+                    _active: {
+                        backgroundColor: { value: '#4e2217' },
+                        borderColor: { value: '#4e2217' },
+                    },
+                },
+                link: {
+                    color: { value: '#4e2217' }
                 }
-            }
+            },
         }
     }
 }

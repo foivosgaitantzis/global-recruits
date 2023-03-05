@@ -1,7 +1,10 @@
+import { UserType } from "./UserType.enum"
+
 /**
  * The User Model (Inspired from Cognito)
  */
 export interface UserModel {
+    pgUserType: UserType,
     username: string,
     attributes: {
         sub: string,

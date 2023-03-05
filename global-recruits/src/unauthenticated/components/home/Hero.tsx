@@ -6,11 +6,10 @@ import scrollToDiv from "../../../shared/helpers/scrollToDiv";
 export default function Hero(props: any) {
     return (
         <div className="gradient">
-            <section className="h-screen font-custom text-black">
+            <section className="h-screen font-custom text-[#4e2217]">
                 <div className="container h-full flex items-center justify-center flex-wrap m-auto">
-                    <div className="w-full h-2/3 mx-8 border-b-2 sm:mx-0 sm:w-1/2 lg:w-2/3 sm:h-fit sm:border-r-2 sm:border-b-0 border-black flex flex-col items-center justify-center text-center">
-                        <img className="w-1/2 sm:w-3/12 my-2" src="logo.png" />
-                        <span className="text-3xl 2xl:text-4xl font-bold">GLOBAL ATHLETES</span>
+                    <div className="w-full h-2/3 mx-8 border-b-2 sm:mx-0 sm:w-1/2 lg:w-2/3 sm:h-fit sm:border-r-2 sm:border-b-0 border-[#4e2217] flex flex-col items-center justify-center text-center">
+                        <img className="w-3/4 sm:w-5/12 my-2" src="logo.png" />
                         <div className="text-lg 2xl:text-xl mt-2 mb-4">
                             Achieve your <span className="font-bold">Dreams.</span>
                             <br />

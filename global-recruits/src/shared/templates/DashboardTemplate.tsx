@@ -18,7 +18,7 @@ export default function DashboardTemplate(props: DashboardTemplateProperties) {
 
     return (
         sidebarLoaded
-            ? <div className="h-full min-h-screen flex font-custom relative">
+            ? <div className="h-full min-h-screen flex font-custom relative text-[#4e2217]">
                 <div className={"h-screen gradient-theme sticky top-0 border-r border-gray-350 transition-all transition-slowest ease " + (sidebarOpen ? "w-1/3 sm:w-1/8 md:w-1/6" : "w-0 lg:w-1/6")}>
                     <div className="h-full overflow-y-auto overflow-x-hidden">
                         <div className="h-full py-4 xl:py-8 px-4 2xl:px-8 ">

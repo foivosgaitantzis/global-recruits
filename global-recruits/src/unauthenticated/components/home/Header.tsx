@@ -10,7 +10,7 @@ export default function Header(props: any) {
     const [displayNavMenu, setDisplayNavMenu] = useState(false);
 
     return (
-        <nav className={"w-full top-0 text-black absolute " + ((displayNavMenu) && " border-b border-black bg-white")}>
+        <nav className={"w-full top-0 text-[#4e2217] absolute " + ((displayNavMenu) && " border-b border-black bg-white")}>
             <div className={"" + (displayNavMenu && "gradient ")}>
                 <div className="py-4 px-8">
                     <div className="flex lg:hidden" onClick={() => setDisplayNavMenu(!displayNavMenu)}>

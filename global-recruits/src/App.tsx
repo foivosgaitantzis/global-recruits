@@ -28,10 +28,11 @@ export default function App() {
 						element={
 							<AmplifyProvider theme={AmplifyTheme}>
 								<Authenticator
-									className="gradient-theme font-custom text-black px-4 sm:px-0 h-full min-h-screen flex items-center justify-center flex-wrap m-auto"
+									className="gradient-theme font-custom text-[#4e2217] px-4 sm:px-0 h-full min-h-screen flex items-center justify-center flex-wrap m-auto"
 									loginMechanisms={["email"]}
 									components={AmplifyComponents}
 									services={AmplifyServices}
+									hideSignUp={true}
 								>
 									<Suspense fallback={<LoadingPage />}>
 										<AuthenticatedApp />
