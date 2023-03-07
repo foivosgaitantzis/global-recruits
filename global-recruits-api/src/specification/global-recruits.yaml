@@ -1,6 +1,6 @@
 openapi: "3.0.0"
 info:
-  version: "1.0.0"
+  version: "2.0.0"
   title: Global Recruits API
   description: The Global Recruits API Specification
 servers:
@@ -10,14 +10,13 @@ servers:
     description: Development Environment
 tags:
   - name: mailingList
-  - name: discordAuth
 security:
   - BearerAuth: []
 
 paths:
   /mailinglist:
     post:
-      security: [] # No Auth Required
+      security: []
       tags: [mailingList]
       operationId: JoinMailingList
       summary: Adds User to Mailing List
@@ -31,146 +30,113 @@ paths:
           $ref: "#/components/responses/ValidationErrorsResponse"
         500:
           $ref: "#/components/responses/MailChimpErrorResponse"
-  /auth:
-    post:
-      security: [] # No Auth Required
-      tags: [discordAuth]
-      operationId: GetDiscordAccessToken
-      summary: Retrieves Discord Access Token
-      description: Authentication for Discord - Code Exchange/Refresh Token Renewal
+  /members/invite: 
+    post: 
+      tags: [inviteMember]
+      operationId: InviteMember
+      summary: Invite a Member
+      description: Uses Email Automation to Invite a Member to GlobalRecruits
+      requestBody:
+        $ref: "#/components/requestBodies/InviteMemberRequestBody"
+      responses:
+        201:
+          description: Successfully Invited an Athlete to the Platform
+        400:
+          $ref: "#/components/responses/ValidationErrorsResponse"
+        401: 
+          description: Unauthorized (Invalid or No Bearer Token Supplied)
+        403: 
+          description: Forbidden (User Access Control - Not Allowed to Perform Operation)
+        500:
+          $ref: "#/components/responses/InternalServerErrorResponse"
+  /members/{memberId}:
+    patch:
+      tags: [updateMember]
+      operationId: UpdateMemberDetails
+      summary: Patch a Member
+      description: Updates a Member's Personal Details
       parameters:
-        - in: header
-          name: X-Authorization-Code
-          schema:
-            type: string
-            example:
-              value: "NhhvTDYsFcdgNLnnLijcl7Ku7bEEeee"
-        - in: header
-          name: X-Refresh-Token
-          schema:
-            type: string
-            example:
-              value: "D43f5y0ahjqew82jZ4NViEr2YafMKhue"
-        - in: query
-          name: grantType
+        - name: memberId
+          in: path
+          description: The Member Identifier
           required: true
           schema:
-            type: string
-            enum: [authorization_code, refresh_token]
-            example:
-              value: "authorization_code"
-      responses:
-        201:
-          $ref: "#/components/responses/GetDiscordAccessTokenResponse"
-        400:
-          $ref: "#/components/responses/ValidationErrorsResponse"
-        401:
-          description: Invalid Authorization Code OR Refresh Token Provided
-  /member:
-    post:
-      tags: [stripe, discordAuth]
-      operationId: CreateStripeCustomer
-      summary: Creates a New Customer on Stripe
-      description: Creates a New Customer on Stripe - Links with Discord Account
+            $ref: "#/components/schemas/MemberIdParameter"
       requestBody:
-        $ref: "#/components/requestBodies/CreateStripeCustomerRequestBody"
+        $ref: "#/components/requestBodies/UpdateMemberDetailsRequestBody"
       responses:
-        201:
-          description: Successfully Created a New Stripe Customer
+        204:
+          description: Successfully Updated an Athlete's Details
         400:
           $ref: "#/components/responses/ValidationErrorsResponse"
-        409:
-          $ref: "#/components/responses/MemberAlreadyExistsErrorResponse"
-        401:
-          description: Invalid Discord OAuth Bearer Token Provided
-        500: 
-          $ref: "#/components/responses/InternalServerErrorResponse"    
-    get: 
-      tags: [stripe, discordAuth]
-      operationId: GetMemberData
-      summary: Gets Member data
-      description: Gets Member Data from Both Stripe & Discord
+        401: 
+          description: Unauthorized (Invalid or No Bearer Token Supplied)
+        403: 
+          description: Forbidden (User Access Control - Not Allowed to Perform Operation)
+        404: 
+          description: Resource was NOT Found
+        500:
+          $ref: "#/components/responses/InternalServerErrorResponse"
+    get:
+      tags: [getMember]
+      operationId: GetMemberDetails
+      summary: Gets a Member
+      description: Gets an Athlete or Staff's Personal Details
       parameters:
-        - in: query
-          name: expand
+        - name: memberId
+          in: path
+          description: The Member Identifier
+          required: true
           schema:
-            type: array
-            items:
-              type: string
-              enum: 
-                - paymentMethod
-                - subscription
-                - guildRoles
-            example:
-              value: "payment_method,subscription"
-      responses: 
-        200:
-          $ref: "#/components/responses/GetMemberDataResponse"
-        400:
-          $ref: "#/components/responses/ValidationErrorsResponse"
-        401:
-          description: Invalid Discord OAuth Bearer Token Provided
-        404: 
-          description: Member NOT Found
-        500: 
-          $ref: "#/components/responses/InternalServerErrorResponse"   
-  /member/avatar:
-    get: 
-      tags: [discordAuth]
-      operationId: GetMemberAvatar
-      summary: Gets Member Avatar 
-      description: Gets the Member's Avatar from Discord
+            $ref: "#/components/schemas/MemberIdParameter"
       responses:
         200:
-          description: Gets Member Avatar from Discord
-          content:
-            image/png:
-              schema:
-                type: string
-                format: binary
-        401:
-          description: Invalid Discord OAuth Bearer Token Provided
-        500: 
-          $ref: "#/components/responses/InternalServerErrorResponse"   
-  /subscription:
-    post:
-      tags: [stripe, discordAuth]
-      operationId: CreateStripeSubscription
-      summary: Creates a New Stripe Subscription
-      description: Creates a New Stripe Subscription for Customer using Stripe Price identifier
+          $ref: "#/components/responses/GetMemberDetailsResponse"
+        400:
+          $ref: "#/components/responses/ValidationErrorsResponse"
+        401: 
+          description: Unauthorized (Invalid or No Bearer Token Supplied)
+        403: 
+          description: Forbidden (User Access Control - Not Allowed to Perform Operation)
+        404: 
+          description: Resource was NOT Found
+        500:
+          $ref: "#/components/responses/InternalServerErrorResponse"
+  /@me:
+    patch:
+      tags: [updatePersonalDetails]
+      operationId: UpdatePersonalDetails
+      summary: Patch Myself
+      description: Updates my own Personal Details
       requestBody:
-        $ref: "#/components/requestBodies/CreateStripeSubscriptionRequestBody"
+        $ref: "#/components/requestBodies/UpdateMemberDetailsRequestBody"
       responses:
-        201:
-          description: Successfully Created a New Stripe Subscription
-          headers:
-            X-Client-Secret:
-              schema:
-                type: string
-                example: 
-                  value: "pi_1FrQwrBnheRwo4ja2X6HjbH7_secret_2t2eCpfTmVuFI9fh8i6wt7dyn"
+        204:
+          description: Successfully Updated an Athlete's Details
         400:
           $ref: "#/components/responses/ValidationErrorsResponse"
-        # Maybe a Subscription ALREADY exists for this Price/Product Code - ?
-        401:
-          description: Invalid Discord OAuth Bearer Token Provided
-        500: 
-          $ref: "#/components/responses/InternalServerErrorResponse"   
-    delete:
-      tags: [stripe, discordAuth]
-      operationId: CancelStripeSubscription
-      summary: Cancels Stripe Subscription
-      description: Cancels an Existing Stripe Subscription
+        401: 
+          description: Unauthorized (Invalid or No Bearer Token Supplied)
+        404: 
+          description: Resource was NOT Found
+        500:
+          $ref: "#/components/responses/InternalServerErrorResponse"
+    get:
+      tags: [getPersonalDetails]
+      operationId: GetPersonalDetails
+      summary: Gets Myself
+      description: Gets my own Personal Details
       responses:
         200:
-          description: "Successfully Cancelled the Stripe Subscription"
+          $ref: "#/components/responses/GetMemberDetailsResponse"
+        400:
+          $ref: "#/components/responses/ValidationErrorsResponse"
+        401: 
+          description: Unauthorized (Invalid or No Bearer Token Supplied)
         404: 
-          description: "Customer doesn't have a Subscription"
-        401:
-          description: Invalid Discord OAuth Bearer Token Provided
-        500: 
-          $ref: "#/components/responses/InternalServerErrorResponse"   
-
+          description: Resource was NOT Found
+        500:
+          $ref: "#/components/responses/InternalServerErrorResponse"
 
 components:
   requestBodies:
@@ -184,28 +150,32 @@ components:
           examples:
             JoinMailingList:
               $ref: "#/components/examples/JoinMailingListRequestBody"
-    
-    # POST /member
-    CreateStripeCustomerRequestBody:
+
+    # POST /members/invite
+    InviteMemberRequestBody:
       required: true
       content: 
         application/json:
-          schema: 
-            $ref: "#/components/schemas/CreateStripeCustomerRequestBody"
+          schema:
+            $ref: "#/components/schemas/InviteMemberRequestBody" 
           examples:
-            CreateStripeCustomer:
-              $ref: "#/components/examples/CreateStripeCustomerRequestBody"
-    
-    # POST /subscription
-    CreateStripeSubscriptionRequestBody:
+            InviteMemberRequestBody: 
+              $ref: "#/components/examples/InviteMemberRequestBody"
+
+    # PATCH /members/{memberId} & PATCH /@me
+    UpdateMemberDetailsRequestBody:
       required: true
       content: 
-        application/json:
+        application/json: 
           schema: 
-            $ref: "#/components/schemas/CreateStripeSubscriptionRequestBody"
+            oneOf:
+              - $ref: "#/components/schemas/UpdateAthleteDetailsRequestBody"
+              - $ref: "#/components/schemas/UpdateStaffDetailsRequestBody"
           examples:
-            CreateStripeSubscription:
-              $ref: "#/components/examples/CreateStripeSubscriptionRequestBody"
+            UpdateAthleteDetails:
+              $ref: "#/components/examples/UpdateAthleteDetailsRequestBody"
+            UpdateStaffDetails:
+              $ref: "#/components/examples/UpdateStaffDetailsRequestBody"
 
   responses:
     ValidationErrorsResponse:
@@ -239,38 +209,20 @@ components:
             MailChimpError:
               $ref: "#/components/examples/MailChimpErrorResponse"
 
-    # POST /auth
-    GetDiscordAccessTokenResponse:
-      description: Sucessfully Granted a New Access Token
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/GetDiscordAccessTokenResponse"
-          examples:
-            DiscordAccessToken:
-              $ref: "#/components/examples/GetDiscordAccessTokenResponse"
-    
-    # POST /member
-    MemberAlreadyExistsErrorResponse:
-      description: A Member Already Exists Error Response
-      content:
-        application/json:
+    # GET /members/{memberId} & GET /@me
+    GetMemberDetailsResponse:
+      description: Get Member Details Success Response
+      content: 
+        application/json: 
           schema: 
-            $ref: "#/components/schemas/ErrorResponse"
-          examples: 
-            InternalServerError:
-              $ref: "#/components/examples/MemberAlreadyExistsErrorResponse"
-
-    # GET /member
-    GetMemberDataResponse:
-      description: The GET Member Data Response
-      content:
-        application/json:
-          schema: 
-            $ref: "#/components/schemas/GetMemberDataResponse"
+            oneOf:
+              - $ref: "#/components/schemas/GetAthleteDetailsResponse"
+              - $ref: "#/components/schemas/GetStaffDetailsResponse"
           examples:
-            GetMemberDataResponse:
-              $ref: "#/components/examples/GetMemberDataResponse"
+            GetAthleteDetails:
+              $ref: "#/components/examples/GetAthleteDetailsResponse"
+            GetStaffDetails:
+              $ref: "#/components/examples/GetStaffDetailsResponse"
 
   schemas:
     ValidationErrorsResponse:
@@ -301,12 +253,101 @@ components:
         detail:
           type: string
 
-    ProductTypeEnum:
-      title: ProductTypeEnum
+    MemberIdParameter:
+      title: MemberIdParameter
       type: string
-      enum: 
-        - Gold
-        - Basic
+      format: uuid
+
+    MemberType:
+      title: MemberType
+      type: string
+      enum: [athlete, staff, administrator]
+
+    ActionType:
+      title: ActionType
+      type: string
+      enum: [add, edit, delete]
+
+    # Team
+    TeamType:
+      title: TeamType
+      type: string
+      enum: [high_school, college, club, aau]
+
+    # Position
+    PositionType:
+      title: PositionType
+      enum: [pg, sg, sf, pf, c]
+
+    # Height
+    HeightUnit:
+      title: HeightUnit
+      type: string
+      enum: [meters, feet]
+    
+    HeightFeetMeasurementData:
+      type: object
+      required: 
+        - unit
+        - value
+      properties:
+        unit:
+          type: string
+          enum: [feet]
+        value: 
+          type: number
+          minimum: 4.00
+          maximum: 10.00
+
+    HeightMeterMeasurementData:
+      type: object
+      required: 
+        - unit
+        - value
+      properties:
+        unit:
+          type: string
+          enum: [meters]
+        value: 
+          type: number
+          minimum: 1.00
+          maximum: 2.50
+    
+    # Weight
+    WeightUnit:
+      title: HeightUnit
+      type: string
+      enum: [kg, pounds]
+
+    WeightKgMeasurementData:
+      type: object
+      required: 
+        - unit
+        - value
+      properties:
+        unit:
+          type: string
+          enum: [kg]
+        value: 
+          type: number
+          format: int32
+          minimum: 30
+          maximum: 200
+
+    WeightPoundMeasurementData:
+      type: object
+      required: 
+        - unit
+        - value
+      properties:
+        unit:
+          type: string
+          enum: [pounds]
+        value: 
+          type: number
+          format: int32
+          minimum: 60
+          maximum: 400    
 
     # POST /mailinglist
     JoinMailingListRequestBody:
@@ -324,127 +365,346 @@ components:
               type: string
               format: email
 
-    # POST /auth
-    GetDiscordAccessTokenResponse:
-      title: GetDiscordAccessTokenResponse
+    # POST /members/invite
+    InviteMemberRequestBody:
+      title: InviteMemberRequestBody
       type: object
       required:
-        - access_token
-        - token_type
-        - expires_in
-        - refresh_token
-        - scope
-      properties:
-        access_token:
-          type: string
-        token_type:
-          type: string
-        expires_in:
-          type: number
-        refresh_token:
-          type: string
-        scope:
-          type: string
-    
-    # POST /member
-    CreateStripeCustomerRequestBody:
-      title: CreateStripeCustomerRequestBody
-      type: object
-      required: 
-        - data
-      properties: 
-        data:
-          type: object
-          required:
-            - firstName
-            - lastName
-            - emailAddress
-          properties:
-            firstName:
-              type: string
-              maxLength: 26
-              minLength: 2
-              pattern: ^[a-zA-Z-'\s]+$
-            lastName: 
-              type: string
-              maxLength: 26
-              minLength: 2
-              pattern: ^[a-zA-Z-'\s]+$
-            emailAddress:
-              type: string
-              format: email
-
-    # GET /member
-    GetMemberDataResponse:
-      title: GetMemberDataResponse
-      type: object
-      required: 
+        - type
         - data
       properties:
+        type: 
+          $ref: "#/components/schemas/MemberType"
         data: 
           type: object
-          required: 
-            - stripeCustomerId
-            - discordUserId
-            - firstName
-            - lastName
+          required:
+            - emailAddress
           properties:
-            stripeCustomerId: 
+            emailAddress: 
               type: string
-            discordUserId: 
-              type: string
-            firstName:
-              type: string
-            lastName: 
-              type: string
-            paymentMethod:
-              type: object
-              required: 
-                - paymentMethodId
-                - cardBrand
-                - last4
-                - expMonth
-                - expYear
-              properties:
-                paymentMethodId:
-                  type: string
-                cardBrand:
-                  type: string
-                last4: 
-                  type: string
-                expMonth:
-                  type: number
-                expYear:
-                  type: number
-            subscription: 
-              type: object
-              required:
-                - subscriptionId
-                - productType
-              properties:
-                subscriptionId:
-                  type: string
-                productType:
-                  $ref: "#/components/schemas/ProductTypeEnum"
-            guildRoles: 
-              type: array
-              items: 
-                type: string
-    
-    # POST /subscription
-    CreateStripeSubscriptionRequestBody:
-      title: CreateStripeCustomerRequestBody
+
+
+    # PATCH /members/{memberId} & PATCH /@me
+    UpdateAthleteDetailsRequestBody:
+      title: UpdateAthleteDetailsRequestBody
       type: object
-      required: 
+      required:
+        - type
         - data
       properties:
-        data:
+        type:
+          type: string
+          enum: [athlete]
+        data: 
           type: object
-          required: 
-            - productType
-          properties:
-            productType:
-              $ref: "#/components/schemas/ProductTypeEnum"
+          properties: 
+            firstName:
+              type: string
+              minLength: 0
+              maxLength: 50
+            lastName:
+              type: string
+              minLength: 0
+              maxLength: 50
+            dateOfBirth: 
+              type: string
+              format: date
+            country:
+              type: string
+              minLength: 4
+              maxLength: 50
+            city:
+              type: string
+              minLength: 4
+              maxLength: 50
+            height: 
+              oneOf:
+                - $ref: "#/components/schemas/HeightFeetMeasurementData"
+                - $ref: "#/components/schemas/HeightMeterMeasurementData"
+            weight:
+              oneOf: 
+                - $ref: "#/components/schemas/WeightKgMeasurementData"
+                - $ref: "#/components/schemas/WeightPoundMeasurementData"
+            team:
+              type: array
+              items: 
+                type: object
+                required:
+                  - action      
+                properties: 
+                  action:
+                    $ref: "#/components/schemas/ActionType"
+                  id:
+                    type: string
+                    format: uuid
+                  data:
+                    type: object
+                    properties:
+                      type: 
+                        $ref: "#/components/schemas/TeamType"
+                      name: 
+                        type: string
+                      position: 
+                        $ref: "#/components/schemas/PositionType"
+                      country:
+                        type: string
+                        minLength: 4
+                        maxLength: 50
+                      city:
+                        type: string
+                        minLength: 4
+                        maxLength: 50
+                      school: 
+                        type: string
+                        minLength: 4
+                        maxLength: 100
+                      years:
+                        type: array
+                        items:
+                          type: object
+                          required:
+                            - action
+                          properties:
+                            action: 
+                              $ref: "#/components/schemas/ActionType"
+                            id: 
+                              type: string
+                              format: uuid
+                            data: 
+                              type: object
+                              properties:
+                                year:
+                                  type: number
+                                  format: int32
+                                  minimum: 2000
+                                stats: 
+                                  type: object
+                                  properties: 
+                                    avgPpg:
+                                      type: number
+                                      format: int32
+                                      minimum: 0
+                                      maximum: 50
+                                    avgApg:
+                                      type: number
+                                      format: int32
+                                      minimum: 0
+                                      maximum: 20
+                                    avgRpg: 
+                                      type: number
+                                      format: int32
+                                      minimum: 0
+                                      maximum: 30
+            highlights:
+              type: array
+              items: 
+                type: object
+                required:
+                  - action      
+                properties: 
+                  action:
+                    $ref: "#/components/schemas/ActionType"
+                  id:
+                    type: string
+                    format: uuid
+                  data:
+                    type: string
+    
+    UpdateStaffDetailsRequestBody:
+      title: UpdateStaffDetailsRequestBody
+      type: object
+      required:
+        - type
+        - data
+      properties:
+        type: 
+          type: string
+          enum: [staff]
+        data: 
+          type: object
+          properties: 
+            firstName:
+              type: string
+              minLength: 0
+              maxLength: 50
+            lastName:
+              type: string
+              minLength: 0
+              maxLength: 50
+            team:
+              type: object
+              properties:
+                type: 
+                  $ref: "#/components/schemas/TeamType"
+                name:
+                  type: string
+                  minLength: 4
+                  maxLength: 200
+                school: 
+                  type: string
+                  nullable: true
+                  minLength: 4
+                  maxLength: 100
+                position:
+                  type: string
+                  minLength: 4
+                  maxLength: 50
+                country:
+                  type: string
+                  nullable: true
+                  minLength: 4
+                  maxLength: 50
+                city:
+                  type: string
+                  nullable: true
+                  minLength: 4
+                  maxLength: 50
+
+    # GET /members/{memberId} & GET /@me
+    GetAthleteDetailsResponse:
+      title: GetAthleteDetailsResponse
+      type: object
+      required:
+        - type
+        - data
+      properties:
+        type:
+          type: string
+          enum: [athlete]
+        data: 
+          type: object
+          properties: 
+            firstName:
+              type: string
+            lastName:
+              type: string
+            dateOfBirth: 
+              type: string
+              format: date
+            country:
+              type: string
+            city:
+              type: string
+            height: 
+              oneOf:
+                - $ref: "#/components/schemas/HeightFeetMeasurementData"
+                - $ref: "#/components/schemas/HeightMeterMeasurementData"
+            weight:
+              oneOf: 
+                - $ref: "#/components/schemas/WeightKgMeasurementData"
+                - $ref: "#/components/schemas/WeightPoundMeasurementData"
+            team:
+              type: array
+              items: 
+                type: object
+                required:
+                  - id
+                  - data      
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  data:
+                    type: object
+                    required: 
+                      - type
+                      - name
+                      - position
+                    properties:
+                      type: 
+                        $ref: "#/components/schemas/TeamType"
+                      name: 
+                        type: string
+                      position: 
+                        $ref: "#/components/schemas/PositionType"
+                      country:
+                        type: string
+                      city:
+                        type: string
+                      school: 
+                        type: string
+                      years:
+                        type: array
+                        items:
+                          type: object
+                          required:
+                            - id
+                            - data
+                          properties:
+                            id: 
+                              type: string
+                              format: uuid
+                            data: 
+                              type: object
+                              required: 
+                                - year
+                                - stats
+                              properties: 
+                                year:
+                                  type: number
+                                  format: int32
+                                stats: 
+                                  type: object
+                                  required:
+                                    - avgPpg
+                                    - avgApg
+                                    - avgRpg
+                                  properties: 
+                                    avgPpg:
+                                      type: number
+                                      format: int32
+                                    avgApg:
+                                      type: number
+                                      format: int32
+                                    avgRpg: 
+                                      type: number
+                                      format: int32
+            highlights:
+              type: array
+              items: 
+                type: object
+                required:
+                  - id
+                  - data      
+                properties: 
+                  id:
+                    type: string
+                    format: uuid
+                  data:
+                    type: string
+
+    GetStaffDetailsResponse: 
+      title: GetStaffDetailsResponse
+      type: object
+      required:
+        - type
+        - data
+      properties:
+        type: 
+          type: string
+          enum: [staff]
+        data: 
+          type: object
+          properties: 
+            firstName:
+              type: string
+            lastName:
+              type: string
+            team:
+              type: object
+              properties:
+                type: 
+                  $ref: "#/components/schemas/TeamType"
+                name:
+                  type: string
+                school: 
+                  type: string
+                position:
+                  type: string
+                country:
+                  type: string
+                city:
+                  type: string
 
   examples:
     ValidationErrorsResponse:
@@ -477,69 +737,152 @@ components:
           detail: "contact@globalrecruits.net is already a list member. Use PUT to insert or update list members."
         }
 
-    # POST /auth
-    GetDiscordAccessTokenResponse:
-      value:
-        {
-          access_token: "6qrZcUqja7812RVdnEKjpzOL4CvHBFG",
-          token_type: "Bearer",
-          expires_in: 604800,
-          refresh_token: "D43f5y0ahjqew82jZ4NViEr2YafMKhue",
-          scope: "identify",
+    # POST /members/invite
+    InviteMemberRequestBody: 
+      value: {
+        type: "athlete",
+        data: {
+          emailAddress: "contact@globalrecruits.net"
         }
+      }
 
-    # POST /member
-    CreateStripeCustomerRequestBody:
-      value: 
-        {
-          data: {
-            firstName: "GlobalRecruits",
-            lastName: "Administrator",
-            emailAddress: "contact@globalrecruits.net"
-          }
+    # PATCH /members/{memberId} & PATCH /@me & PATCH /@me
+    UpdateAthleteDetailsRequestBody:
+      value: {
+        type: "athlete",
+        data: {
+          firstName: "Joe",
+          lastName: "Jobbings",
+          dateOfBirth: "1999-08-11",
+          country: "United States",
+          city: "Miami",
+          height: {
+            unit: "meters",
+            value: 1.91
+          },
+          weight: {
+            unit: "kg",
+            value: 90
+          },
+          team: [
+            {
+              action: "add",
+              data: {
+                type: "high_school",
+                name: "Miami Hurricanes",
+                country: "United States",
+                city: "Miami",
+                school: "Miami School",
+                position: "pg",
+                years: [
+                  {
+                    action: "add",
+                    data: {
+                      year: 2022,
+                      stats: {
+                      avgPpg: 20,
+                      avgApg: 5,
+                      avgRpg: 2 
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          highlights: [
+            {
+              action: "edit",
+              id: "81dad62b-75a2-44d6-9098-403edec32c1c",
+              data: "https://www.youtube.com/watch?v=LHBABV3QgGc"
+            }
+          ]
         }
-    MemberAlreadyExistsErrorResponse:
-      value: 
-        {
-          title: "Member Already Exists"
-        }
+      }
     
-    # GET /member
-    GetMemberDataResponse:
-      value: 
-        {
-          data: {
-            stripeCustomerId: "cus_Mj6xAbVHt2Go2C",
-            discordUserId: "80351110224678912",
-            firstName: "GlobalRecruits",
-            lastName: "Administrator",
-            paymentMethod: {
-              paymentMethodId: "pm_1LzetoDVSlvuFCm7c25PMXv9",
-              cardBrand: "visa",
-              last4: "4242",
-              expMonth: 8,
-              expYear: 2023
-            },
-            subscription: {
-              subscriptionId: "sub_1LzewpBnheRwo4ja4ux3ted6",
-              productType: "Gold"
-            },
-            guildRoles: [
-              'Administrator',
-              'Gold Package',
-              'Basketball'
-            ]
+    UpdateStaffDetailsRequestBody:
+      value: {
+        type: "staff",
+        data: {
+          firstName: "Staff",
+          lastName: "Jobbings",
+          team: {
+              name: "Miami Hurricanes",
+              type: "college",
+              country: "United States",
+              city: "Miami",
+              school: "University of Miami",
+              position: "Head Coach"
           }
         }
-    
-    # POST /subscription
-    CreateStripeSubscriptionRequestBody:
-      value: 
-        {
-          data: {
-            productType: "Gold"
+      }
+
+    # GET /members/{memberId} & GET /@me
+    GetAthleteDetailsResponse:
+      value: {
+        type: "athlete",
+        data: {
+          firstName: "Joe",
+          lastName: "Jobbings",
+          dateOfBirth: "1999-08-11",
+          country: "United States",
+          city: "Miami",
+          height: {
+            unit: "meters",
+            value: 1.91
+          },
+          weight: {
+            unit: "kg",
+            value: 90
+          },
+          team: [
+            {
+              id: "81dad62b-75a2-44d6-9098-403edec32c1c",
+              data: {
+                type: "high_school",
+                name: "Miami School",
+                position: "pg",
+                years: [
+                  {
+                    id: "81dad62b-75a2-44d6-9098-403edec32c1c",
+                    data: {
+                      year: 2022,
+                      stats: {
+                      avgPpg: 20,
+                      avgApg: 5,
+                      avgRpg: 2 
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          highlights: [
+            {
+              id: "81dad62b-75a2-44d6-9098-403edec32c1c",
+              data: "https://www.youtube.com/watch?v=LHBABV3QgGc"
+            }
+          ]
+        }
+      }
+
+    GetStaffDetailsResponse:
+      value: {
+        type: "staff",
+        data: {
+          firstName: "Staff",
+          lastName: "Jobbings",
+          team: {
+              name: "Miami Hurricanes",
+              type: "college",
+              country: "United States",
+              city: "Miami",
+              school: "University of Miami",
+              position: "Head Coach"
           }
         }
+      }
 
   securitySchemes:
     BearerAuth:

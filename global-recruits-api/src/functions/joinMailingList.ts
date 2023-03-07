@@ -1,5 +1,6 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
-import { JoinMailingListRequestBody, ErrorResponse, ValidationErrorsResponse } from "../models/GlobalRecruits";
+import { generateValidationErrorResponse } from "../errors/helper";
+import { JoinMailingListRequestBody, ValidationErrorsResponse } from "../models/GlobalRecruits";
 import { createMailChimpContact } from "../services/mailchimp.service";
 import { getOpenApiPath, getRequestBodySchema, validateSchemaTuples } from "../validation/schemaValidation";
 
@@ -27,7 +28,7 @@ const joinMailingListFunction: AzureFunction = async function (context: Context,
                     'Content-Type': 'application/json'
                 },
                 status: error.status ?? "500",
-                body: <ErrorResponse>{
+                body: {
                     title: responseData?.title ?? "An Unexpected Error Occured",
                     detail: responseData?.detail,
                     instance: responseData?.instance
@@ -36,15 +37,7 @@ const joinMailingListFunction: AzureFunction = async function (context: Context,
         }
 
     } else {
-        // Output Validation Errors
-        context.log.info(JSON.stringify(validationErrors));
-        context.res = {
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            status: 400,
-            body: validationErrors
-        }
+        context.res = generateValidationErrorResponse(validationErrors);
     }
 }
 

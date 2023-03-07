@@ -123,8 +123,7 @@ const ajvInstance = new Ajv({
     allErrors: true,
     discriminator: true,
     strict: false,
-    unicodeRegExp: false,
-    removeAdditional: 'all'
+    unicodeRegExp: false
 });
 
 /**

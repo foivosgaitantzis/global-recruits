@@ -16,41 +16,179 @@ export interface ErrorResponse {
   detail?: string;
 }
 
-export enum ProductTypeEnum {
-  Gold = "Gold",
-  Basic = "Basic",
+/**
+ * @format uuid
+ */
+export type MemberIdParameter = string;
+
+export enum MemberType {
+  Athlete = "athlete",
+  Staff = "staff",
+  Administrator = "administrator",
+}
+
+export enum ActionType {
+  Add = "add",
+  Edit = "edit",
+  Delete = "delete",
+}
+
+export enum TeamType {
+  HighSchool = "high_school",
+  College = "college",
+  Club = "club",
+  Aau = "aau",
+}
+
+export enum PositionType {
+  Pg = "pg",
+  Sg = "sg",
+  Sf = "sf",
+  Pf = "pf",
+  C = "c",
+}
+
+export enum HeightUnit {
+  Meters = "meters",
+  Feet = "feet",
+}
+
+export interface HeightFeetMeasurementData {
+  unit: "feet";
+
+  /**
+   * @min 4
+   * @max 10
+   */
+  value: number;
+}
+
+export interface HeightMeterMeasurementData {
+  unit: "meters";
+
+  /**
+   * @min 1
+   * @max 2.5
+   */
+  value: number;
+}
+
+export enum WeightUnit {
+  Kg = "kg",
+  Pounds = "pounds",
+}
+
+export interface WeightKgMeasurementData {
+  unit: "kg";
+
+  /**
+   * @format int32
+   * @min 30
+   * @max 200
+   */
+  value: number;
+}
+
+export interface WeightPoundMeasurementData {
+  unit: "pounds";
+
+  /**
+   * @format int32
+   * @min 60
+   * @max 400
+   */
+  value: number;
 }
 
 export interface JoinMailingListRequestBody {
   data: { emailAddress: string };
 }
 
-export interface GetDiscordAccessTokenResponse {
-  access_token: string;
-  token_type: string;
-  expires_in: number;
-  refresh_token: string;
-  scope: string;
+export interface InviteMemberRequestBody {
+  type: MemberType;
+  data: { emailAddress: string };
 }
 
-export interface CreateStripeCustomerRequestBody {
-  data: { firstName: string; lastName: string; emailAddress: string };
-}
-
-export interface GetMemberDataResponse {
+export interface UpdateAthleteDetailsRequestBody {
+  type: "athlete";
   data: {
-    stripeCustomerId: string;
-    discordUserId: string;
-    firstName: string;
-    lastName: string;
-    paymentMethod?: { paymentMethodId: string; cardBrand: string; last4: string; expMonth: number; expYear: number };
-    subscription?: { subscriptionId: string; productType: ProductTypeEnum };
-    guildRoles?: string[];
+    firstName?: string;
+    lastName?: string;
+    dateOfBirth?: string;
+    country?: string;
+    city?: string;
+    height?: HeightFeetMeasurementData | HeightMeterMeasurementData;
+    weight?: WeightKgMeasurementData | WeightPoundMeasurementData;
+    team?: {
+      action: ActionType;
+      id?: string;
+      data?: {
+        type?: TeamType;
+        name?: string;
+        position?: PositionType;
+        country?: string;
+        city?: string;
+        school?: string;
+        years?: {
+          action: ActionType;
+          id?: string;
+          data?: { year?: number; stats?: { avgPpg?: number; avgApg?: number; avgRpg?: number } };
+        }[];
+      };
+    }[];
+    highlights?: { action: ActionType; id?: string; data?: string }[];
   };
 }
 
-export interface CreateStripeSubscriptionRequestBody {
-  data: { productType: ProductTypeEnum };
+export interface UpdateStaffDetailsRequestBody {
+  type: "staff";
+  data: {
+    firstName?: string;
+    lastName?: string;
+    team?: {
+      type?: TeamType;
+      name?: string;
+      school?: string | null;
+      position?: string;
+      country?: string | null;
+      city?: string | null;
+    };
+  };
+}
+
+export interface GetAthleteDetailsResponse {
+  type: "athlete";
+  data: {
+    firstName?: string;
+    lastName?: string;
+    dateOfBirth?: string;
+    country?: string;
+    city?: string;
+    height?: HeightFeetMeasurementData | HeightMeterMeasurementData;
+    weight?: WeightKgMeasurementData | WeightPoundMeasurementData;
+    team?: {
+      id: string;
+      data: {
+        type: TeamType;
+        name: string;
+        position: PositionType;
+        country?: string;
+        city?: string;
+        school?: string;
+        years?: { id: string; data: { year: number; stats: { avgPpg: number; avgApg: number; avgRpg: number } } }[];
+      };
+    }[];
+    highlights?: { id: string; data: string }[];
+  };
+}
+
+export interface GetStaffDetailsResponse {
+  type: "staff";
+  data: {
+    firstName?: string;
+    lastName?: string;
+    team?: { type?: TeamType; name?: string; school?: string; position?: string; country?: string; city?: string };
+  };
 }
 
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, ResponseType } from "axios";
@@ -175,7 +313,7 @@ export class HttpClient<SecurityDataType = unknown> {
 
 /**
  * @title Global Recruits API
- * @version 1.0.0
+ * @version 2.0.0
  * @baseUrl https://api.globalrecruits.net
  *
  * The Global Recruits API Specification
@@ -200,38 +338,19 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         ...params,
       }),
   };
-  auth = {
+  members = {
     /**
-     * @description Authentication for Discord - Code Exchange/Refresh Token Renewal
+     * @description Uses Email Automation to Invite a Member to GlobalRecruits
      *
-     * @tags discordAuth
-     * @name GetDiscordAccessToken
-     * @summary Retrieves Discord Access Token
-     * @request POST:/auth
+     * @tags inviteMember
+     * @name InviteMember
+     * @summary Invite a Member
+     * @request POST:/members/invite
      * @secure
      */
-    getDiscordAccessToken: (query: { grantType: "authorization_code" | "refresh_token" }, params: RequestParams = {}) =>
-      this.request<GetDiscordAccessTokenResponse, ValidationErrorsResponse | void>({
-        path: `/auth`,
-        method: "POST",
-        query: query,
-        secure: true,
-        ...params,
-      }),
-  };
-  member = {
-    /**
-     * @description Creates a New Customer on Stripe - Links with Discord Account
-     *
-     * @tags stripe, discordAuth
-     * @name CreateStripeCustomer
-     * @summary Creates a New Customer on Stripe
-     * @request POST:/member
-     * @secure
-     */
-    createStripeCustomer: (data: CreateStripeCustomerRequestBody, params: RequestParams = {}) =>
+    inviteMember: (data: InviteMemberRequestBody, params: RequestParams = {}) =>
       this.request<void, ValidationErrorsResponse | void | ErrorResponse>({
-        path: `/member`,
+        path: `/members/invite`,
         method: "POST",
         body: data,
         secure: true,
@@ -239,76 +358,85 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * @description Gets Member Data from Both Stripe & Discord
+     * @description Updates a Member's Personal Details
      *
-     * @tags stripe, discordAuth
-     * @name GetMemberData
-     * @summary Gets Member data
-     * @request GET:/member
+     * @tags updateMember
+     * @name UpdateMemberDetails
+     * @summary Patch a Member
+     * @request PATCH:/members/{memberId}
      * @secure
      */
-    getMemberData: (
-      query?: { expand?: ("paymentMethod" | "subscription" | "guildRoles")[] },
+    updateMemberDetails: (
+      memberId: MemberIdParameter,
+      data: UpdateAthleteDetailsRequestBody | UpdateStaffDetailsRequestBody,
       params: RequestParams = {},
     ) =>
-      this.request<GetMemberDataResponse, ValidationErrorsResponse | void | ErrorResponse>({
-        path: `/member`,
-        method: "GET",
-        query: query,
-        secure: true,
-        ...params,
-      }),
-
-    /**
-     * @description Gets the Member's Avatar from Discord
-     *
-     * @tags discordAuth
-     * @name GetMemberAvatar
-     * @summary Gets Member Avatar
-     * @request GET:/member/avatar
-     * @secure
-     */
-    getMemberAvatar: (params: RequestParams = {}) =>
-      this.request<File, void | ErrorResponse>({
-        path: `/member/avatar`,
-        method: "GET",
-        secure: true,
-        format: "blob",
-        ...params,
-      }),
-  };
-  subscription = {
-    /**
-     * @description Creates a New Stripe Subscription for Customer using Stripe Price identifier
-     *
-     * @tags stripe, discordAuth
-     * @name CreateStripeSubscription
-     * @summary Creates a New Stripe Subscription
-     * @request POST:/subscription
-     * @secure
-     */
-    createStripeSubscription: (data: CreateStripeSubscriptionRequestBody, params: RequestParams = {}) =>
       this.request<void, ValidationErrorsResponse | void | ErrorResponse>({
-        path: `/subscription`,
-        method: "POST",
+        path: `/members/${memberId}`,
+        method: "PATCH",
         body: data,
         secure: true,
         ...params,
       }),
 
     /**
-     * @description Cancels an Existing Stripe Subscription
+     * @description Gets an Athlete or Staff's Personal Details
      *
-     * @tags stripe, discordAuth
-     * @name CancelStripeSubscription
-     * @summary Cancels Stripe Subscription
-     * @request DELETE:/subscription
+     * @tags getMember
+     * @name GetMemberDetails
+     * @summary Gets a Member
+     * @request GET:/members/{memberId}
      * @secure
      */
-    cancelStripeSubscription: (params: RequestParams = {}) =>
-      this.request<void, void | ErrorResponse>({
-        path: `/subscription`,
-        method: "DELETE",
+    getMemberDetails: (memberId: MemberIdParameter, params: RequestParams = {}) =>
+      this.request<
+        GetAthleteDetailsResponse | GetStaffDetailsResponse,
+        ValidationErrorsResponse | void | ErrorResponse
+      >({
+        path: `/members/${memberId}`,
+        method: "GET",
+        secure: true,
+        ...params,
+      }),
+  };
+  me = {
+    /**
+     * @description Updates my own Personal Details
+     *
+     * @tags updatePersonalDetails
+     * @name UpdatePersonalDetails
+     * @summary Patch Myself
+     * @request PATCH:/@me
+     * @secure
+     */
+    updatePersonalDetails: (
+      data: UpdateAthleteDetailsRequestBody | UpdateStaffDetailsRequestBody,
+      params: RequestParams = {},
+    ) =>
+      this.request<void, ValidationErrorsResponse | void | ErrorResponse>({
+        path: `/@me`,
+        method: "PATCH",
+        body: data,
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description Gets my own Personal Details
+     *
+     * @tags getPersonalDetails
+     * @name GetPersonalDetails
+     * @summary Gets Myself
+     * @request GET:/@me
+     * @secure
+     */
+    getPersonalDetails: (params: RequestParams = {}) =>
+      this.request<
+        GetAthleteDetailsResponse | GetStaffDetailsResponse,
+        ValidationErrorsResponse | void | ErrorResponse
+      >({
+        path: `/@me`,
+        method: "GET",
         secure: true,
         ...params,
       }),

@@ -1,13 +1,12 @@
 import { Pool, PoolClient } from 'pg'
+import { isUndefined } from '../../helpers/helper'
 import { buildAliasMapper, insertValues } from './queryBuilder'
-import {
-    BaseRepository,
-    FindOptions,
-    ID,
-    ColumnData,
-} from './types'
+import { BaseRepository, FindOptions, ID, ColumnData } from './types'
 import { query, queryRow } from './utils'
 
+/**
+ * Postgres SQL Repository Class
+ */
 export class PGRepository<T> implements BaseRepository<T, PoolClient> {
     readonly table: string
     readonly primaryKey: string
@@ -18,7 +17,6 @@ export class PGRepository<T> implements BaseRepository<T, PoolClient> {
     readonly where: (values: Partial<T>, initialIndex?: number) => string
 
     constructor({
-        pool,
         table,
         mapping,
         // variable for storing id/primaryKey, for situations when out 'id' columns have name like 'postId'.
@@ -26,13 +24,11 @@ export class PGRepository<T> implements BaseRepository<T, PoolClient> {
         primaryKey = 'id',
     }: {
         table: string
-        pool: Pool
         primaryKey?: string
         mapping: Record<keyof T, ColumnData>
     }) {
         const aliasMapper = buildAliasMapper<T>(mapping)
 
-        this.pool = pool
         this.table = `"${table}"`
         this.columnAlias = aliasMapper
         this.primaryKey = primaryKey
@@ -55,18 +51,23 @@ export class PGRepository<T> implements BaseRepository<T, PoolClient> {
         }, '')
         // SQL-generator for WHERE clause
         this.where = (values: Partial<T>, initialIndex = 0) => {
+            let offset = 0;
             const sql = Object.keys(values).reduce((acc, key, index) => {
-                const condition = `${aliasMapper(key as keyof T)} = $${index + initialIndex + 1}`
-
-                return acc === ''
-                    ? `${acc} ${condition}`
-                    : `${acc}AND ${condition}`
+                const value = values[key];
+                const condition = `${aliasMapper(key as keyof T)} = $${index + initialIndex + 1 - offset}`
+                if (!isUndefined(value)) {
+                    return acc === ''
+                        ? `${acc} ${condition}`
+                        : `${acc}AND ${condition}`
+                } else {
+                    offset += 1;
+                    return acc;
+                }
             }, '')
 
             return `WHERE ${sql}`
         }
     }
-
 
     async create(value: Partial<T>, tx?: PoolClient): Promise<T> {
         const _cols: string[] = []
@@ -124,19 +125,29 @@ export class PGRepository<T> implements BaseRepository<T, PoolClient> {
     }
 
     update(id: ID, newValue: Partial<T>, tx?: PoolClient): Promise<T> {
+        let queryValues = [];
+        let offset = 0;
         const sqlSet = Object.keys(newValue).reduce((acc, key, index) => {
-            const sql = `${this.columnAlias(key as keyof T)} = $${index + 2}`
+            const value = newValue[key];
+            if (!isUndefined(value)) {
+                queryValues.push(value);
+                const sql = `${this.columnAlias(key as keyof T)} = $${index + 2 - offset}`
+                return acc !== ''
+                    ? `${acc}, ${sql}`
+                    : sql
+            } else {
+                offset += 1;
+                return acc;
+            }
+        }, '');
 
-            return acc !== ''
-                ? `${acc}, ${sql}`
-                : sql
-        }, '')
-
-        return queryRow<T>(
-            `UPDATE ${this.table} SET ${sqlSet} WHERE "${this.primaryKey}" = $1 RETURNING ${this.allColumns}`,
-            [id, ...Object.values(newValue)],
-            tx,
-        )
+        return sqlSet !== ''
+            ? queryRow<T>(
+                `UPDATE ${this.table} SET ${sqlSet} WHERE "${this.primaryKey}" = $1 RETURNING ${this.allColumns}`,
+                [id, ...queryValues],
+                tx,
+            )
+            : this.findOne(id, { tx });
     }
 
     delete(id: ID, tx?: PoolClient): Promise<boolean> {
@@ -148,13 +159,18 @@ export class PGRepository<T> implements BaseRepository<T, PoolClient> {
     }
 
     async find(value: Partial<T>, options: FindOptions<T, PoolClient> = {}): Promise<T[]> {
+        const values = [];
         const cols = options.select
             ? this.cols(...options.select)
             : this.allColumns
 
         const sql = `SELECT ${cols} FROM ${this.table} ${this.where(value)}`
-
-        const res = await query<T>(sql, Object.values(value), options.tx)
+        for (const fieldValue of Object.values(value)) {
+            if (!isUndefined(fieldValue)) {
+                values.push(fieldValue);
+            }
+        }
+        const res = await query<T>(sql, values, options.tx)
 
         return res
     }

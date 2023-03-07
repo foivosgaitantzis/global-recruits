@@ -29,50 +29,109 @@ export class ForbiddenError extends BaseError {
 /**
  * Not Found Error Thrown when a Resource is NOT Found
  */
- export class NotFoundError extends BaseError {
+export class NotFoundError extends BaseError {
+    detail: string;
     constructor(message: string) {
         super(message);
         this.name = this.constructor.name;
+        this.detail = message;
     }
 
-    readonly title = undefined;
+    readonly title = "Resource Not Found";
     readonly status = "404";
 }
 
-
 /**
- * Stripe Error Thrown when an Unexpected Stripe Error Occurs
+ * Cognito Error Thrown when an Unexpected Cognito Error Occurs
  */
-export class StripeError extends BaseError {
+export class CognitoError extends BaseError {
     constructor(message: string) {
         super(message);
         this.name = this.constructor.name;
     }
 
-    readonly detail = "Underlying Service Issues (Stripe)";
+    readonly detail = "Underlying User Service Issues";
 }
 
 /**
- * Discord Error Thrown when an Unexpected Discord Error Occurs
+ * Postgres Error Thrown when an Unexpected Postgres Error Occurs
  */
- export class DiscordError extends BaseError {
+export class PostgresError extends BaseError {
     constructor(message: string) {
         super(message);
         this.name = this.constructor.name;
     }
 
-    readonly detail = "Underlying Service Issues (Discord)";
+    readonly detail = "Underlying Database Issues";
 }
 
 /**
  * Error thrown when a Member Already Exists (Registration Endpoint)
  */
- export class MemberAlreadyExistsError extends BaseError {
+export class MemberAlreadyExistsError extends BaseError {
     constructor(message: string) {
         super(message);
         this.name = this.constructor.name;
     }
 
-    readonly title = "Member Already Exists";
+    readonly title = "Conflict"
     readonly status = "409";
+    readonly detail = "Member Already Exists";
+}
+
+/**
+ * Error thrown when a Bearer Token has NOT Been Provided
+ */
+export class MissingTokenError extends BaseError {
+    constructor(message: string) {
+        super(message);
+        this.name = this.constructor.name;
+    }
+
+    readonly title = "Unauthorized";
+    readonly status = "401";
+    readonly detail = "Authorization Token was NOT Provided";
+}
+
+
+/**
+ * Error thrown when an Invalid Token has Been Provided
+ */
+export class InvalidTokenError extends BaseError {
+    constructor(message: string) {
+        super(message);
+        this.name = this.constructor.name;
+    }
+
+    readonly title = "Unauthorized";
+    readonly status = "401";
+    readonly detail = "Invalid Authorization Token was Provided";
+}
+
+/**
+ * Error thrown when an Expired Token has Been Provided
+ */
+export class ExpiredTokenError extends BaseError {
+    constructor(message: string) {
+        super(message);
+        this.name = this.constructor.name;
+    }
+
+    readonly title = "Unauthorized";
+    readonly status = "401";
+    readonly detail = "The Authorization token Provided has Expired";
+}
+
+/**
+ * Error thrown when there is a Validation Issue (Excludes Schema Validation)
+ */
+export class ValidationError extends BaseError {
+    detail: string;
+    constructor(message: string) {
+        super(message);
+        this.name = this.constructor.name;
+        this.detail = message;
+    }
+    readonly title = "Validation Error";
+    readonly status = "400";
 }

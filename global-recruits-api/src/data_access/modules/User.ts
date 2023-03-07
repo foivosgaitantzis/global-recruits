@@ -1,33 +1,27 @@
-import type { Pool } from 'pg'
 import { PGRepository } from '../database/PGRepository'
 
 export interface User {
-    userId: number
-    name: string
+    userId: string
+    oauthSub: string,
+    userType: string
     email: string
-    hash?: string
-    createdAt: string
+    firstName?: string,
+    lastName?: string
 }
 
 export class UserRepository extends PGRepository<User> {
-    constructor(pool: Pool) {
+    constructor() {
         super({
-            pool,
             table: 'users',
             mapping: {
-                userId: 'userId',
-                name: 'name',
+                userId: 'userid',
+                oauthSub: 'oauthsub',
+                userType: 'usertype',
                 email: 'email',
-                hash: {
-                    name: 'password_hash',
-                    hidden: true,
-                },
-                createdAt: 'created_at',
+                firstName: 'firstname',
+                lastName: 'lastname'
             },
-            primaryKey: "userId"
+            primaryKey: 'userid'
         })
     }
 }
-
-const fivos = new UserRepository(pool);
-fivos.findOne()

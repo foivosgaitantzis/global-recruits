@@ -1,9 +1,10 @@
 import axios from "axios";
 import { ErrorResponse } from "../models/GlobalRecruits";
 import { BaseError } from "./BaseError";
+import { ValidationErrorsResponse } from "../models/GlobalRecruits";
 
 /**
- * Utility Function that Generates an Error Response from Custom Errors
+ * Utility Function that Generates a Function Error Response from Custom Errors
  * @param error The Error
  */
 export function generateErrorResponse(error: Error) {
@@ -21,17 +22,28 @@ export function generateErrorResponse(error: Error) {
         status = error.status;
     }
 
-    return (errorResponse.title || errorResponse.detail)
-        ? {
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            status,
-            body: errorResponse
-        }
-        : {
-            status
-        }
+    return {
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        status,
+        body: errorResponse
+    }
+}
+
+/**
+ * Utility Function that Generates a Validation Error Function Response 
+ * @param validationErrors The Validation Errors 
+ * @returns The Response of the Function
+ */
+export function generateValidationErrorResponse(validationErrors: ValidationErrorsResponse) {
+    return {
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        status: 400,
+        body: validationErrors
+    }
 }
 
 export function generateErrorMessage(error: Error, customErrorMessage?: string) {
