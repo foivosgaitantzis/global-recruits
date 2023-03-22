@@ -61,7 +61,10 @@ paths:
           description: The Member Identifier
           required: true
           schema:
-            $ref: "#/components/schemas/MemberIdParameter"
+            oneOf: 
+              - $ref: "#/components/schemas/MemberIdParameter"
+              - $ref: "#/components/schemas/MemberIdMeParameter"
+
       requestBody:
         $ref: "#/components/requestBodies/UpdateMemberDetailsRequestBody"
       responses:
@@ -88,7 +91,9 @@ paths:
           description: The Member Identifier
           required: true
           schema:
-            $ref: "#/components/schemas/MemberIdParameter"
+            oneOf: 
+              - $ref: "#/components/schemas/MemberIdParameter"
+              - $ref: "#/components/schemas/MemberIdMeParameter"
       responses:
         200:
           $ref: "#/components/responses/GetMemberDetailsResponse"
@@ -102,39 +107,81 @@ paths:
           description: Resource was NOT Found
         500:
           $ref: "#/components/responses/InternalServerErrorResponse"
-  /@me:
-    patch:
-      tags: [updatePersonalDetails]
-      operationId: UpdatePersonalDetails
-      summary: Patch Myself
-      description: Updates my own Personal Details
+  /members/{memberId}/profilepicture: 
+    post:
+      tags: [uploadProfilePicture]
+      operationId: UploadMemberProfilePicture
+      summary: Upload a Member Profile Picture
+      description: Upload a Profile Picture and Attach it to Member
+      parameters:
+        - name: memberId
+          in: path
+          description: The Member Identifier
+          required: true
+          schema:
+            oneOf: 
+              - $ref: "#/components/schemas/MemberIdMeParameter"
       requestBody:
-        $ref: "#/components/requestBodies/UpdateMemberDetailsRequestBody"
+        $ref: "#/components/requestBodies/UploadMemberProfilePicture"
       responses:
-        204:
-          description: Successfully Updated an Athlete's Details
+        201:
+          description: Successfully Uploaded Member's Profile Picture
         400:
           $ref: "#/components/responses/ValidationErrorsResponse"
         401: 
           description: Unauthorized (Invalid or No Bearer Token Supplied)
-        404: 
-          description: Resource was NOT Found
+        403: 
+          description: Forbidden (User Access Control - Not Allowed to Perform Operation)
         500:
           $ref: "#/components/responses/InternalServerErrorResponse"
     get:
-      tags: [getPersonalDetails]
-      operationId: GetPersonalDetails
-      summary: Gets Myself
-      description: Gets my own Personal Details
+      tags: [getProfilePicture]
+      operationId: GetMemberProfilePicture
+      summary: Gets a Member Profile Picture
+      description: Retrieves a Profile Picture Attached to a Member
+      parameters:
+        - name: memberId
+          in: path
+          description: The Member Identifier
+          required: true
+          schema:
+            oneOf: 
+              - $ref: "#/components/schemas/MemberIdParameter"
+              - $ref: "#/components/schemas/MemberIdMeParameter"
       responses:
         200:
-          $ref: "#/components/responses/GetMemberDetailsResponse"
+          $ref: "#/components/responses/GetMemberProfilePictureResponse"
         400:
           $ref: "#/components/responses/ValidationErrorsResponse"
         401: 
           description: Unauthorized (Invalid or No Bearer Token Supplied)
-        404: 
-          description: Resource was NOT Found
+        403: 
+          description: Forbidden (User Access Control - Not Allowed to Perform Operation)
+        500:
+          $ref: "#/components/responses/InternalServerErrorResponse"
+    delete:
+      tags: [deleteProfilePicture]
+      operationId: DeleteMemberProfilePicture
+      summary: Deletes a Member Profile Picture
+      description: Deletes a Profile Picture Attached to a Member
+      parameters:
+        - name: memberId
+          in: path
+          description: The Member Identifier
+          required: true
+          schema:
+            oneOf: 
+              - $ref: "#/components/schemas/MemberIdParameter"
+              - $ref: "#/components/schemas/MemberIdMeParameter"
+      responses:
+        204:
+          description: "Successfully Updated a Member's Profile Picture"
+        400:
+          $ref: "#/components/responses/ValidationErrorsResponse"
+        401: 
+          description: Unauthorized (Invalid or No Bearer Token Supplied)
+        403: 
+          description: Forbidden (User Access Control - Not Allowed to Perform Operation)
         500:
           $ref: "#/components/responses/InternalServerErrorResponse"
 
@@ -162,7 +209,7 @@ components:
             InviteMemberRequestBody: 
               $ref: "#/components/examples/InviteMemberRequestBody"
 
-    # PATCH /members/{memberId} & PATCH /@me
+    # PATCH /members/{memberId} 
     UpdateMemberDetailsRequestBody:
       required: true
       content: 
@@ -177,6 +224,20 @@ components:
             UpdateStaffDetails:
               $ref: "#/components/examples/UpdateStaffDetailsRequestBody"
 
+    # POST /members/{memberId}/profilepicture
+    UploadMemberProfilePicture:
+      required: true
+      content: 
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              profilePicture: 
+                type: object
+                format: binary
+          encoding: 
+            profilePicture:
+              contentType: image/png, image/jpeg
   responses:
     ValidationErrorsResponse:
       description: A Wide-Spread Validation Error Response
@@ -209,7 +270,7 @@ components:
             MailChimpError:
               $ref: "#/components/examples/MailChimpErrorResponse"
 
-    # GET /members/{memberId} & GET /@me
+    # GET /members/{memberId} 
     GetMemberDetailsResponse:
       description: Get Member Details Success Response
       content: 
@@ -223,6 +284,19 @@ components:
               $ref: "#/components/examples/GetAthleteDetailsResponse"
             GetStaffDetails:
               $ref: "#/components/examples/GetStaffDetailsResponse"
+    
+    # GET /members/{memberId}/profilepicture
+    GetMemberProfilePictureResponse:
+      description: Get Member Profile Picture Success Response
+      content: 
+        image/png:
+          schema:
+            type: string
+            format: binary
+        image/jpeg:
+          schema:
+            type: string
+            format: binary  
 
   schemas:
     ValidationErrorsResponse:
@@ -258,6 +332,11 @@ components:
       type: string
       format: uuid
 
+    MemberIdMeParameter:
+      title: MemberIdMeParameter
+      type: string
+      enum: ["@me"]
+
     MemberType:
       title: MemberType
       type: string
@@ -272,7 +351,20 @@ components:
     TeamType:
       title: TeamType
       type: string
-      enum: [high_school, college, club, aau]
+      enum: 
+        - elementary_school
+        - middle_school
+        - high_school
+        - prep_school
+        - college 
+        - club
+        - professional
+
+    # SubType 
+    CollegeSubType: 
+      title: CollegeSubType
+      type: string
+      enum: [ncaa, juco, naia, njcaa, community_college]
 
     # Position
     PositionType:
@@ -384,7 +476,7 @@ components:
               type: string
 
 
-    # PATCH /members/{memberId} & PATCH /@me
+    # PATCH /members/{memberId} 
     UpdateAthleteDetailsRequestBody:
       title: UpdateAthleteDetailsRequestBody
       type: object
@@ -442,6 +534,17 @@ components:
                     properties:
                       type: 
                         $ref: "#/components/schemas/TeamType"
+                      subType: 
+                        $ref: "#/components/schemas/CollegeSubType"
+                      division: 
+                        type: number
+                        format: int32
+                        minimum: 1
+                        maximum: 3
+                      classOf:
+                        type: number
+                        format: int32
+                        minimum: 2000
                       name: 
                         type: string
                       position: 
@@ -536,6 +639,17 @@ components:
               properties:
                 type: 
                   $ref: "#/components/schemas/TeamType"
+                subType: 
+                  $ref: "#/components/schemas/CollegeSubType"
+                division: 
+                  type: number
+                  format: int32
+                  minimum: 1
+                  maximum: 3
+                classOf:
+                  type: number
+                  format: int32
+                  minimum: 2000
                 name:
                   type: string
                   minLength: 4
@@ -560,7 +674,7 @@ components:
                   minLength: 4
                   maxLength: 50
 
-    # GET /members/{memberId} & GET /@me
+    # GET /members/{memberId} 
     GetAthleteDetailsResponse:
       title: GetAthleteDetailsResponse
       type: object
@@ -573,7 +687,12 @@ components:
           enum: [athlete]
         data: 
           type: object
+          required: 
+            - emailAddress
           properties: 
+            emailAddress:
+              type: string
+              format: email
             firstName:
               type: string
             lastName:
@@ -613,6 +732,14 @@ components:
                     properties:
                       type: 
                         $ref: "#/components/schemas/TeamType"
+                      subType: 
+                        $ref: "#/components/schemas/CollegeSubType"
+                      division: 
+                        type: number
+                        format: int32
+                      classOf:
+                        type: number
+                        format: int32
                       name: 
                         type: string
                       position: 
@@ -685,7 +812,12 @@ components:
           enum: [staff]
         data: 
           type: object
+          required: 
+            - emailAddress
           properties: 
+            emailAddress:
+              type: string
+              format: email
             firstName:
               type: string
             lastName:
@@ -695,6 +827,14 @@ components:
               properties:
                 type: 
                   $ref: "#/components/schemas/TeamType"
+                subType: 
+                  $ref: "#/components/schemas/CollegeSubType"
+                division: 
+                  type: number
+                  format: int32
+                classOf:
+                  type: number
+                  format: int32
                 name:
                   type: string
                 school: 
@@ -746,7 +886,7 @@ components:
         }
       }
 
-    # PATCH /members/{memberId} & PATCH /@me & PATCH /@me
+    # PATCH /members/{memberId}  
     UpdateAthleteDetailsRequestBody:
       value: {
         type: "athlete",
@@ -817,11 +957,12 @@ components:
         }
       }
 
-    # GET /members/{memberId} & GET /@me
+    # GET /members/{memberId} 
     GetAthleteDetailsResponse:
       value: {
         type: "athlete",
         data: {
+          emailAddress: "joe.jobbings@mailslurp.com",
           firstName: "Joe",
           lastName: "Jobbings",
           dateOfBirth: "1999-08-11",
@@ -840,8 +981,11 @@ components:
               id: "81dad62b-75a2-44d6-9098-403edec32c1c",
               data: {
                 type: "high_school",
-                name: "Miami School",
+                name: "Miami School Team",
                 position: "pg",
+                country: "United States",
+                city: "Miami",
+                school: "University of Miami",
                 years: [
                   {
                     id: "81dad62b-75a2-44d6-9098-403edec32c1c",
@@ -871,6 +1015,7 @@ components:
       value: {
         type: "staff",
         data: {
+          emailAddress: "staff.jobbings@mailslurp.com",
           firstName: "Staff",
           lastName: "Jobbings",
           team: {

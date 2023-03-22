@@ -1,6 +1,7 @@
 import { CognitoIdentityProviderClient, AdminCreateUserCommand, UsernameExistsException } from "@aws-sdk/client-cognito-identity-provider";
 import { MemberAlreadyExistsError, CognitoError } from "../errors/CustomErrors";
 import { AwsAccessKeyId, AwsAccessKeySecret, CognitoUserpoolId } from "../helpers/loadEnvironmentVariables";
+import { MemberType } from "../models/GlobalRecruits";
 
 const region = CognitoUserpoolId.split("_")[0];
 const CognitoClient = new CognitoIdentityProviderClient({
@@ -17,7 +18,7 @@ const CognitoClient = new CognitoIdentityProviderClient({
  * @param emailAddress The Email Address
  * @returns The Newly Created User's Sub
  */
-export async function createCognitoUser(emailAddress: string): Promise<string | undefined> {
+export async function createCognitoUser(emailAddress: string, type: MemberType): Promise<string | undefined> {
     try {
         const command = new AdminCreateUserCommand({
             Username: emailAddress,
@@ -30,6 +31,10 @@ export async function createCognitoUser(emailAddress: string): Promise<string | 
                 {
                     Name: "email_verified",
                     Value: "True"
+                },
+                {
+                    Name: "custom:userType",
+                    Value: type
                 }
             ]
         });

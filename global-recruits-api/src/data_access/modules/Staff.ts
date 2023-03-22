@@ -4,7 +4,7 @@ export interface Staff {
     staffId: string,
     userId: string,
     teamId: string,
-    teamPosition?: string
+    position?: string
 }
 
 export class StaffRepository extends PGRepository<Staff> {
@@ -15,7 +15,7 @@ export class StaffRepository extends PGRepository<Staff> {
                 staffId: 'staffid',
                 userId: 'userid',
                 teamId: 'teamid',
-                teamPosition: 'teamposition'
+                position: 'position'
             },
             primaryKey: 'staffid'
         })

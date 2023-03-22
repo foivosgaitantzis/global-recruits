@@ -21,6 +21,10 @@ export interface ErrorResponse {
  */
 export type MemberIdParameter = string;
 
+export enum MemberIdMeParameter {
+  TypeMe = "@me",
+}
+
 export enum MemberType {
   Athlete = "athlete",
   Staff = "staff",
@@ -34,10 +38,21 @@ export enum ActionType {
 }
 
 export enum TeamType {
+  ElementarySchool = "elementary_school",
+  MiddleSchool = "middle_school",
   HighSchool = "high_school",
+  PrepSchool = "prep_school",
   College = "college",
   Club = "club",
-  Aau = "aau",
+  Professional = "professional",
+}
+
+export enum CollegeSubType {
+  Ncaa = "ncaa",
+  Juco = "juco",
+  Naia = "naia",
+  Njcaa = "njcaa",
+  CommunityCollege = "community_college",
 }
 
 export enum PositionType {
@@ -124,6 +139,9 @@ export interface UpdateAthleteDetailsRequestBody {
       id?: string;
       data?: {
         type?: TeamType;
+        subType?: CollegeSubType;
+        division?: number;
+        classOf?: number;
         name?: string;
         position?: PositionType;
         country?: string;
@@ -147,6 +165,9 @@ export interface UpdateStaffDetailsRequestBody {
     lastName?: string;
     team?: {
       type?: TeamType;
+      subType?: CollegeSubType;
+      division?: number;
+      classOf?: number;
       name?: string;
       school?: string | null;
       position?: string;
@@ -159,6 +180,7 @@ export interface UpdateStaffDetailsRequestBody {
 export interface GetAthleteDetailsResponse {
   type: "athlete";
   data: {
+    emailAddress: string;
     firstName?: string;
     lastName?: string;
     dateOfBirth?: string;
@@ -170,6 +192,9 @@ export interface GetAthleteDetailsResponse {
       id: string;
       data: {
         type: TeamType;
+        subType?: CollegeSubType;
+        division?: number;
+        classOf?: number;
         name: string;
         position: PositionType;
         country?: string;
@@ -185,9 +210,20 @@ export interface GetAthleteDetailsResponse {
 export interface GetStaffDetailsResponse {
   type: "staff";
   data: {
+    emailAddress: string;
     firstName?: string;
     lastName?: string;
-    team?: { type?: TeamType; name?: string; school?: string; position?: string; country?: string; city?: string };
+    team?: {
+      type?: TeamType;
+      subType?: CollegeSubType;
+      division?: number;
+      classOf?: number;
+      name?: string;
+      school?: string;
+      position?: string;
+      country?: string;
+      city?: string;
+    };
   };
 }
 
@@ -367,7 +403,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @secure
      */
     updateMemberDetails: (
-      memberId: MemberIdParameter,
+      memberId: MemberIdParameter | MemberIdMeParameter,
       data: UpdateAthleteDetailsRequestBody | UpdateStaffDetailsRequestBody,
       params: RequestParams = {},
     ) =>
@@ -388,7 +424,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request GET:/members/{memberId}
      * @secure
      */
-    getMemberDetails: (memberId: MemberIdParameter, params: RequestParams = {}) =>
+    getMemberDetails: (memberId: MemberIdParameter | MemberIdMeParameter, params: RequestParams = {}) =>
       this.request<
         GetAthleteDetailsResponse | GetStaffDetailsResponse,
         ValidationErrorsResponse | void | ErrorResponse
@@ -398,45 +434,59 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         secure: true,
         ...params,
       }),
-  };
-  me = {
+
     /**
-     * @description Updates my own Personal Details
+     * @description Upload a Profile Picture and Attach it to Member
      *
-     * @tags updatePersonalDetails
-     * @name UpdatePersonalDetails
-     * @summary Patch Myself
-     * @request PATCH:/@me
+     * @tags uploadProfilePicture
+     * @name UploadMemberProfilePicture
+     * @summary Upload a Member Profile Picture
+     * @request POST:/members/{memberId}/profilepicture
      * @secure
      */
-    updatePersonalDetails: (
-      data: UpdateAthleteDetailsRequestBody | UpdateStaffDetailsRequestBody,
+    uploadMemberProfilePicture: (
+      memberId: MemberIdMeParameter,
+      data: { profilePicture?: object },
       params: RequestParams = {},
     ) =>
       this.request<void, ValidationErrorsResponse | void | ErrorResponse>({
-        path: `/@me`,
-        method: "PATCH",
+        path: `/members/${memberId}/profilepicture`,
+        method: "POST",
         body: data,
         secure: true,
         ...params,
       }),
 
     /**
-     * @description Gets my own Personal Details
+     * @description Retrieves a Profile Picture Attached to a Member
      *
-     * @tags getPersonalDetails
-     * @name GetPersonalDetails
-     * @summary Gets Myself
-     * @request GET:/@me
+     * @tags getProfilePicture
+     * @name GetMemberProfilePicture
+     * @summary Gets a Member Profile Picture
+     * @request GET:/members/{memberId}/profilepicture
      * @secure
      */
-    getPersonalDetails: (params: RequestParams = {}) =>
-      this.request<
-        GetAthleteDetailsResponse | GetStaffDetailsResponse,
-        ValidationErrorsResponse | void | ErrorResponse
-      >({
-        path: `/@me`,
+    getMemberProfilePicture: (memberId: MemberIdParameter | MemberIdMeParameter, params: RequestParams = {}) =>
+      this.request<File, ValidationErrorsResponse | void | ErrorResponse>({
+        path: `/members/${memberId}/profilepicture`,
         method: "GET",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * @description Deletes a Profile Picture Attached to a Member
+     *
+     * @tags deleteProfilePicture
+     * @name DeleteMemberProfilePicture
+     * @summary Deletes a Member Profile Picture
+     * @request DELETE:/members/{memberId}/profilepicture
+     * @secure
+     */
+    deleteMemberProfilePicture: (memberId: MemberIdParameter | MemberIdMeParameter, params: RequestParams = {}) =>
+      this.request<void, ValidationErrorsResponse | void | ErrorResponse>({
+        path: `/members/${memberId}/profilepicture`,
+        method: "DELETE",
         secure: true,
         ...params,
       }),

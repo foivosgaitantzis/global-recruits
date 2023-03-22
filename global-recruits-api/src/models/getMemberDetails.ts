@@ -1,9 +1,12 @@
-import { PositionType, TeamType } from "./GlobalRecruits"
+import { CollegeSubType, PositionType, TeamType } from "./GlobalRecruits"
 
 export interface AthleteTeamDetails {
     id: string,
     data: {
         type: TeamType,
+        subType?: CollegeSubType,
+        division?: number,
+        classOf?: number,
         name: string,
         country?: string,
         city?: string,
@@ -25,6 +28,8 @@ export interface AthleteTeamDetails {
 
 export interface StaffTeamDetails {
     type?: TeamType,
+    subType?: CollegeSubType,
+    division?: number,
     name?: string,
     school?: string,
     position?: string, 

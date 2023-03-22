@@ -77,7 +77,7 @@ export async function query<T = any>(sql: string, values?: any[] | null, tx?: Po
  * @param pool A Connected Pool Client
  */
 export async function beginPostgresTransaction(pool: PoolClient) {
-    await pool.query('BEGIN');
+    await pool.query('BEGIN;');
 }
 
 /**
@@ -85,7 +85,7 @@ export async function beginPostgresTransaction(pool: PoolClient) {
  * @param pool A Connected Pool Client
  */
 export async function commitPostgresTransaction(pool: PoolClient) {
-    await pool.query('COMMIT');
+    await pool.query('COMMIT;');
 }
 
 /**
@@ -93,5 +93,5 @@ export async function commitPostgresTransaction(pool: PoolClient) {
  * @param pool A Connected Pool Client
  */
 export async function rollbackPostgresTransaction(pool: PoolClient) {
-    await pool.query('ROLLBACK');
+    await pool.query('ROLLBACK;');
 }

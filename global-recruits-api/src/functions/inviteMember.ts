@@ -17,9 +17,9 @@ const inviteMemberFunction: AzureFunction = async function (context: Context, re
 
     if (validationErrors.length <= 0) {
         try {
-            const sub = await createCognitoUser(requestBody.data.emailAddress);
-            if (sub) {
-                await createUser(requestBody.data.emailAddress, sub, requestBody.type);
+            const newUserSub = await createCognitoUser(requestBody.data.emailAddress, requestBody.type);
+            if (newUserSub) {
+                await createUser(requestBody.data.emailAddress, newUserSub, requestBody.type);
             }
             context.res = {
                 status: 201

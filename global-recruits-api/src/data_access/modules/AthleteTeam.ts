@@ -4,7 +4,8 @@ export interface AthleteTeam {
     athleteTeamId: string,
     athleteId: string,
     teamId: string,
-    teamPosition: string
+    position: string,
+    classOf?: number
 }
 
 export class AthleteTeamRepository extends PGRepository<AthleteTeam> {
@@ -15,7 +16,8 @@ export class AthleteTeamRepository extends PGRepository<AthleteTeam> {
                 athleteTeamId: 'athleteteamid',
                 athleteId: 'athleteid',
                 teamId: 'teamid',
-                teamPosition: 'teamposition'
+                position: 'position',
+                classOf: 'classof'
             },
             primaryKey: 'athleteteamid'
         })

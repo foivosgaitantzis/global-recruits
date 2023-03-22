@@ -1,18 +1,27 @@
 import { Athlete } from "../data_access/modules/Athlete";
-import { Highlights } from "../data_access/modules/Highlights";
+import { Highlight } from "../data_access/modules/Highlight";
 import { User } from "../data_access/modules/User";
 import { AthleteTeamDetails, StaffTeamDetails } from "../models/getMemberDetails";
 import { GetAthleteDetailsResponse, GetStaffDetailsResponse, HeightUnit, WeightUnit } from "../models/GlobalRecruits";
 
+/**
+ * Utility Function that Maps Athlete Details to Response
+ * @param userDetails The User Object
+ * @param athleteDetails The Athlete Object
+ * @param teams The Teams (Custom) Object
+ * @param highlights The Highlights Object
+ * @returns The Mapped DTO
+ */
 export function mapAthleteDetails(
     userDetails: User,
     athleteDetails?: Athlete,
     teams?: AthleteTeamDetails[],
-    highlights?: Highlights[]
+    highlights?: Highlight[]
 ): GetAthleteDetailsResponse {
     return {
         type: "athlete",
         data: {
+            emailAddress: userDetails.email,
             firstName: userDetails.firstName,
             lastName: userDetails.lastName,
             dateOfBirth: athleteDetails?.dateOfBirth,
@@ -40,10 +49,10 @@ export function mapAthleteDetails(
 }
 
 /**
- * 
- * @param userDetails 
- * @param team 
- * @returns 
+ * Utility Function that Maps Staff Details to Response
+ * @param userDetails The User Object
+ * @param team The Team (Custom) Object
+ * @returns The Mapped DTO
  */
 export function mapStaffDetails(
     userDetails: User,
@@ -52,6 +61,7 @@ export function mapStaffDetails(
     return {
         type: "staff",
         data: {
+            emailAddress: userDetails.email,
             firstName: userDetails.firstName,
             lastName: userDetails.lastName,
             team

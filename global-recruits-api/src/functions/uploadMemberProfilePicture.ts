@@ -1,30 +1,26 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { generateErrorResponse, generateValidationErrorResponse } from "../errors/helper";
 import { ValidationErrorsResponse } from "../models/GlobalRecruits";
-import { getMemberDetails } from "../services/getMember.service";
+import { uploadMemberProfilePicture } from "../services/uploadMemberProfilePicture";
 import { validateJWT } from "../validation/bearerToken";
+import { validateAndParseMultipartFormData, validateFiles } from "../validation/files";
 import { getOpenApiPath, getParameterSchemas, validateSchemaTuples } from "../validation/schemaValidation";
 
 /**
- * Get Member Azure Function
+ * Upload Member Profile Picture Azure Function
  */
-const getMemberDetailsFunction: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
+const uploadMemberProfilePictureFunction: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
     // Schema Validation
-    const pathSchema = getOpenApiPath("/members/{memberId}", "get");
+    const pathSchema = getOpenApiPath("/members/{memberId}/profilepicture", "post");
     const parameterSchema = getParameterSchemas(pathSchema, "path");
     const validationErrors: ValidationErrorsResponse = validateSchemaTuples([req?.params, parameterSchema]);
     if (validationErrors.length <= 0) {
         try {
+            const files = validateAndParseMultipartFormData(req.body, req.headers);
+            // Allow a Single File - 2 MB in Size
+            await validateFiles(files, 2000000, 1);
             const oauthSub = await validateJWT(req.headers?.["authorization"]);
-            const memberId: string = req.params['memberId'];
-            const data = await getMemberDetails(oauthSub, memberId);
-            context.res = {
-                status: 200,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: data
-            }
+            await uploadMemberProfilePicture(files[0], oauthSub);
         } catch (error: any) {
             context.log.error(error.message);
             context.res = generateErrorResponse(error);
@@ -34,4 +30,4 @@ const getMemberDetailsFunction: AzureFunction = async function (context: Context
     }
 }
 
-export default getMemberDetailsFunction;
+export default uploadMemberProfilePictureFunction;

@@ -7,7 +7,7 @@ import { ValidationErrorsResponse } from "../models/GlobalRecruits";
  * @returns A Validation Error Response as Array
  */
 export function generateValidationError(detail: string, pointer?: string): ValidationErrorsResponse {
-    return <ValidationErrorsResponse> [
+    return [
         {
             title: 'VALIDATION_ERROR',
             detail,

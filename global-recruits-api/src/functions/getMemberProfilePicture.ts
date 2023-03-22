@@ -1,29 +1,29 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { generateErrorResponse, generateValidationErrorResponse } from "../errors/helper";
 import { ValidationErrorsResponse } from "../models/GlobalRecruits";
-import { getMemberDetails } from "../services/getMember.service";
+import { getMemberProfilePicture } from "../services/getMemberProfilePicture";
 import { validateJWT } from "../validation/bearerToken";
 import { getOpenApiPath, getParameterSchemas, validateSchemaTuples } from "../validation/schemaValidation";
 
 /**
- * Get Member Azure Function
+ * Get Member Profile Picture Azure Function
  */
-const getMemberDetailsFunction: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
+const getMemberProfilePictureFunction: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
     // Schema Validation
-    const pathSchema = getOpenApiPath("/members/{memberId}", "get");
+    const pathSchema = getOpenApiPath("/members/{memberId}/profilepicture", "get");
     const parameterSchema = getParameterSchemas(pathSchema, "path");
     const validationErrors: ValidationErrorsResponse = validateSchemaTuples([req?.params, parameterSchema]);
     if (validationErrors.length <= 0) {
         try {
             const oauthSub = await validateJWT(req.headers?.["authorization"]);
             const memberId: string = req.params['memberId'];
-            const data = await getMemberDetails(oauthSub, memberId);
+            const file = await getMemberProfilePicture(oauthSub, memberId);
             context.res = {
                 status: 200,
                 headers: {
-                    'Content-Type': 'application/json'
+                    "Content-Type": file.fileMediaType,
                 },
-                body: data
+                body: file.data
             }
         } catch (error: any) {
             context.log.error(error.message);
@@ -34,4 +34,4 @@ const getMemberDetailsFunction: AzureFunction = async function (context: Context
     }
 }
 
-export default getMemberDetailsFunction;
+export default getMemberProfilePictureFunction;

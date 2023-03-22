@@ -4,14 +4,14 @@ import { beginPostgresTransaction, commitPostgresTransaction, rollbackPostgresTr
 import { Athlete, AthleteRepository } from "../data_access/modules/Athlete";
 import { AthleteTeamRepository } from "../data_access/modules/AthleteTeam";
 import { AthleteTeamYearRepository } from "../data_access/modules/AthleteTeamYear";
-import { HighlightsRepository } from "../data_access/modules/Highlights";
+import { HighlightRepository } from "../data_access/modules/Highlight";
 import { Staff, StaffRepository } from "../data_access/modules/Staff";
-import { Team, TeamRepository } from "../data_access/modules/Team";
+import { TeamRepository } from "../data_access/modules/Team";
 import { UserRepository } from "../data_access/modules/User";
 import { ForbiddenError, NotFoundError, PostgresError, ValidationError } from "../errors/CustomErrors";
 import { isUndefined } from "../helpers/helper";
-import { ActionType, MemberType, TeamType, UpdateAthleteDetailsRequestBody, UpdateStaffDetailsRequestBody } from "../models/GlobalRecruits";
-import { getUserRole } from "../validation/bearerToken";
+import { ActionType, CollegeSubType, MemberType, TeamType, UpdateAthleteDetailsRequestBody, UpdateStaffDetailsRequestBody } from "../models/GlobalRecruits";
+import { getMemberAccess } from "../validation/bearerToken";
 
 /**
  * Initialize Database Repositories
@@ -21,7 +21,7 @@ const athleteRepository = new AthleteRepository();
 const teamRepository = new TeamRepository();
 const athleteTeamRepository = new AthleteTeamRepository();
 const athleteTeamYearRepository = new AthleteTeamYearRepository();
-const highlightRepository = new HighlightsRepository();
+const highlightRepository = new HighlightRepository();
 const staffRepository = new StaffRepository();
 
 /**
@@ -31,36 +31,29 @@ const staffRepository = new StaffRepository();
  */
 export async function updateMemberDetails(
     requestBody: UpdateAthleteDetailsRequestBody | UpdateStaffDetailsRequestBody,
-    oauthSub?: string,
-    userId?: string
+    oauthSub: string,
+    userId: string
 ) {
     const tx = await getPostgresConnection();
     try {
-        let role: MemberType;
-        if (userId && oauthSub) {
-            role = await getUserRole(tx, oauthSub);
-            if (!role || !(role === MemberType.Administrator)) {
-                throw new ForbiddenError("Only Administrators are Allowed to Update Member Information");
-            }
-        }
         await beginPostgresTransaction(tx);
+        const searchUserId = await getMemberAccess(tx, oauthSub, userId, [MemberType.Administrator]);
         const searchUsers = await userRepository.find({
-            oauthSub: userId ? undefined : oauthSub,
-            userId: userId
+            userId: searchUserId
         }, { tx });
         const user = searchUsers[0];
         if (!(searchUsers.length > 0 && user)) {
-            throw new NotFoundError("No user was found with that OAuthSub")
+            throw new NotFoundError("No user was found with that UserId: '" + searchUserId + "'");
         }
-        if (user.userType !== requestBody.type) {
+        if (user.type !== requestBody.type) {
             throw new ValidationError("Your User does NOT belong in the Category of '" + requestBody.type + "'");
         }
         await updateBasicDetails(tx, user.userId, requestBody);
-        if (user.userType === MemberType.Athlete) {
+        if (user.type === MemberType.Athlete) {
             const athlete = await updateAthleteDetails(tx, user.userId, requestBody as UpdateAthleteDetailsRequestBody);
             await updateAthleteTeamDetails(tx, athlete.athleteId, requestBody as UpdateAthleteDetailsRequestBody);
             await updateAthleteHighlights(tx, athlete.athleteId, requestBody as UpdateAthleteDetailsRequestBody);
-        } else if (user.userType === MemberType.Staff) {
+        } else if (user.type === MemberType.Staff) {
             await updateStaffDetails(tx, user.userId, requestBody as UpdateStaffDetailsRequestBody);
         }
         await commitPostgresTransaction(tx);
@@ -120,8 +113,7 @@ async function updateAthleteDetails(
         }, tx);
     } else {
         if (requestBody.data.dateOfBirth && requestBody.data.country
-            && requestBody.data.city && requestBody.data.weight
-            && requestBody.data.height) {
+            && requestBody.data.city) {
             athlete = await athleteRepository.create({
                 userId,
                 dateOfBirth: requestBody.data.dateOfBirth,
@@ -140,167 +132,234 @@ async function updateAthleteDetails(
 }
 
 /**
- * Utility Function (Extra Long) that Adds/Updates/Deletes Athlete Teams & Years
- * @param tx The Transaction Pool Client
- * @param athleteId The Athlete ID (Primary Key of Athlete) to Update
- * @param requestBody New Data to Update With
+ * Update Athlete Team Details
+ * @param tx The Transaction Client
+ * @param athleteId The Athlete ID
+ * @param requestBody The Request Body
  */
 async function updateAthleteTeamDetails(
     tx: PoolClient,
     athleteId: string,
     requestBody: UpdateAthleteDetailsRequestBody
 ) {
-    if (requestBody.data.team) {
-        // Loop through each AthleteTeam Object
+    if (requestBody.data.team && requestBody.data.team.length > 0) {
         for (const team of requestBody.data.team) {
             switch (team.action) {
-                // Handle Addition of New AthleteTeam
+                // ADD an AthleteTeam
                 case ActionType.Add:
-                    if (team.data?.name && team.data?.position &&
-                        team.data?.type) {
-                        if (team.data.years && team.data.years.length > 0) {
-                            const teamEntity = await createOrReuseTeam(tx, team.data.name, team.data.type, team.data.country, team.data.city, team.data.school);
-                            const athleteTeamEntity = await athleteTeamRepository.create({
-                                athleteId,
-                                teamId: teamEntity.teamId,
-                                teamPosition: team.data.position
-                            }, tx);
-                            for (const year of team.data.years) {
-                                if (year.action !== ActionType.Add) {
-                                    throw new ValidationError("You can only 'Add' Yearly Data to a New Team");
-                                }
-                                if (year.data?.year && year.data?.stats?.avgPpg && year.data?.stats?.avgApg && year.data?.stats?.avgRpg) {
-                                    await athleteTeamYearRepository.create({
-                                        athleteTeamId: athleteTeamEntity.athleteTeamId,
-                                        year: year.data.year,
-                                        avgPpg: year.data.stats.avgPpg,
-                                        avgApg: year.data.stats.avgApg,
-                                        avgRpg: year.data.stats.avgRpg
-                                    }, tx);
-                                } else {
-                                    throw new ValidationError("All Athlete Yearly Data are required for 'Addition'");
-                                }
+                    // Ensure all Team Basic Details are there
+                    if (team.data?.name && team.data?.position && team.data?.type) {
+                        validateTeam(requestBody.type as MemberType, team.data.type, team.data.subType, team.data.division, team.data.classOf);
+                        const teamEntity = await createOrReuseTeam(tx, team.data.name, team.data.type, team.data.subType, team.data.division, team.data.country, team.data.city, team.data.school);
+                        const athleteTeamEntity = await athleteTeamRepository.create({
+                            athleteId,
+                            teamId: teamEntity.teamId,
+                            position: team.data.position,
+                            classOf: team.data.classOf
+                        }, tx);
+                        // Make sure that at least a year of Stats is Provided
+                        if (!(team.data.years && team.data.years.length > 0)) {
+                            throw new ValidationError("At least one year of Team Statistics are 'Required'");
+                        }
+                        // Add the Necessary Years (At Least One)
+                        for (const year of team.data.years) {
+                            if (year.action !== ActionType.Add) {
+                                throw new ValidationError("You can only 'Add' yearly data to a New Team");
                             }
-                        } else {
-                            throw new ValidationError("At least one Year of Data is required for 'Addition'");
+                            await updateAthleteTeamYearDetails(
+                                tx,
+                                athleteTeamEntity.athleteTeamId,
+                                year.action,
+                                year.id,
+                                year.data?.year,
+                                year.data?.stats?.avgPpg,
+                                year.data?.stats?.avgApg,
+                                year.data?.stats?.avgRpg
+                            );
                         }
                     } else {
-                        throw new ValidationError("All Team Details are required for 'Addition'");
+                        throw new ValidationError("All team details required for 'Addition'");
                     }
                     break;
-                // Handle Editing of an Existing AthleteTeam
+                // EDIT an AthleteTeam
                 case ActionType.Edit:
-                    if (team.id) {
-                        const athleteTeamEntity = await athleteTeamRepository.findOne(team.id, { tx });
-                        if (athleteTeamEntity) {
-                            let newTeam: Team;
-                            if (team.data?.name || team.data?.type || !isUndefined(team.data?.country) || !isUndefined(team.data?.city) || !isUndefined(team.data?.school)) {
-                                const oldTeam = await teamRepository.findOne(athleteTeamEntity.teamId, { tx });
-                                newTeam = await createOrReuseTeam(
-                                    tx,
-                                    team.data.name ?? oldTeam.teamName,
-                                    team.data.type ?? oldTeam.teamType as TeamType,
-                                    isUndefined(team.data.country) ? oldTeam.country : team.data.country,
-                                    isUndefined(team.data.city) ? oldTeam.city : team.data.city,
-                                    isUndefined(team.data.school) ? oldTeam.school : team.data.school
-                                );
-                            }
-                            await athleteTeamRepository.update(team.id, {
-                                athleteId,
-                                teamId: newTeam?.teamId,
-                                teamPosition: team.data.position
-                            }, tx);
-                            if (newTeam) {
-                                await safeDeleteTeam(tx, athleteTeamEntity.teamId);
-                            }
-                            if (team.data.years && team.data.years.length > 0) {
-                                for (const year of team.data.years) {
-                                    switch (year.action) {
-                                        // Handle Addition of a New AthleteTeamYear
-                                        case ActionType.Add:
-                                            if (year.data.year && year.data.stats?.avgPpg && year.data.stats?.avgApg && year.data.stats?.avgRpg) {
-                                                await athleteTeamYearRepository.create({
-                                                    athleteTeamId: athleteTeamEntity.athleteTeamId,
-                                                    year: year.data.year,
-                                                    avgPpg: year.data.stats.avgPpg,
-                                                    avgApg: year.data.stats.avgApg,
-                                                    avgRpg: year.data.stats.avgRpg
-                                                }, tx);
-                                            } else {
-                                                throw new ValidationError("All Athlete Team Data are required for 'Addition'");
-                                            }
-                                            break;
-                                        // Handle Editing of an Existing AthleteTeamYear
-                                        case ActionType.Edit:
-                                            if (year.id) {
-                                                const athleteTeamYearEntity = await athleteTeamYearRepository.findOne(year.id, { tx });
-                                                if (athleteTeamYearEntity) {
-                                                    await athleteTeamYearRepository.update(year.id, {
-                                                        year: year.data?.year,
-                                                        avgPpg: year.data?.stats?.avgPpg,
-                                                        avgApg: year.data?.stats?.avgApg,
-                                                        avgRpg: year.data?.stats?.avgRpg
-                                                    }, tx);
-                                                } else {
-                                                    throw new NotFoundError("Could NOT Find the Athlete Team Year ID: " + year.id);
-                                                }
-                                            } else {
-                                                throw new ValidationError("An Athlete Team Year ID is Required for an Edit Operation")
-                                            }
-                                            break;
-                                        // Handle Deletion of an Existing AthleteTeamYear
-                                        case ActionType.Delete:
-                                            if (year.id) {
-                                                const athleteTeamYearEntity = await athleteTeamYearRepository.findOne(year.id, { tx });
-                                                if (athleteTeamYearEntity) {
-                                                    const athleteTeamYearEntities = await athleteTeamYearRepository.find({
-                                                        athleteTeamId: team.id
-                                                    }, { tx });
-                                                    if (athleteTeamYearEntities.length <= 1
-                                                        && !team.data.years.find((athleteTeamYears) => athleteTeamYears.action === 'add')) {
-                                                        throw new ValidationError("Could NOT Delete Athlete Team Year ID: " + year.id + " (You MUST have at least one Athlete Team Year)");
-                                                    }
-                                                    await athleteTeamYearRepository.delete(year.id);
-                                                } else {
-                                                    throw new NotFoundError("Could NOT Find the Athlete Team Year ID: " + year.id);
-                                                }
-                                            } else {
-                                                throw new ValidationError("An Athlete Team Year ID is Required for a 'Delete' Operation")
-                                            }
-                                            break;
-                                    }
-                                }
-                            }
-                        } else {
-                            throw new NotFoundError("Could NOT Find the Athlete Team ID: " + team.id)
+                    if (!team.id) {
+                        throw new ValidationError("Please provide a valid AthleteTeam Id");
+                    }
+                    const athleteTeamEntity = await athleteTeamRepository.findOne(team.id, { tx });
+                    if (!athleteTeamEntity) {
+                        throw new NotFoundError("Could not Find the AthleteTeam Id " + team.id);
+                    }
+                    // Get Previous Team Details
+                    const oldTeam = await teamRepository.findOne(athleteTeamEntity.teamId, { tx });
+                    // Determine whether to Use Previous Values
+                    const name = team.data?.name ?? oldTeam.name;
+                    const type = team.data?.type ?? oldTeam.type;
+                    // Handle Nullable Fields
+                    const subType = isUndefined(team.data?.subType) ? oldTeam.subType : team.data?.subType;
+                    const division = isUndefined(team.data?.division) ? oldTeam.division : team.data?.division;
+                    const country = isUndefined(team.data?.country) ? oldTeam.country : team.data?.country;
+                    const city = isUndefined(team.data?.city) ? oldTeam.city : team.data?.city;
+                    const school = isUndefined(team.data?.school) ? oldTeam.school : team.data?.school;
+                    const classOf = isUndefined(team.data?.classOf) ? athleteTeamEntity.classOf : team.data?.classOf;
+                    // Validate Team Input
+                    validateTeam(requestBody.type as MemberType, type, subType, division, classOf);
+                    // Create or Reuse Team Data
+                    const newTeam = await createOrReuseTeam(tx, name, type, subType, division, country, city, school);
+                    // Update AthleteTeam Data
+                    await athleteTeamRepository.update(team.id, {
+                        athleteId,
+                        teamId: newTeam.teamId,
+                        position: team.data?.position,
+                        classOf
+                    }, tx);
+                    // Attempt to Delete Old Team Safely
+                    await safeDeleteTeam(tx, oldTeam.teamId);
+                    if (team.data.years && team.data.years.length > 0) {
+                        for (const year of team.data.years) {
+                            await updateAthleteTeamYearDetails(
+                                tx,
+                                athleteTeamEntity.athleteTeamId,
+                                year.action,
+                                year.id,
+                                year.data?.year,
+                                year.data?.stats?.avgPpg,
+                                year.data?.stats?.avgApg,
+                                year.data?.stats?.avgRpg
+                            );
                         }
-                    } else {
-                        throw new ValidationError("An Athlete Team ID is Required for an Edit Operation")
+                        // Sanity Check that there is at Least 1 Year of Stats
+                        const teamYears = await athleteTeamYearRepository.find({
+                            athleteTeamId: team.id
+                        }, { tx });
+                        if (!(teamYears && teamYears.length > 0)) {
+                            throw new ValidationError("There must be at least 1 year of Stats")
+                        }
                     }
                     break;
-                // Handle Deletion of an Existing AthleteTeam
+                // DELETE an AthleteeTeam
                 case ActionType.Delete:
                     if (team.id) {
                         const athleteTeamEntity = await athleteTeamRepository.findOne(team.id, { tx });
-                        if (athleteTeamEntity) {
-                            const athleteTeamEntities = await athleteTeamRepository.find({
-                                athleteId: athleteId
-                            }, { tx });
-                            if (athleteTeamEntities.length <= 1
-                                && !requestBody.data.team.find((athleteTeams) => athleteTeams.action === 'add')) {
-                                throw new ValidationError("Could NOT Delete Athlete Team ID: " + team.id + " (You MUST have at least one Athlete Team)");
-                            }
-                            await athleteTeamRepository.delete(athleteTeamEntity.athleteTeamId, tx);
-                            await safeDeleteTeam(tx, athleteTeamEntity.teamId);
-                        } else {
-                            throw new NotFoundError("Could NOT Find the Athlete Team ID: " + team.id)
+                        if (!athleteTeamEntity) {
+                            throw new NotFoundError("Could not Find the AthleteTeam Id " + team.id);
                         }
+                        await athleteTeamRepository.delete(athleteTeamEntity.athleteTeamId, tx);
+                        await safeDeleteTeam(tx, athleteTeamEntity.teamId);
                     } else {
-                        throw new ValidationError("An Athlete Team ID is Required for an 'Edit' Operation")
+                        throw new ValidationError("Please provide a valid AthleteTeam Id");
                     }
                     break;
             }
         }
+        const athleteTeams = await athleteTeamRepository.find({
+            athleteId
+        }, { tx });
+        if (!(athleteTeams && athleteTeams.length > 0)) {
+            throw new ValidationError("You must have at least 1 Team")
+        }
+    }
+}
+
+
+/**
+ * Adds/Updates/Deletes a Year of Stats
+ * @param tx The Transaction Client
+ * @param athleteTeamId The Athlete Team ID
+ * @param action The Action ex. Add
+ * @param id The Athlete Team Year ID (for Edit/Delete)
+ * @param year The Year of Stats
+ * @param avgPpg Avg. Points Per Game
+ * @param avgApg Avg. Assists per Game
+ * @param avgRpg Avg. Rebounds per Game
+ */
+async function updateAthleteTeamYearDetails(
+    tx: PoolClient,
+    athleteTeamId: string,
+    action: ActionType,
+    id?: string,
+    year?: number,
+    avgPpg?: number,
+    avgApg?: number,
+    avgRpg?: number
+) {
+    switch (action) {
+        // ADD a Year of Stats
+        case ActionType.Add:
+            if (year && avgPpg && avgApg && avgRpg) {
+                await athleteTeamYearRepository.create({
+                    athleteTeamId,
+                    year,
+                    avgPpg,
+                    avgApg,
+                    avgRpg
+                }, tx);
+            } else {
+                throw new ValidationError("All Athlete Yearly Data are required for 'Addition'");
+            }
+            break;
+        // EDIT a Year of Stats
+        case ActionType.Edit:
+            if (id) {
+                const athleteTeamYearEntity = await athleteTeamYearRepository.findOne(id, { tx });
+                if (athleteTeamYearEntity) {
+                    await athleteTeamYearRepository.update(id, {
+                        year: year,
+                        avgPpg: avgPpg,
+                        avgApg: avgApg,
+                        avgRpg: avgRpg
+                    }, tx);
+                } else {
+                    throw new NotFoundError("Could not Find the AthleteTeamYear Id " + id);
+                }
+            } else {
+                throw new ValidationError("Please provide a valid AthleteTeamYear Id");
+            }
+            break;
+        // DELETE a Year of Stats
+        case ActionType.Delete:
+            if (id) {
+                const athleteTeamYearEntity = await athleteTeamYearRepository.findOne(id, { tx });
+                if (athleteTeamYearEntity) {
+                    await athleteTeamYearRepository.delete(id, tx);
+                } else {
+                    throw new NotFoundError("Could not Find the AthleteTeamYear Id " + id);
+                }
+            } else {
+                throw new ValidationError("Please provide a valid AthleteTeamYear Id");
+            }
+            break;
+    }
+}
+
+/**
+ * General Validation for Teams
+ * @param userType The Member Type ex. Athlete
+ * @param type The Team Type ex. College
+ * @param subType The College Teams Subtype NJCAA, etc.
+ * @param division The NCAA/NJCAA Divisions
+ * @param classOf The Class of (for High School)
+ */
+function validateTeam(userType: MemberType, type: TeamType, subType: CollegeSubType, division: number, classOf?: number) {
+    if ((userType === MemberType.Athlete) && (type === TeamType.ElementarySchool || type === TeamType.MiddleSchool
+        || type === TeamType.HighSchool || type === TeamType.PrepSchool) && !classOf) {
+        throw new ValidationError("A School Team Requires a 'ClassOf'");
+    }
+    if ((userType === MemberType.Athlete) && !(type === TeamType.ElementarySchool || type === TeamType.MiddleSchool
+        || type === TeamType.HighSchool || type === TeamType.PrepSchool) && classOf) {
+        throw new ValidationError("You can only use a 'ClassOf' with School Teams");
+    }
+    if (type === TeamType.College && !subType) {
+        throw new ValidationError("A College Team requires a 'SubType'");
+    }
+    if (type !== TeamType.College && subType) {
+        throw new ValidationError("You can only use a 'SubType' for a College Team");
+    }
+    if ((subType && (subType === CollegeSubType.Ncaa || subType === CollegeSubType.Njcaa)) && !division) {
+        throw new ValidationError("NCAA/NJCAA College Teams Require a 'Division'");
+    }
+    if (!(subType && (subType === CollegeSubType.Ncaa || subType === CollegeSubType.Njcaa)) && division) {
+        throw new ValidationError("You can only use a 'Division' for an NCAA/NJCAA College Team");
     }
 }
 
@@ -367,17 +426,30 @@ async function updateAthleteHighlights(
 /**
  * Utility Function that Creates or Re-Uses a Team
  * @param tx The Transaction Pool Client
- * @param teamName The Team Name
- * @param teamType The Team Type
+ * @param name The Team Name
+ * @param type The Team Type ex. College
+ * @param subType The Team SubType (if College)
+ * @param division The Team Division (if SubType NCAA or NJCAA)
  * @param country The Team Country (Optional)
  * @param city The Team City (Optional)
  * @param school The Team School (Optional)
  * @returns The Team Object 
  */
-async function createOrReuseTeam(tx: PoolClient, teamName: string, teamType: TeamType, country?: string | null, city?: string, school?: string) {
+async function createOrReuseTeam(
+    tx: PoolClient,
+    name: string,
+    type: TeamType,
+    subType?: CollegeSubType,
+    division?: number,
+    country?: string | null,
+    city?: string,
+    school?: string
+) {
     const searchTeams = await teamRepository.find({
-        teamName,
-        teamType,
+        name,
+        type,
+        subType,
+        division,
         country,
         city,
         school
@@ -386,8 +458,10 @@ async function createOrReuseTeam(tx: PoolClient, teamName: string, teamType: Tea
         return searchTeams[0];
     } else {
         return await teamRepository.create({
-            teamName,
-            teamType,
+            name,
+            type,
+            subType,
+            division,
             country,
             city,
             school
@@ -398,7 +472,7 @@ async function createOrReuseTeam(tx: PoolClient, teamName: string, teamType: Tea
 /**
  * Safely Deletes a Team if NOT in Use
  * @param tx The Transaction Pool Client
- * @param teamId The Team ID to Delete
+ * @param teamId The Team ID (Primary Key of Teams) to Delete
  */
 async function safeDeleteTeam(tx: PoolClient, teamId: string) {
     const athleteTeams = await athleteTeamRepository.find({
@@ -428,29 +502,29 @@ export async function updateStaffDetails(
             userId,
         }, { tx });
         let staff: Staff;
-        if (staffSearch.length > 0) {
+        if (staffSearch && staffSearch.length > 0) {
             staff = staffSearch[0];
-            let newTeam: Team;
-            if (requestBody.data.team.type || requestBody.data.team.name
-                || !isUndefined(requestBody.data.team.country) || !isUndefined(requestBody.data.team.city)
-                || !isUndefined(requestBody.data.team.school)) {
-                const oldTeam = await teamRepository.findOne(staff.teamId, { tx });
-                newTeam = await createOrReuseTeam(
-                    tx,
-                    requestBody.data.team.name ?? oldTeam.teamName,
-                    requestBody.data.team.type ?? oldTeam.teamType as TeamType,
-                    isUndefined(requestBody.data.team.country) ? oldTeam.country : requestBody.data.team.country,
-                    isUndefined(requestBody.data.team.city) ? oldTeam.city : requestBody.data.team.city,
-                    isUndefined(requestBody.data.team.school) ? oldTeam.school : requestBody.data.team.school
-                );
-            }
+            // Get Previous Team Details
+            const oldTeam = await teamRepository.findOne(staff.teamId, { tx });
+            // Determine whether to Use Previous Values
+            const name = requestBody.data?.team?.name ?? oldTeam.name;
+            const type = requestBody.data?.team?.type ?? oldTeam.type;
+            // Handle Nullable Fields
+            const subType = isUndefined(requestBody.data?.team?.subType) ? oldTeam.subType : requestBody.data?.team?.subType;
+            const division = isUndefined(requestBody.data?.team?.division) ? oldTeam.division : requestBody.data?.team?.division;
+            const country = isUndefined(requestBody.data?.team?.country) ? oldTeam.country : requestBody.data?.team?.country;
+            const city = isUndefined(requestBody.data?.team?.city) ? oldTeam.city : requestBody.data?.team?.city;
+            const school = isUndefined(requestBody.data?.team?.school) ? oldTeam.school : requestBody.data?.team?.school
+            // Validate Team Input
+            validateTeam(requestBody.type as MemberType, type, subType, division);
+            // Create or Reuse Team Data
+            const newTeam = await createOrReuseTeam(tx, name, type, subType, division, country, city, school);
+            // Update Staff Data
             await staffRepository.update(staff.staffId, {
-                teamPosition: requestBody.data.team.position,
+                position: requestBody.data.team.position,
                 teamId: newTeam?.teamId
             }, tx);
-            if (newTeam) {
-                await safeDeleteTeam(tx, staff.teamId);
-            }
+            await safeDeleteTeam(tx, oldTeam.teamId);
         } else {
             if (requestBody.data.team.name && requestBody.data.team.type
                 && requestBody.data.team.position) {
@@ -458,13 +532,15 @@ export async function updateStaffDetails(
                     tx,
                     requestBody.data.team.name,
                     requestBody.data.team.type,
+                    requestBody.data.team.subType,
+                    requestBody.data.team.division,
                     requestBody.data.team.country,
                     requestBody.data.team.city,
                     requestBody.data.team.school
                 );
                 staff = await staffRepository.create({
                     userId,
-                    teamPosition: requestBody.data.team.position,
+                    position: requestBody.data.team.position,
                     teamId: newTeam.teamId
                 }, tx);
             } else {

@@ -17,6 +17,9 @@ const PostgresUserKey = "POSTGRES_USER";
 const PostgresPasswordKey = "POSTGRES_PASSWORD";
 const PostgresDatabaseKey = "POSTGRES_DATABASE";
 
+const BlobStorageConnectionStringKey = "BLOBSTORAGE_CONNECTIONSTRING";
+const BlobStorageProfilePicturesContainerKey = "BLOBSTORAGE_CONTAINER_PROFILEPICTURES"
+
 // Load Environment Variables
 export const MailchimpApiKey = process.env[MailchimpApiKeyKey] ?? "";
 export const MailchimpServer = process.env[MailchimpServerKey] ?? "";
@@ -32,6 +35,9 @@ export const PostgresUser = process.env[PostgresUserKey] ?? "";
 export const PostgresPassword = process.env[PostgresPasswordKey] ?? "";
 export const PostgresDatabase = process.env[PostgresDatabaseKey] ?? "";
 
+export const BlobStorageConnectionString = process.env[BlobStorageConnectionStringKey] ?? "";
+export const BlobStorageProfilePicturesContainer = process.env[BlobStorageProfilePicturesContainerKey] ?? "";
+
 // Validate Environment Variable Presence
 export const MissingEnvironmentVariables: string[] = [];
 
@@ -45,4 +51,6 @@ if (!PostgresHost) MissingEnvironmentVariables.push(PostgresHostKey);
 if (!PostgresUser) MissingEnvironmentVariables.push(PostgresUserKey);
 if (!PostgresPassword) MissingEnvironmentVariables.push(PostgresPasswordKey);
 if (!PostgresDatabase) MissingEnvironmentVariables.push(PostgresDatabaseKey);
-if (!CognitoIssuerHost) MissingEnvironmentVariables.push(CognitoIssuerHostKey)
+if (!CognitoIssuerHost) MissingEnvironmentVariables.push(CognitoIssuerHostKey);
+if (!BlobStorageConnectionString) MissingEnvironmentVariables.push(BlobStorageConnectionStringKey);
+if (!BlobStorageProfilePicturesContainer) MissingEnvironmentVariables.push(BlobStorageProfilePicturesContainerKey);

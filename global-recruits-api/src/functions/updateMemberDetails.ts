@@ -22,7 +22,8 @@ const updateMemberDetailsFunction: AzureFunction = async function (context: Cont
     if (validationErrors.length <= 0) {
         try {
             const oauthSub = await validateJWT(req.headers?.["authorization"]);
-            await updateMemberDetails(requestBody, oauthSub);
+            const memberId: string = req.params['memberId'];
+            await updateMemberDetails(requestBody, oauthSub, memberId);
             context.res = {
                 status: 204
             }

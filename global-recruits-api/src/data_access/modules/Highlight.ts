@@ -1,12 +1,12 @@
 import { PGRepository } from '../database/PGRepository'
 
-export interface Highlights {
+export interface Highlight {
     highlightId: string,
     athleteId: string,
     url: string
 }
 
-export class HighlightsRepository extends PGRepository<Highlights> {
+export class HighlightRepository extends PGRepository<Highlight> {
     constructor() {
         super({
             table: 'highlights',

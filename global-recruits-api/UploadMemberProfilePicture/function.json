@@ -1,14 +1,14 @@
 {
   "bindings": [
     {
-      "authLevel": "anonymous",
+      "authLevel": "function",
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
       "methods": [
-        "patch"
+        "post"
       ],
-      "route": "@me"
+      "route": "members/{memberId}/profilepicture"
     },
     {
       "type": "http",
@@ -16,5 +16,5 @@
       "name": "res"
     }
   ],
-  "scriptFile": "../dist/src/functions/updatePersonalDetails.js"
+  "scriptFile": "../dist/src/functions/uploadMemberProfilePicture.js"
 }

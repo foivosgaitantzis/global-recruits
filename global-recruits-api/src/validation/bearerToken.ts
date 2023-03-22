@@ -1,7 +1,6 @@
 import axios from "axios";
 import { JWTVerifyOptions, createLocalJWKSet, jwtVerify, KeyLike } from "jose";
 import { PoolClient } from "pg";
-import { getPostgresConnection } from "../data_access/database/connect";
 import { UserRepository } from "../data_access/modules/User";
 import { CognitoError, ExpiredTokenError, ForbiddenError, InvalidTokenError, MissingTokenError, PostgresError } from "../errors/CustomErrors";
 import { CognitoIssuerHost, CognitoUserpoolId } from "../helpers/loadEnvironmentVariables";
@@ -36,9 +35,46 @@ export async function getUserRole(tx: PoolClient, oauthSub: string): Promise<Mem
         }, { tx });
         const user = userSearch?.[0];
         if (user) {
-            return user.userType as MemberType;
+            return user.type as MemberType;
         } else {
             throw new ForbiddenError("Could NOT Find User");
+        }
+    } catch (error: any) {
+        if (error instanceof ForbiddenError) {
+            throw error;
+        }
+        throw new PostgresError(error.message);
+    }
+}
+
+/**
+ * Get Member Access 
+ * @param tx The Pool Client
+ * @param oauthSub The OAuthSub of the Logged in User
+ * @param userId The User ID to Fetch (MemberId)
+ * @param allowedAccessMembers The Roles Allowed to Access ALL User IDs (ex. [Administrator, Staff])
+ * @returns The User ID
+ */
+export async function getMemberAccess(tx: PoolClient, oauthSub: string, userId: string, allowedAccessMembers: MemberType[]): Promise<string> {
+    try {
+        const meSearch = await userRepository.find({
+            oauthSub
+        }, { tx });
+        if (!(meSearch && meSearch.length > 0)) {
+            throw new ForbiddenError("You are not a Valid User");
+        }
+        if (userId === "@me") {
+            return meSearch[0].userId;
+        } else {
+            if (userId === meSearch[0].userId) {
+                return userId;
+            } else {
+                if (allowedAccessMembers.includes(meSearch[0].type)) {
+                    return userId;
+                } else {
+                    throw new ForbiddenError("You are not allowed to Access this");
+                }
+            }
         }
     } catch (error: any) {
         if (error instanceof ForbiddenError) {
