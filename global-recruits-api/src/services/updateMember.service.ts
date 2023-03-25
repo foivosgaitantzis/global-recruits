@@ -142,8 +142,8 @@ async function updateAthleteTeamDetails(
     athleteId: string,
     requestBody: UpdateAthleteDetailsRequestBody
 ) {
-    if (requestBody.data.team && requestBody.data.team.length > 0) {
-        for (const team of requestBody.data.team) {
+    if (requestBody.data.teams && requestBody.data.teams.length > 0) {
+        for (const team of requestBody.data.teams) {
             switch (team.action) {
                 // ADD an AthleteTeam
                 case ActionType.Add:

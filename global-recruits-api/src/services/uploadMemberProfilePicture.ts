@@ -4,6 +4,7 @@ import { BlobStorageProfilePicturesContainer } from "../helpers/loadEnvironmentV
 import { getBlobStorageContainerClient, saveFileToBlobStorage } from "./blobStorage.service";
 import { File } from "../models/File";
 import { getMemberAccess } from "../validation/bearerToken";
+import { MemberIdMeParameter } from "../models/GlobalRecruits";
 
 /**
  * Service Function that Uploads a Member Profile Picture
@@ -16,7 +17,7 @@ export async function uploadMemberProfilePicture(
 ) {
     const tx = await getPostgresConnection();
     try {
-        const userId = await getMemberAccess(tx, oauthSub, "@me", []);
+        const userId = await getMemberAccess(tx, oauthSub, MemberIdMeParameter.TypeMe, []);
         const blobClient = getBlobStorageContainerClient(BlobStorageProfilePicturesContainer);
         await saveFileToBlobStorage(blobClient, userId, file);
     } catch (error: any) {

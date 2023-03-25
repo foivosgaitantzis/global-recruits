@@ -8,6 +8,9 @@ import { useStateDispatchContext, useStateContext } from "../../shared/state/App
 import { LoadedStatus } from "../../shared/state/models/LoadedStatusEnum";
 import AppRouting from "./AppRouting";
 
+/**
+ * TODO: Hook that Loads a Course on Initial Entry
+ */
 const useCourseLoad = (courseCode: string | undefined) => {
     const setAppState = useStateDispatchContext();
     const courseLoadedStatus = useStateContext().courseContent?.[courseCode ?? ""]?.courseLoaded;
@@ -32,6 +35,10 @@ const useCourseLoad = (courseCode: string | undefined) => {
     });
 }
 
+/**
+ * TODO: Course App that Loads Course on Initial Entry
+ * @returns Returns the Course Content Router
+ */
 export default function CourseApp() {
     let { courseCode } = useParams();
     useCourseLoad(courseCode);

@@ -1,10 +1,11 @@
+import { PositionType } from '../../models/GlobalRecruits'
 import { PGRepository } from '../database/PGRepository'
 
 export interface AthleteTeam {
     athleteTeamId: string,
     athleteId: string,
     teamId: string,
-    position: string,
+    position: PositionType,
     classOf?: number
 }
 

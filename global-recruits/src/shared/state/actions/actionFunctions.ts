@@ -1,11 +1,18 @@
 import { LoadedStatus } from "../models/LoadedStatusEnum";
 import { UserModel } from "../models/User";
-import { ChangeCourseContentAction, ChangeCourseLoadedStatusAction, ChangeMemberLoadedStatusAction, ChangeUserAction } from "./actions";
+import { ChangeCourseContentAction, ChangeCourseLoadedStatusAction, ChangeMemberLoadedStatusAction, ChangeProfilePictureAction, ChangeUserAction } from "./actions";
 
 function createChangeUserAction(user: UserModel): ChangeUserAction {
     return {
         type: "Change User",
         user
+    }
+}
+
+function createChangeProfilePictureAction(profilePicture?: File): ChangeProfilePictureAction {
+    return {
+        type: "Change User Profile Picture",
+        profilePicture
     }
 }
 
@@ -34,6 +41,7 @@ function createChangeCourseContentAction(course: string, XMLContent: string): Ch
 
 export const StateActionCreators = {
     createChangeUserAction,
+    createChangeProfilePictureAction,
     createChangeMemberLoadedStatusAction,
     createChangeCourseLoadedStatusAction,
     createChangeCourseContentAction

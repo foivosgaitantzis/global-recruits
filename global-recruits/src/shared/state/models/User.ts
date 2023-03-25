@@ -1,25 +1,15 @@
-import { UserType } from "./UserType.enum"
+import { GetAthleteDetailsResponse, GetStaffDetailsResponse } from "../../specification/GlobalRecruits"
 
 /**
  * The User Model (Inspired from Cognito)
  */
-export interface UserModel {
-    pgUserType: UserType,
+interface CognitoUserModel {
     username: string,
     attributes: {
         sub: string,
         email: string,
         name: string
-    },
-    signInUserSession: {
-        idToken: {
-            jwtToken: string
-        },
-        refreshToken: {
-            token: string
-        },
-        accessToken: {
-            jwtToken: string
-        }
     }
 }
+
+export type UserModel = GetAthleteDetailsResponse | GetStaffDetailsResponse;

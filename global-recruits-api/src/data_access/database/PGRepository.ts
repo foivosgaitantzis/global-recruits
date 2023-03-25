@@ -27,7 +27,7 @@ export class PGRepository<T> implements BaseRepository<T, PoolClient> {
         primaryKey?: string
         mapping: Record<keyof T, ColumnData>
     }) {
-        const aliasMapper = buildAliasMapper<T>(mapping)
+        const aliasMapper = buildAliasMapper<T>(mapping, table)
 
         this.table = `"${table}"`
         this.columnAlias = aliasMapper

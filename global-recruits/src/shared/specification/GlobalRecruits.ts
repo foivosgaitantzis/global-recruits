@@ -200,24 +200,6 @@ export interface AthleteTeamYear {
   data: { year: number; stats: { avgPpg: number; avgApg: number; avgRpg: number } };
 }
 
-export interface AthleteSignificantStats {
-  team: {
-    type: TeamType;
-    subType?: CollegeSubType;
-    division?: number;
-    classOf?: number;
-    name: string;
-    position: PositionType;
-    country?: string;
-    city?: string;
-    school?: string;
-  };
-
-  /** @format int32 */
-  year: number;
-  stats: { avgPpg: number; avgApg: number; avgRpg: number };
-}
-
 export interface GetAthleteDetailsResponse {
   type: "athlete";
   data: {
@@ -230,7 +212,6 @@ export interface GetAthleteDetailsResponse {
     height?: HeightFeetMeasurementData | HeightMeterMeasurementData;
     weight?: WeightKgMeasurementData | WeightPoundMeasurementData;
     teams?: AthleteTeam[];
-    significantStats?: AthleteSignificantStats;
     highlights?: { id: string; data: string }[];
   };
 }
@@ -256,6 +237,7 @@ export interface GetStaffDetailsResponse {
   data: { emailAddress: string; firstName?: string; lastName?: string; team?: StaffTeam };
 }
 
+import { Auth } from "aws-amplify";
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, ResponseType } from "axios";
 
 export type QueryParamsType = Record<string | number, any>;
@@ -300,6 +282,20 @@ export class HttpClient<SecurityDataType = unknown> {
 
   constructor({ securityWorker, secure, format, ...axiosConfig }: ApiConfig<SecurityDataType> = {}) {
     this.instance = axios.create({ ...axiosConfig, baseURL: axiosConfig.baseURL || "https://api.globalrecruits.net" });
+    this.instance.interceptors.request.use(
+      async config => {
+        const currentSession = await Auth.currentSession();
+        const jwt = currentSession.getAccessToken().getJwtToken();
+        if (jwt) {
+          config.headers = config.headers ?? {};
+          config.headers["Authorization"] = "Bearer " + jwt;
+        }
+        return config;
+      },
+      error => {
+        Promise.reject(error);
+      }
+    )
     this.secure = secure;
     this.format = format;
     this.securityWorker = securityWorker;
@@ -314,7 +310,7 @@ export class HttpClient<SecurityDataType = unknown> {
       ...this.instance.defaults,
       ...params1,
       ...(params2 || {}),
-      headers: {
+      headers: <any> {
         ...(this.instance.defaults.headers || {}),
         ...(params1.headers || {}),
         ...((params2 && params2.headers) || {}),
@@ -355,9 +351,10 @@ export class HttpClient<SecurityDataType = unknown> {
     const responseFormat = (format && this.format) || void 0;
 
     if (type === ContentType.FormData && body && body !== null && typeof body === "object") {
-      requestParams.headers.common = { Accept: "*/*" };
-      requestParams.headers.post = {};
-      requestParams.headers.put = {};
+      requestParams.headers = requestParams.headers ?? {};
+      requestParams.headers.common = <any> { Accept: "*/*" };
+      requestParams.headers.post = <any> {};
+      requestParams.headers.put = <any> {};
 
       body = this.createFormData(body as Record<string, unknown>);
     }

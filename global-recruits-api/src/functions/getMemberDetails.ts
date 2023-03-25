@@ -4,11 +4,13 @@ import { ValidationErrorsResponse } from "../models/GlobalRecruits";
 import { getMemberDetails } from "../services/getMember.service";
 import { validateJWT } from "../validation/bearerToken";
 import { getOpenApiPath, getParameterSchemas, validateSchemaTuples } from "../validation/schemaValidation";
+import intercept = require("azure-function-log-intercept");
 
 /**
  * Get Member Azure Function
  */
 const getMemberDetailsFunction: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
+    intercept(context);
     // Schema Validation
     const pathSchema = getOpenApiPath("/members/{memberId}", "get");
     const parameterSchema = getParameterSchemas(pathSchema, "path");

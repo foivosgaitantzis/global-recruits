@@ -5,5 +5,6 @@ import { UserModel } from "./User";
 export interface AppStateModel {
     memberLoadedStatus: LoadedStatus,
     user?: UserModel,
+    profilePicture?: File,
     courseContent?: CourseContentModel
 }

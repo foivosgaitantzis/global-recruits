@@ -753,62 +753,6 @@ components:
                   type: number
                   format: int32
     
-    # AthleteSignificantStats
-    AthleteSignificantStats:
-      title: AthleteSignificantStats
-      type: object
-      required: 
-        - team
-        - year
-        - stats
-      properties:
-        team: 
-          type: object
-          required: 
-          - type
-          - name
-          - position
-          properties:
-            type: 
-              $ref: "#/components/schemas/TeamType"
-            subType: 
-              $ref: "#/components/schemas/CollegeSubType"
-            division: 
-              type: number
-              format: int32
-            classOf:
-              type: number
-              format: int32
-            name: 
-              type: string
-            position: 
-              $ref: "#/components/schemas/PositionType"
-            country:
-              type: string
-            city:
-              type: string
-            school: 
-              type: string
-        year:
-          type: number
-          format: int32
-        stats: 
-          type: object
-          required:
-            - avgPpg
-            - avgApg
-            - avgRpg
-          properties: 
-            avgPpg:
-              type: number
-              format: int32
-            avgApg:
-              type: number
-              format: int32
-            avgRpg: 
-              type: number
-              format: int32
-    
     GetAthleteDetailsResponse:
       title: GetAthleteDetailsResponse
       type: object
@@ -850,8 +794,6 @@ components:
               type: array
               items: 
                 $ref: "#/components/schemas/AthleteTeam"
-            significantStats: 
-              $ref: "#/components/schemas/AthleteSignificantStats"
             highlights:
               type: array
               items: 
@@ -916,7 +858,7 @@ components:
               type: string
             team:
               $ref: "#/components/schemas/StaffTeam"
-
+              
   examples:
     ValidationErrorsResponse:
       value:

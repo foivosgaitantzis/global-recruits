@@ -1,4 +1,4 @@
-import { ChangeCourseContentAction, ChangeCourseLoadedStatusAction, ChangeMemberLoadedStatusAction, ChangeUserAction, StateActions } from "../actions/actions";
+import { ChangeCourseContentAction, ChangeCourseLoadedStatusAction, ChangeMemberLoadedStatusAction, ChangeProfilePictureAction, ChangeUserAction, StateActions } from "../actions/actions";
 import { AppStateModel } from "../models/AppStateModel";
 import { LoadedStatus } from "../models/LoadedStatusEnum";
 
@@ -9,6 +9,13 @@ export function AppStateReducer(state: AppStateModel, action: StateActions): App
             return {
                 ...state,
                 user: changeUserAction.user
+            }
+        }
+        case "Change User Profile Picture": {
+            const changeProfilePictureAction = action as ChangeProfilePictureAction;
+            return {
+                ...state,
+                profilePicture: changeProfilePictureAction.profilePicture
             }
         }
         case "Change Member Loaded Status": {

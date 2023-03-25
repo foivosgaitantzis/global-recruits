@@ -9,9 +9,9 @@ import { TeamRepository } from "../data_access/modules/Team";
 import { UserRepository } from "../data_access/modules/User";
 import { ForbiddenError, NotFoundError, PostgresError } from "../errors/CustomErrors";
 import { mapAthleteDetails, mapStaffDetails } from "../maps/getMemberDetails.map";
-import { AthleteTeamDetails, StaffTeamDetails } from "../models/getMemberDetails";
-import { CollegeSubType, GetAthleteDetailsResponse, GetStaffDetailsResponse, MemberType, PositionType, TeamType } from "../models/GlobalRecruits";
+import { AthleteSignificantStats, AthleteTeam, CollegeSubType, GetAthleteDetailsResponse, GetStaffDetailsResponse, MemberType, PositionType, StaffTeam, TeamType } from "../models/GlobalRecruits";
 import { getMemberAccess } from "../validation/bearerToken";
+import { getAthleteMostSignificantTeam } from "./athleteStats.service";
 
 /**
  * Initialize Database Repositories
@@ -48,22 +48,24 @@ export async function getMemberDetails(
                 userId: user.userId
             }, { tx });
             const athlete = athleteSearch[0];
-            let athleteTeams: AthleteTeamDetails[] = [];
+            let athleteTeams: AthleteTeam[] = [];
             let highlights: Highlight[] = [];
+            let significantStats: AthleteSignificantStats;
             if (athlete) {
                 athleteTeams = await unpackAthleteTeamDetails(tx, athlete.athleteId);
                 highlights = await highlightRepository.find({
                     athleteId: athlete.athleteId
                 }, { tx });
+                // significantStats = await unpackMostSignificantAthleteStats(tx, athlete.athleteId);
             }
-            return mapAthleteDetails(user, athlete, athleteTeams, highlights);
+            return mapAthleteDetails(user, athlete, athleteTeams, highlights, significantStats);
         } else if (user.type === MemberType.Staff) {
             await getMemberAccess(tx, oauthSub, userId, [MemberType.Administrator]);
             const staffSearch = await staffRepository.find({
                 userId: user.userId
             }, { tx });
             const staff = staffSearch[0];
-            let staffTeam: StaffTeamDetails = undefined;
+            let staffTeam: StaffTeam = undefined;
             if (staff) {
                 staffTeam = await unpackStaffTeamDetails(tx, staff.teamId, staff.position);
             }
@@ -88,7 +90,7 @@ export async function getMemberDetails(
 async function unpackAthleteTeamDetails(
     tx: PoolClient,
     athleteId: string
-): Promise<AthleteTeamDetails[]> {
+): Promise<AthleteTeam[]> {
     const athleteTeamSearch = await athleteTeamRepository.find({
         athleteId
     }, { tx });
@@ -131,6 +133,40 @@ async function unpackAthleteTeamDetails(
 }
 
 /**
+ * Function that Unpacks Athlete Most Significant Team Details
+ * @param tx The Transaction Pool Client  
+ * @param athleteId The Athlete ID (Primary Key of Athletes)
+ * @returns Athlete's Most Significant Team
+ */
+async function unpackMostSignificantAthleteStats(
+    tx: PoolClient,
+    athleteId: string
+): Promise<AthleteSignificantStats | undefined> {
+    const mostSignificantTeam = await getAthleteMostSignificantTeam(tx, athleteId);
+    if (mostSignificantTeam) {
+        return {
+            team: {
+                type: mostSignificantTeam.type,
+                subType: mostSignificantTeam.subType,
+                division: mostSignificantTeam.division,
+                classOf: mostSignificantTeam.classOf,
+                name: mostSignificantTeam.name,
+                position: mostSignificantTeam.position,
+                country: mostSignificantTeam.country,
+                city: mostSignificantTeam.city,
+                school: mostSignificantTeam.school
+            },
+            year: mostSignificantTeam.year,
+            stats: {
+                avgPpg: mostSignificantTeam.avgPpg,
+                avgApg: mostSignificantTeam.avgApg,
+                avgRpg: mostSignificantTeam.avgRpg
+            }
+        }
+    }
+}
+
+/**
  * 
  * @param tx The Transaction Pool Client   
  * @param teamId The Team ID (Primary Key of Teams)
@@ -141,7 +177,7 @@ async function unpackStaffTeamDetails(
     tx: PoolClient,
     teamId?: string,
     position?: string
-): Promise<StaffTeamDetails> {
+): Promise<StaffTeam> {
     const teamSearch = await teamRepository.find({
         teamId: teamId
     }, { tx });

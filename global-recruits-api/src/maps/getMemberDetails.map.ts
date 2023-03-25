@@ -1,8 +1,8 @@
 import { Athlete } from "../data_access/modules/Athlete";
 import { Highlight } from "../data_access/modules/Highlight";
+import { Team } from "../data_access/modules/Team";
 import { User } from "../data_access/modules/User";
-import { AthleteTeamDetails, StaffTeamDetails } from "../models/getMemberDetails";
-import { GetAthleteDetailsResponse, GetStaffDetailsResponse, HeightUnit, WeightUnit } from "../models/GlobalRecruits";
+import { AthleteSignificantStats, AthleteTeam, AthleteTeamYear, GetAthleteDetailsResponse, GetStaffDetailsResponse, HeightUnit, StaffTeam, WeightUnit } from "../models/GlobalRecruits";
 
 /**
  * Utility Function that Maps Athlete Details to Response
@@ -15,8 +15,9 @@ import { GetAthleteDetailsResponse, GetStaffDetailsResponse, HeightUnit, WeightU
 export function mapAthleteDetails(
     userDetails: User,
     athleteDetails?: Athlete,
-    teams?: AthleteTeamDetails[],
-    highlights?: Highlight[]
+    teams?: AthleteTeam[],
+    highlights?: Highlight[],
+    significantStats?: AthleteSignificantStats
 ): GetAthleteDetailsResponse {
     return {
         type: "athlete",
@@ -39,7 +40,8 @@ export function mapAthleteDetails(
                     value: athleteDetails.weight
                 }
                 : undefined,
-            team: teams,
+            teams,
+            significantStats,
             highlights: highlights?.map(highlight => ({
                 id: highlight.highlightId,
                 data: highlight.url
@@ -56,7 +58,7 @@ export function mapAthleteDetails(
  */
 export function mapStaffDetails(
     userDetails: User,
-    team?: StaffTeamDetails
+    team?: StaffTeam
 ): GetStaffDetailsResponse {
     return {
         type: "staff",

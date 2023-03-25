@@ -4,7 +4,7 @@ import { PoolClient } from "pg";
 import { UserRepository } from "../data_access/modules/User";
 import { CognitoError, ExpiredTokenError, ForbiddenError, InvalidTokenError, MissingTokenError, PostgresError } from "../errors/CustomErrors";
 import { CognitoIssuerHost, CognitoUserpoolId } from "../helpers/loadEnvironmentVariables";
-import { MemberType } from "../models/GlobalRecruits";
+import { MemberIdMeParameter, MemberType } from "../models/GlobalRecruits";
 
 const userRepository = new UserRepository();
 
@@ -63,7 +63,7 @@ export async function getMemberAccess(tx: PoolClient, oauthSub: string, userId: 
         if (!(meSearch && meSearch.length > 0)) {
             throw new ForbiddenError("You are not a Valid User");
         }
-        if (userId === "@me") {
+        if (userId === MemberIdMeParameter.TypeMe) {
             return meSearch[0].userId;
         } else {
             if (userId === meSearch[0].userId) {

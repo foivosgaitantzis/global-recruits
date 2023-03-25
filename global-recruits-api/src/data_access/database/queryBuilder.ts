@@ -5,7 +5,7 @@ import { AnyObject, ColumnData } from "./types"
  * @param obj The Object Mappings ex. { userId: 'userid' }
  * @returns The Mapped DTO
  */
-export function buildAliasMapper<T extends AnyObject>(obj: Record<keyof T, ColumnData>) {
+export function buildAliasMapper<T extends AnyObject>(obj: Record<keyof T, ColumnData>, table: string) {
 	// use ES6 Map structure for performance reasons
 	// More here: https://www.measurethat.net/Benchmarks/Show/11290/4/map-vs-object-real-world-performance
 	const _mapper = new Map<keyof T, string>()
@@ -19,7 +19,7 @@ export function buildAliasMapper<T extends AnyObject>(obj: Record<keyof T, Colum
 	}
 
 	// And return function what will get JS key and output PostgreSQL column name
-	return (col: keyof T): string => `"${_mapper.get(col)!}"`
+	return (col: keyof T): string => `${table}."${_mapper.get(col)!}"`
 }
 
 /**
