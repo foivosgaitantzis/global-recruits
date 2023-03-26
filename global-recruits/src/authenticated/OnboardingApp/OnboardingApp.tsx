@@ -133,7 +133,7 @@ export default function OnboardingApp() {
 
     return (
         typeof onboardingPage !== 'undefined'
-            ? <div className="gradient-theme font-custom text-[#4e2217] px-4 sm:px-0 h-full min-h-screen flex items-center justify-center flex-wrap m-auto">
+            ? <div className="gradient-theme font-custom text-[#4e2217] px-4 sm:px-0 h-full min-h-screen flex justify-center flex-wrap m-auto">
                 <div className="my-4 w-full landscape:w-2/3 md:landscape:w-1/3 bg-white p-8 text-center">
                     <img src="/logo.png" className="my-2 w-1/4 mx-auto" />
                     <SectionTitle>{onboardingPage === 0 ? "Complete your Profile" : ONBOARDING_STEPS[user?.type as MemberType][onboardingPage - 1].name} </SectionTitle>

@@ -19,6 +19,11 @@ interface SelectFieldProps {
     required?: boolean
 }
 
+/**
+ * A Custom Abstraction of a Select Field
+ * @param props [value, onChange, stateKey, label?, errorMessage?, placeholder?, className?, hideDefault?, required]
+ * @returns The Select Field
+ */
 export default function SelectField(props: SelectFieldProps) {
     const placeHolderText = props.placeholder ?? "Please Select";
     const renderErrorMessage = () => {
@@ -38,12 +43,12 @@ export default function SelectField(props: SelectFieldProps) {
         if (props.label) {
             return <>
                 {props.label} {props.required && <span className="text-red-500">*</span>}
-            </> 
+            </>
         } else {
             return <br />
         }
     }
-    
+
     return (
         <label className={"w-full block text-left " + props.className}>
             {renderLabel()}

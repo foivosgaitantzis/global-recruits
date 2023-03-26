@@ -13,6 +13,10 @@ body {
 	height: 100vh;
 }
 
+select {
+	-webkit-appearance: none;
+}
+
 /*.gradient-theme {
 	background: linear-gradient(90deg, rgba(255, 255, 255, 0.9) 0%, rgba(137, 207, 241, 0.33) 100%);
 }

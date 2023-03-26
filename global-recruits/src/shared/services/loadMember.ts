@@ -18,6 +18,11 @@ export async function loadMemberDetails(): Promise<UserModel> {
     return response.data;
 }
 
+/**
+ * Utility Function that Creates an Image HTML Element from a Picture File
+ * @param file The Picture File
+ * @returns The HTML Image Element
+ */
 export async function createPictureElement(file: File) {
     const arrayBuffer = await file?.arrayBuffer();
     const buffer =  Buffer.from(arrayBuffer as any, "base64");

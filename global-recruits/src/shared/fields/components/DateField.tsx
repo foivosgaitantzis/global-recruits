@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { AiFillCloseCircle } from "react-icons/ai";
 import { DateTime } from "luxon";
 
@@ -12,6 +12,11 @@ interface DateFieldProps {
     required?: boolean
 }
 
+/**
+ * A Custom Abstraction of a Date Field
+ * @param props [value, onChange, label?, errorMessage?, placeholder?, className?, required]
+ * @returns The Date Fields
+ */
 export default function DateField(props: DateFieldProps) {
     const date = DateTime.fromISO(props.value);
     const isoDate = date.toISODate()

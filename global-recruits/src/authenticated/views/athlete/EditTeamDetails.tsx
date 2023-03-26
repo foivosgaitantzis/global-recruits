@@ -2,7 +2,7 @@ import { DateTime } from "luxon";
 import { ChangeEvent, useState } from "react";
 import InputField from "../../../shared/fields/components/InputField";
 import SelectField from "../../../shared/fields/components/SelectField";
-import { CountryList } from "../../../shared/helpers/countryList";
+import { CountryList } from "../../../shared/models/CountryList";
 import { AthleteTeam, CollegeSubType, PositionType, TeamType } from "../../../shared/specification/GlobalRecruits";
 import { getViewStateFieldErrorMessage, getViewStateFieldValue, RenderViewState, setViewStateFieldValue } from "../helper";
 import { ViewState, ViewStatus } from "../models";

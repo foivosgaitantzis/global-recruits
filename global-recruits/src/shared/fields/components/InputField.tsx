@@ -14,6 +14,11 @@ interface InputFieldProps {
     required?: boolean
 }
 
+/**
+ * A Custom Abstraction of an Input Field
+ * @param props [value, onChange, stateKey, label?, errorMessage?, placeholder?, className?, minLength?, maxLength?, required]
+ * @returns The Input Field
+ */
 export default function InputField(props: InputFieldProps) {
     const placeHolderText = props.placeholder ??
         (props.label ? "Your " + props.label : "")

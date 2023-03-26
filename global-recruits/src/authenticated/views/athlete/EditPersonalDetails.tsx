@@ -6,7 +6,7 @@ import ProfileImageUploader from "../../../shared/fields/components/ProfileImage
 import SelectField from "../../../shared/fields/components/SelectField";
 import { ValidationType } from "../../../shared/fields/models";
 import validateFieldData from "../../../shared/fields/validators";
-import { CountryList } from "../../../shared/helpers/countryList";
+import { CountryList } from "../../../shared/models/CountryList";
 import { ApiBaseUrl } from "../../../shared/helpers/loadEnvironmentVariables";
 import { Api, GetAthleteDetailsResponse, MemberIdMeParameter } from "../../../shared/specification/GlobalRecruits";
 import { StateActionCreators } from "../../../shared/state/actions/actionFunctions";

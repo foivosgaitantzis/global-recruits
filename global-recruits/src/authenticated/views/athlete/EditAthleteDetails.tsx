@@ -1,16 +1,16 @@
 import { ChangeEvent, useState } from "react";
-import ProfileImageUploader from "../../../shared/fields/components/ProfileImageUploader";
 import { ApiBaseUrl } from "../../../shared/helpers/loadEnvironmentVariables";
 import { Api, GetAthleteDetailsResponse, HeightUnit, MemberIdMeParameter, WeightUnit } from "../../../shared/specification/GlobalRecruits";
-import { useStateContext, useStateDispatchContext } from "../../../shared/state/AppStateProvider";
+import { useStateContext } from "../../../shared/state/AppStateProvider";
 import EditButtons from "../EditButtons";
 import { ViewState, ViewStatus } from "../models";
-import { getViewStateFieldErrorMessage, getViewStateFieldValue, RenderViewState, setViewStateErrorMessage, setViewStateFieldErrorMessage, setViewStateFieldValue, setViewStateStatus } from "../helper";
+import { getViewStateFieldErrorMessage, getViewStateFieldValue, RenderViewState, setViewStateErrorMessage, setViewStateFieldErrorMessage, setViewStateFieldValue } from "../helper";
 import InputField from "../../../shared/fields/components/InputField";
 import SelectField from "../../../shared/fields/components/SelectField";
 import { AiFillCloseCircle } from "react-icons/ai";
 import validateFieldData from "../../../shared/fields/validators";
 import { ValidationType } from "../../../shared/fields/models";
+import TextArea from "../../../shared/fields/components/TextArea";
 
 interface AthleteDetailsProps {
     submitName: string,
@@ -25,8 +25,8 @@ export default function EditAthleteDetails(props: AthleteDetailsProps) {
         switch (user.data.height?.unit) {
             case HeightUnit.Feet:
                 const values = (user.data.height?.value.toString() ?? "").split(".");
-                const feetValue = (values.length == 2) && values[0];
-                const inchesValue = (values.length == 2) && values[1];
+                const feetValue = (values.length === 2) && values[0];
+                const inchesValue = (values.length === 2) && values[1];
                 return {
                     heightUnit: HeightUnit.Feet,
                     heightMetersValue: "",
@@ -76,6 +76,9 @@ export default function EditAthleteDetails(props: AthleteDetailsProps) {
     const [viewState, setViewState] = useState<ViewState>({
         status: ViewStatus.Loaded,
         fields: {
+            summary: {
+                value: "" // TODO: Add to API
+            },
             heightFeetValue: {
                 value: userHeight.heightFeetValue
             },
@@ -118,7 +121,7 @@ export default function EditAthleteDetails(props: AthleteDetailsProps) {
         }
     }
 
-    const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const key = event.currentTarget.getAttribute("data-statekey");
         var numberRegex = /^-?\d*$/;
         var meterRegex = /^-?\d{1,1}(\.\d{0,2})?$/;
@@ -258,6 +261,9 @@ export default function EditAthleteDetails(props: AthleteDetailsProps) {
 
     return (
         <RenderViewState state={viewState}>
+            <div className="flex flex-col gap-x-4 lg:flex-row items-center justify-center mx-auto">
+                <TextArea required={true} wordLimit={5} stateKey="summary" placeholder="Your Athletic Summary" label="Summary" value={getViewStateFieldValue(viewState, "summary")} onChange={handleInputChange}/>
+            </div>
             <div className="pt-4">
                 Height
                 <div className="flex flex-col gap-x-4 lg:flex-row items-center justify-center w-2/3 mx-auto">

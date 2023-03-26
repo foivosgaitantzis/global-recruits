@@ -1,11 +1,20 @@
 import { ValidationInput, ValidationType } from "./models";
 
-export default function validateFieldData(fieldName: string, value: string | number, required: boolean, validationInputs: ValidationInput[]): string[] {
+/**
+ * Custom Validator Function: Get Error Messages
+ * @param fieldName The Field Name to Validate ex. 'First Name'
+ * @param value The Value of the field ex. Joe
+ * @param required True/False Depending on if the Field is Required
+ * @param validationInputs Custom Validator Functions Array
+ * @param requiredErrorMessage Whether or not the Error Message is Required
+ * @returns An Array of Error Messsages (Strings)
+ */
+export default function validateFieldData(fieldName: string, value: string | number, required: boolean, validationInputs: ValidationInput[], requiredErrorMessage?: string): string[] {
     const errorMessages: string[] = [];
 
     // Check for Required Nature
     if (required && !value) {
-        errorMessages.push(fieldName + " is Required");
+        errorMessages.push(requiredErrorMessage ?? (fieldName + " is Required"));
     }
 
     for (const validationInput of validationInputs) {

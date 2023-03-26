@@ -1,32 +1,20 @@
-import { ChangeEvent, useEffect, useState } from "react"
+import { ChangeEvent } from "react"
 import Button from "../../components/Button";
-import { Buffer } from "buffer";
 import { RiImageFill } from "react-icons/ri"
 import { ProfilePictureModel } from "../../state/models/ProfilePictureModel";
 import { createPictureElement } from "../../services/loadMember";
 
 interface ProfileImageUploaderProps {
     image?: ProfilePictureModel,
-    onChange: (profilePicture: ProfilePictureModel | undefined) => void,
+    onChange: (profilePicture: ProfilePictureModel | undefined) => void
 }
 
-async function toBuffer(file: File) {
-    const arrayBuffer = await file?.arrayBuffer();
-    return Buffer.from(arrayBuffer as any, "base64")
-}
-
+/**
+ * A Profile Picture Uploader
+ * @param props [image, onChange]
+ * @returns The Profile Picture Uploader Component
+ */
 export default function ProfileImageUploader(props: ProfileImageUploaderProps) {
-    //const [profilePic, setProfilePic] = useState<ProfilePictureModel | undefined>();
-
-    /*useEffect(() => {
-        const file = props.image;
-        if (file) {
-            toBuffer(file).then((buffer) => setProfilePic(buffer));
-        } else {
-            setProfilePic(undefined);
-        }
-    }, [props.image]);*/
-
     const onFileSelected = async (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0] as File;
         if (file) {
