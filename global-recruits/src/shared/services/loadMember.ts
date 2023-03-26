@@ -2,6 +2,8 @@ import { ApiBaseUrl } from "../helpers/loadEnvironmentVariables";
 import { Api, GetAthleteDetailsResponse, MemberIdMeParameter } from "../specification/GlobalRecruits";
 import { UserModel } from "../state/models/User";
 import { Buffer } from "buffer";
+import { createElement } from "react";
+import { ProfilePictureModel } from "../state/models/ProfilePictureModel";
 
 /**
  * Service Function that Loads Member's Database Data
@@ -16,18 +18,34 @@ export async function loadMemberDetails(): Promise<UserModel> {
     return response.data;
 }
 
+export async function createPictureElement(file: File) {
+    const arrayBuffer = await file?.arrayBuffer();
+    const buffer =  Buffer.from(arrayBuffer as any, "base64");
+    return createElement(
+        "img",
+        {
+            className: "w-full h-full object-cover object-center",
+            src: "data:;base64," + buffer.toString('base64'),
+        },
+      )
+}
+
 /**
  * Service Function that Loads Member's Profile Picture (Buffer)
  * @returns The Image as Buffer or undefined
  */
-export async function loadProfilePicture(): Promise<File | undefined> {
+export async function loadProfilePicture(): Promise<ProfilePictureModel | undefined> {
     const api = new Api({
         baseURL: ApiBaseUrl,
         responseType: "blob"
     });
     // Load Profile Picture
     const response = await api.members.getMemberProfilePicture(MemberIdMeParameter.TypeMe);
-    return response.data;
+    const element = await createPictureElement(response.data);
+    return {
+        file: response.data,
+        image: element
+    };
     /*if (response.data) {
         const buffer = Buffer.from(response.data as any, 'base64');
         return buffer;

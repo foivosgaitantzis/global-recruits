@@ -1,4 +1,5 @@
 import { LoadedStatus } from "../models/LoadedStatusEnum";
+import { ProfilePictureModel } from "../models/ProfilePictureModel";
 import { UserModel } from "../models/User";
 import { ChangeCourseContentAction, ChangeCourseLoadedStatusAction, ChangeMemberLoadedStatusAction, ChangeProfilePictureAction, ChangeUserAction } from "./actions";
 
@@ -9,7 +10,7 @@ function createChangeUserAction(user: UserModel): ChangeUserAction {
     }
 }
 
-function createChangeProfilePictureAction(profilePicture?: File): ChangeProfilePictureAction {
+function createChangeProfilePictureAction(profilePicture?: ProfilePictureModel): ChangeProfilePictureAction {
     return {
         type: "Change User Profile Picture",
         profilePicture

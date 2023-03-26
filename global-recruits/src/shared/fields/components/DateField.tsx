@@ -8,7 +8,8 @@ interface DateFieldProps {
     label?: string,
     errorMessage?: string,
     placeholder?: string,
-    className?: string
+    className?: string,
+    required?: boolean
 }
 
 export default function DateField(props: DateFieldProps) {
@@ -45,21 +46,21 @@ export default function DateField(props: DateFieldProps) {
 
     return (
         <label className={"w-full block text-left " + props.className}>
-            {props.label}
+            {props.label} {props.required && <span className="text-red-500">*</span>}
             <div className="w-full flex flex-row justify-center items-center">
                 <label className="w-full block text-left">
                     <input placeholder="DD" value={dateValues.DD} onChange={handleDateChange} maxLength={2}
-                        className="w-full block bg-gray-100 rounded-lg text-sm text-[#4e2217] leading-none p-3 focus:outline-none focus:border-gray-500" />
+                        className={"w-full block bg-gray-100 rounded-lg text-sm text-[#4e2217] leading-none border p-3 focus:outline-none focus:border-[#4e2217] " + (props.errorMessage && " border-red-300")} />
                 </label>
                 <span className="mx-4">/</span>
                 <label className="w-full block text-left">
                     <input placeholder="MM" value={dateValues.MM} onChange={handleDateChange} maxLength={2}
-                        className="w-full block bg-gray-100 rounded-lg text-sm text-[#4e2217] leading-none p-3 focus:outline-none focus:border-gray-500" />
+                        className={"w-full block bg-gray-100 rounded-lg text-sm text-[#4e2217] leading-none border p-3 focus:outline-none focus:border-[#4e2217] " + (props.errorMessage && " border-red-300")} />
                 </label>
                 <span className="mx-4">/</span>
                 <label className="w-full block text-left">
                     <input placeholder="YYYY" value={dateValues.YYYY} onChange={handleDateChange} maxLength={4}
-                        className="w-full block bg-gray-100 rounded-lg text-sm text-[#4e2217] leading-none p-3 focus:outline-none focus:border-gray-500" />
+                        className={"w-full block bg-gray-100 rounded-lg text-sm text-[#4e2217] leading-none border p-3 focus:outline-none focus:border-[#4e2217] " + (props.errorMessage && " border-red-300")} />
                 </label>
             </div>
             {renderErrorMessage()}

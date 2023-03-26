@@ -48,7 +48,7 @@ export default function SelectField(props: SelectFieldProps) {
         <label className={"w-full block text-left " + props.className}>
             {renderLabel()}
             <select data-statekey={props.stateKey} value={props.value.toLocaleLowerCase()} onChange={props.onChange} placeholder={placeHolderText}
-                className="w-full block bg-gray-100 rounded-lg text-sm text-[#4e2217] leading-none p-3 focus:outline-none border-r-8 border-transparent">
+                className={"w-full block bg-gray-100 rounded-lg text-sm text-[#4e2217] leading-none border p-3 focus:outline-none focus:border-[#4e2217] border-r-transparent " + (props.errorMessage && " border-red-300")}>
                 {!props.hideDefault && <option value="">Please Select</option>}
                 {Object.entries(props.items).map(([key, value]) =>
                     <option key={key} value={value.value ? value.value.toLocaleLowerCase() : value.toLocaleLowerCase()}>{value.label ? value.label : value}</option>

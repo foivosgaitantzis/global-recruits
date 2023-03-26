@@ -12,7 +12,6 @@ interface ViewStateProps {
 export function RenderViewState(props: ViewStateProps) {
     const renderElement = () => {
         switch (props.state.status) {
-            case ViewStatus.Loading:
             case ViewStatus.Saving:
                 return <LoadingSpinner />
             case ViewStatus.Error:
@@ -27,8 +26,16 @@ export function RenderViewState(props: ViewStateProps) {
                     }
                     {props.children}
                 </>
+            case ViewStatus.Loading:
             case ViewStatus.Loaded:
-                return props.children;
+                return <div>
+                    <div className={"" + ((props.state.status === ViewStatus.Loaded) && "hidden")}>
+                        <LoadingSpinner />
+                    </div>
+                    <div className={"" + ((props.state.status === ViewStatus.Loading) && "hidden")}>
+                        {props.children}
+                    </div>
+                </div>
         }
     }
     return <>

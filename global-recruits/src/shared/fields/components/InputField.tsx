@@ -44,7 +44,7 @@ export default function InputField(props: InputFieldProps) {
         <label className={"w-full block text-left " + props.className}>
             {renderLabel()}
             <input data-statekey={props.stateKey} value={props.value} minLength={props.minLength} maxLength={props.maxLength} onChange={props.onChange} placeholder={placeHolderText}
-                className="w-full block bg-gray-100 rounded-lg text-sm text-[#4e2217] leading-none p-3 focus:outline-none focus:border-gray-500"
+                className={"w-full block bg-gray-100 rounded-lg text-sm text-[#4e2217] leading-none border p-3 focus:outline-none focus:border-[#4e2217] " + (props.errorMessage && " border-red-300")}
             />
             {renderErrorMessage()}
         </label>

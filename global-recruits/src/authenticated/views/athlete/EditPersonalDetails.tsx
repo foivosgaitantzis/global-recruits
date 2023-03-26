@@ -2,13 +2,16 @@ import { DateTime } from "luxon";
 import { ChangeEvent, useState } from "react"
 import DateField from "../../../shared/fields/components/DateField";
 import InputField from "../../../shared/fields/components/InputField";
+import ProfileImageUploader from "../../../shared/fields/components/ProfileImageUploader";
 import SelectField from "../../../shared/fields/components/SelectField";
 import { ValidationType } from "../../../shared/fields/models";
 import validateFieldData from "../../../shared/fields/validators";
 import { CountryList } from "../../../shared/helpers/countryList";
 import { ApiBaseUrl } from "../../../shared/helpers/loadEnvironmentVariables";
 import { Api, GetAthleteDetailsResponse, MemberIdMeParameter } from "../../../shared/specification/GlobalRecruits";
-import { useStateContext } from "../../../shared/state/AppStateProvider";
+import { StateActionCreators } from "../../../shared/state/actions/actionFunctions";
+import { useStateContext, useStateDispatchContext } from "../../../shared/state/AppStateProvider";
+import { ProfilePictureModel } from "../../../shared/state/models/ProfilePictureModel";
 import EditButtons from "../EditButtons";
 import { getViewStateFieldErrorMessage, getViewStateFieldValue, RenderViewState, setViewStateErrorMessage, setViewStateFieldErrorMessage, setViewStateFieldValue, setViewStateStatus } from "../helper";
 import { ViewState, ViewStatus } from "../models";
@@ -22,6 +25,8 @@ interface PersonalDetailsProps {
 
 export default function EditPersonalDetails(props: PersonalDetailsProps) {
     const user = useStateContext().user as GetAthleteDetailsResponse;
+    const userProfilePicture = useStateContext().profilePicture;
+    const setAppState = useStateDispatchContext();
     const [viewState, setViewState] = useState<ViewState>({
         status: ViewStatus.Loaded,
         fields: {
@@ -42,6 +47,7 @@ export default function EditPersonalDetails(props: PersonalDetailsProps) {
             }
         }
     });
+    const [profilePic, setProfilePic] = useState<ProfilePictureModel | undefined>(userProfilePicture);
 
     const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setViewState(setViewStateFieldValue(viewState, event.currentTarget.getAttribute("data-statekey") as string, event.currentTarget.value))
@@ -125,11 +131,41 @@ export default function EditPersonalDetails(props: PersonalDetailsProps) {
         setViewState((state) => setViewStateFieldErrorMessage(state, "dateOfBirth", dateOfBirthErrors[0]));
         const totalErrors = [...firstNameErrors, ...lastNameErrors, ...countryErrors, ...cityErrors, ...dateOfBirthErrors];
         if (totalErrors.length === 0) {
+            const api = new Api({
+                baseURL: ApiBaseUrl
+            });
+            setViewState((state) => setViewStateStatus(state, ViewStatus.Saving));
+            // Check if Profile Picture was Changed
+            if (profilePic !== userProfilePicture) {
+                if (profilePic) {
+                    try {
+                        await api.members.uploadMemberProfilePicture(
+                            MemberIdMeParameter.TypeMe,
+                            {
+                                profilePicture: profilePic.file
+                            },
+                            {
+                                headers: {
+                                    "Content-Type": "multipart/form-data"
+                                }
+                            }
+                        );
+                        setAppState(StateActionCreators.createChangeProfilePictureAction(profilePic));
+                    } catch (error: any) {
+                        // Hit-n-Miss Process
+                    }
+                } else {
+                    try {
+                        await api.members.deleteMemberProfilePicture(
+                            MemberIdMeParameter.TypeMe
+                        );
+                        setAppState(StateActionCreators.createChangeProfilePictureAction(undefined));
+                    } catch (error: any) {
+                        // Hit-n-Miss Process
+                    }
+                }
+            }
             if (checkFieldsChanged()) {
-                setViewState((state) => setViewStateStatus(state, ViewStatus.Saving));
-                const api = new Api({
-                    baseURL: ApiBaseUrl
-                });
                 try {
                     await api.members.updateMemberDetails(MemberIdMeParameter.TypeMe, {
                         type: "athlete",
@@ -153,16 +189,17 @@ export default function EditPersonalDetails(props: PersonalDetailsProps) {
 
     return (
         <RenderViewState state={viewState}>
+            <ProfileImageUploader image={profilePic} onChange={(file) => setProfilePic(file)} />
             <div className="flex flex-col gap-x-4 lg:flex-row">
-                <InputField stateKey="firstName" label="First Name" className="py-2" value={getViewStateFieldValue(viewState, "firstName")} errorMessage={getViewStateFieldErrorMessage(viewState, "firstName")} onChange={handleInputChange} />
-                <InputField stateKey="lastName" label="Last Name" className="py-2" value={getViewStateFieldValue(viewState, "lastName")} errorMessage={getViewStateFieldErrorMessage(viewState, "lastName")} onChange={handleInputChange} />
+                <InputField required={true} stateKey="firstName" label="First Name" className="py-2" value={getViewStateFieldValue(viewState, "firstName")} errorMessage={getViewStateFieldErrorMessage(viewState, "firstName")} onChange={handleInputChange} />
+                <InputField required={true} stateKey="lastName" label="Last Name" className="py-2" value={getViewStateFieldValue(viewState, "lastName")} errorMessage={getViewStateFieldErrorMessage(viewState, "lastName")} onChange={handleInputChange} />
             </div>
             <div className="flex flex-col gap-x-4 lg:flex-row">
-                <SelectField items={CountryList} stateKey="country" label="Country" className="py-2" value={getViewStateFieldValue(viewState, "country")} errorMessage={getViewStateFieldErrorMessage(viewState, "country")} onChange={handleInputChange} />
-                <InputField stateKey="city" label="City" className="py-2" value={getViewStateFieldValue(viewState, "city")} errorMessage={getViewStateFieldErrorMessage(viewState, "city")} onChange={handleInputChange} />
+                <SelectField required={true} items={CountryList} stateKey="country" label="Country" className="py-2" value={getViewStateFieldValue(viewState, "country")} errorMessage={getViewStateFieldErrorMessage(viewState, "country")} onChange={handleInputChange} />
+                <InputField required={true} stateKey="city" label="City" className="py-2" value={getViewStateFieldValue(viewState, "city")} errorMessage={getViewStateFieldErrorMessage(viewState, "city")} onChange={handleInputChange} />
             </div>
             <div className="w-full lg:w-1/2 mx-auto">
-                <DateField label="Date of Birth" className="py-2" value={getViewStateFieldValue(viewState, "dateOfBirth")} errorMessage={getViewStateFieldErrorMessage(viewState, "dateOfBirth")} onChange={(value: string) => setViewState(setViewStateFieldValue(viewState, "dateOfBirth", value))} />
+                <DateField required={true} label="Date of Birth" className="py-2" value={getViewStateFieldValue(viewState, "dateOfBirth")} errorMessage={getViewStateFieldErrorMessage(viewState, "dateOfBirth")} onChange={(value: string) => setViewState(setViewStateFieldValue(viewState, "dateOfBirth", value))} />
             </div>
             <EditButtons submitName={props.submitName} cancelName={props.cancelName} onCancelClick={() => props.onBackClick()} onSubmitClick={() => verifyAndSubmit()} />
         </RenderViewState>

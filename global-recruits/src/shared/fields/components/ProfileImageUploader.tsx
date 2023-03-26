@@ -2,10 +2,12 @@ import { ChangeEvent, useEffect, useState } from "react"
 import Button from "../../components/Button";
 import { Buffer } from "buffer";
 import { RiImageFill } from "react-icons/ri"
+import { ProfilePictureModel } from "../../state/models/ProfilePictureModel";
+import { createPictureElement } from "../../services/loadMember";
 
 interface ProfileImageUploaderProps {
-    image?: File,
-    onChange: (file: File | undefined) => void
+    image?: ProfilePictureModel,
+    onChange: (profilePicture: ProfilePictureModel | undefined) => void,
 }
 
 async function toBuffer(file: File) {
@@ -14,19 +16,26 @@ async function toBuffer(file: File) {
 }
 
 export default function ProfileImageUploader(props: ProfileImageUploaderProps) {
-    const [profilePic, setProfilePic] = useState<Buffer | undefined>();
+    //const [profilePic, setProfilePic] = useState<ProfilePictureModel | undefined>();
 
-    useEffect(() => {
+    /*useEffect(() => {
         const file = props.image;
         if (file) {
             toBuffer(file).then((buffer) => setProfilePic(buffer));
         } else {
             setProfilePic(undefined);
         }
-    }, [props.image]);
+    }, [props.image]);*/
 
-    const onFileSelected = (event: ChangeEvent<HTMLInputElement>) => {
-        props.onChange(event.target.files?.[0]);
+    const onFileSelected = async (event: ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0] as File;
+        if (file) {
+            const image = await createPictureElement(file);
+            props.onChange({
+                file,
+                image
+            });
+        }
     }
 
     const onInputClick = (event: React.MouseEvent<HTMLInputElement, MouseEvent>) => {
@@ -39,8 +48,8 @@ export default function ProfileImageUploader(props: ProfileImageUploaderProps) {
     }
 
     const renderProfilePicPreview = () => {
-        if (profilePic) {
-            return <img className="w-full h-full object-cover object-center" src={"data:;base64," + profilePic.toString('base64')} />
+        if (props.image) {
+            return props.image.image
         } else {
             return <RiImageFill className="w-full h-full object-cover object-center" />
         }
@@ -52,7 +61,7 @@ export default function ProfileImageUploader(props: ProfileImageUploaderProps) {
                 {renderProfilePicPreview()}
             </div>
             <div className="flex flex-col justify-center my-2 w-fit mx-auto">
-                {profilePic && <Button text="Remove" className="my-1" onClick={onDeleteClick} />}
+                {props.image && <Button text="Remove" className="my-1" onClick={onDeleteClick} />}
                 <label className="my-1 hover:underline hover:cursor-pointer font-bold rounded-xl py-3 px-5 shadow focus:outline-none focus:shadow-outline transition hover:scale-105 duration-300 ease-in-out ">
                     Select Profile Picture
                     <input type="file" accept="image/*" onChange={onFileSelected} onClick={onInputClick} className="hidden" />

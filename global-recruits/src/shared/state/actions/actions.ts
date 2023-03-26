@@ -1,4 +1,5 @@
 import { LoadedStatus } from "../models/LoadedStatusEnum";
+import { ProfilePictureModel } from "../models/ProfilePictureModel";
 import { UserModel } from "../models/User";
 
 export interface BaseAction {
@@ -17,7 +18,7 @@ export interface ChangeUserAction extends BaseAction {
 }
 
 export interface ChangeProfilePictureAction extends BaseAction {
-    profilePicture?: File
+    profilePicture?: ProfilePictureModel
 }
 
 export interface ChangeMemberLoadedStatusAction extends BaseAction {
