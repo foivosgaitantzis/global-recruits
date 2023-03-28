@@ -132,6 +132,7 @@ export interface UpdateAthleteDetailsRequestBody {
     dateOfBirth?: string;
     country?: string;
     city?: string;
+    summary?: string | null;
     height?: HeightFeetMeasurementData | HeightMeterMeasurementData;
     weight?: WeightKgMeasurementData | WeightPoundMeasurementData;
     teams?: {
@@ -229,6 +230,7 @@ export interface GetAthleteDetailsResponse {
     city?: string;
     height?: HeightFeetMeasurementData | HeightMeterMeasurementData;
     weight?: WeightKgMeasurementData | WeightPoundMeasurementData;
+    summary?: string;
     teams?: AthleteTeam[];
     significantStats?: AthleteSignificantStats;
     highlights?: { id: string; data: string }[];

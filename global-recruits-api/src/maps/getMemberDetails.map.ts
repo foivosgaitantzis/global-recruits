@@ -40,6 +40,7 @@ export function mapAthleteDetails(
                     value: athleteDetails.weight
                 }
                 : undefined,
+            summary: athleteDetails?.summary,
             teams,
             significantStats,
             highlights: highlights?.map(highlight => ({

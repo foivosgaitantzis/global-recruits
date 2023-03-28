@@ -507,6 +507,10 @@ components:
               type: string
               minLength: 4
               maxLength: 50
+            summary:
+              type: string
+              minLength: 1
+              nullable: true
             height: 
               oneOf:
                 - $ref: "#/components/schemas/HeightFeetMeasurementData"
@@ -583,19 +587,16 @@ components:
                                   properties: 
                                     avgPpg:
                                       type: number
-                                      format: int32
-                                      minimum: 0
-                                      maximum: 50
+                                      minimum: 0.0
+                                      maximum: 100.0
                                     avgApg:
                                       type: number
-                                      format: int32
-                                      minimum: 0
-                                      maximum: 20
+                                      minimum: 0.0
+                                      maximum: 50.0
                                     avgRpg: 
                                       type: number
-                                      format: int32
-                                      minimum: 0
-                                      maximum: 30
+                                      minimum: 0.0
+                                      maximum: 50.0
             highlights:
               type: array
               items: 
@@ -745,13 +746,10 @@ components:
               properties: 
                 avgPpg:
                   type: number
-                  format: int32
                 avgApg:
                   type: number
-                  format: int32
                 avgRpg: 
                   type: number
-                  format: int32
     
     # AthleteSignificantStats
     AthleteSignificantStats:
@@ -846,6 +844,8 @@ components:
               oneOf: 
                 - $ref: "#/components/schemas/WeightKgMeasurementData"
                 - $ref: "#/components/schemas/WeightPoundMeasurementData"
+            summary:
+              type: string
             teams:
               type: array
               items: 

@@ -56,7 +56,7 @@ export async function getMemberDetails(
                 highlights = await highlightRepository.find({
                     athleteId: athlete.athleteId
                 }, { tx });
-                // significantStats = await unpackMostSignificantAthleteStats(tx, athlete.athleteId);
+                significantStats = await unpackMostSignificantAthleteStats(tx, athlete.athleteId);
             }
             return mapAthleteDetails(user, athlete, athleteTeams, highlights, significantStats);
         } else if (user.type === MemberType.Staff) {

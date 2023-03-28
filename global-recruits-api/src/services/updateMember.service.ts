@@ -62,6 +62,9 @@ export async function updateMemberDetails(
         if (error instanceof ValidationError || error instanceof NotFoundError || error instanceof ForbiddenError) {
             throw error;
         }
+        if (error.code === '23505' && error.constraint === 'unique_team_year') {
+            throw new ValidationError("You cannot add the same Year for a Team Twice");
+        }
         throw new PostgresError(error.message);
     } finally {
         tx.release();
@@ -109,7 +112,8 @@ async function updateAthleteDetails(
             weight: requestBody.data.weight?.value,
             weightUnit: requestBody.data.weight?.unit,
             height: requestBody.data.height?.value,
-            heightUnit: requestBody.data.height?.unit
+            heightUnit: requestBody.data.height?.unit,
+            summary: requestBody.data.summary
         }, tx);
     } else {
         if (requestBody.data.dateOfBirth && requestBody.data.country
@@ -122,7 +126,8 @@ async function updateAthleteDetails(
                 weight: requestBody.data.weight?.value,
                 weightUnit: requestBody.data.weight?.unit,
                 height: requestBody.data.height?.value,
-                heightUnit: requestBody.data.height?.unit
+                heightUnit: requestBody.data.height?.unit,
+                summary: requestBody.data.summary
             }, tx);
         } else {
             throw new ValidationError("All Athlete Basic Details are Required for Initial Onboarding")

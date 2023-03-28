@@ -24,7 +24,7 @@ export async function getAthleteMostSignificantTeam(
 ): Promise<AthleteTeam & AthleteTeamYear & Team> {
     const result = await queryRow<AthleteTeam & AthleteTeamYear & Team>(
         `
-        SELECT ${teamRepository.allColumns}, ${athleteTeamRepository.allColumns}, ${athleteTeamYearRepository.allColumns}
+        SELECT ${teamRepository.allColumnsTableName}, ${athleteTeamRepository.allColumnsTableName}, ${athleteTeamYearRepository.allColumnsTableName}
         FROM public.athleteteams athleteteams
         INNER JOIN public.athleteteamyears athleteteamyears ON athleteteams.athleteteamid = athleteteamyears.athleteteamid
         INNER JOIN public.teams teams ON athleteteams.teamId = teams.teamId

@@ -14,6 +14,7 @@ export class PGRepository<T> implements BaseRepository<T, PoolClient> {
     readonly columnAlias: (col: keyof T) => string
     readonly cols: (...args: Array<keyof T>) => string
     readonly allColumns: string
+    readonly allColumnsTableName: string
     readonly where: (values: Partial<T>, initialIndex?: number) => string
 
     constructor({
@@ -27,7 +28,8 @@ export class PGRepository<T> implements BaseRepository<T, PoolClient> {
         primaryKey?: string
         mapping: Record<keyof T, ColumnData>
     }) {
-        const aliasMapper = buildAliasMapper<T>(mapping, table)
+        const aliasMapper = buildAliasMapper<T>(mapping);
+        const aliasMapperTableName = buildAliasMapper<T>(mapping, table);
 
         this.table = `"${table}"`
         this.columnAlias = aliasMapper
@@ -48,7 +50,18 @@ export class PGRepository<T> implements BaseRepository<T, PoolClient> {
             return acc
                 ? acc += `, ${sql}`
                 : sql
-        }, '')
+        }, '');
+        this.allColumnsTableName = Object.entries(mapping).reduce((acc, [key, value]: [string, ColumnData]) => {
+            if (typeof value === 'object' && value.hidden) {
+                return acc
+            }
+
+            const sql = `${aliasMapperTableName(key as keyof T)} AS "${key}"`
+
+            return acc
+                ? acc += `, ${sql}`
+                : sql
+        }, '');
         // SQL-generator for WHERE clause
         this.where = (values: Partial<T>, initialIndex = 0) => {
             let offset = 0;
@@ -116,10 +129,10 @@ export class PGRepository<T> implements BaseRepository<T, PoolClient> {
             .join(', ')
 
         const rows = await query<T>(`
-      INSERT INTO ${this.table} (${cols})
-      VALUES ${inlinedValues}
-      RETURNING ${this.allColumns}
-    `, _values, tx)
+            INSERT INTO ${this.table} (${cols})
+            VALUES ${inlinedValues}
+            RETURNING ${this.allColumns}
+            `, _values, tx)
 
         return rows
     }

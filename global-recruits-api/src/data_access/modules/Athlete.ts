@@ -9,7 +9,8 @@ export interface Athlete {
     weight: number,
     weightUnit: string,
     height: number,
-    heightUnit: string
+    heightUnit: string,
+    summary: string
 }
 
 export class AthleteRepository extends PGRepository<Athlete> {
@@ -25,7 +26,8 @@ export class AthleteRepository extends PGRepository<Athlete> {
                 weight: 'weight',
                 weightUnit: 'weightunit',
                 height: 'height',
-                heightUnit: 'heightunit'
+                heightUnit: 'heightunit',
+                summary: 'summary'
             },
             primaryKey: 'athleteid'
         })

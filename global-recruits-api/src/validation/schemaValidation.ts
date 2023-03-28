@@ -122,7 +122,7 @@ type ValidatorErrors = ErrorObject<string, Record<string, any>, unknown>[] | nul
 const ajvInstance = new Ajv({
     allErrors: true,
     discriminator: true,
-    strict: false,
+    strictTypes: false,
     unicodeRegExp: false
 });
 
