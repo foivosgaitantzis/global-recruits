@@ -9,45 +9,66 @@
 	}
 }
 
-body {
-	height: 100vh;
-}
-
-select {
-	-webkit-appearance: none;
-}
-
-/*.gradient-theme {
-	background: linear-gradient(90deg, rgba(255, 255, 255, 0.9) 0%, rgba(137, 207, 241, 0.33) 100%);
-}
-
-.gradient-theme-inverse {
-	background: linear-gradient(90deg, rgba(137, 207, 241, 0.33) 0%, rgba(255, 255, 255, 0.9) 100%);
-}*/
-
-.gradient-theme {
-	background: linear-gradient(90deg, rgba(253,252,251, 0.9) 0%, rgba(226,209,195, 0.33) 100%);
-}
-
-.gradient-theme-inverse {
-	background: linear-gradient(90deg, rgba(253,254,233, 0.33) 0%, rgba(255, 255, 255, 0.9) 100%);
-}
-
-/*.gradient {
-	background-image: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(137, 207, 241, 0.5) 50%, rgba(255, 255, 255, 0) 100%)
-}*/
-
 .gradient {
-	background-image: linear-gradient(90deg, rgba(253,252,251, 0.9) 0%, rgba(226,209,195, 0.33) 50%, rgba(253,252,251, 0.9) 100%)
+	background-image: linear-gradient(90deg, rgba(255, 255, 255, 0.9) 0%, #89CFF1 100%), url('../public/Design2.png');
 }
 
-/*.gradient {
-	background-image: linear-gradient(90deg, rgba(255, 255, 255, 0.9) 0%, #89CFF1 100%), url('../public/Design2.png');
-}*/
+.gradient-noimg {
+	background: linear-gradient(90deg, rgba(255, 255, 255, 0.9) 0%, #89CFF1 100%)
+}
 
 .gradient-text {
 	background: linear-gradient(90deg, black 0%, #89CFF1 100%);
 }
+
+.loader {
+	border-top-color: black;
+	-webkit-animation: spinner 1.5s linear infinite;
+	animation: spinner 1.5s linear infinite;
+}
+
+.amplify-button[data-variation='primary'] {
+	background: linear-gradient(90deg, black 0% 0%, #89CFF1 100%);
+	border-width: 1px;
+	text-align: center;
+	border-color: black;
+	border-radius: 9999px;
+}
+
+.amplify-tabs-item {
+	color: red;
+}
+
+.amplify-button--disabled[data-variation='primary'] {
+	background: var(--amplify-colors-background-tertiary);
+	border-color: gray;
+}
+
+.amplify-button[data-variation='primary']:hover {
+	scale: 1.05;
+	text-decoration: underline;
+	border-color: black;
+	border-width: 1px;
+}
+
+.amplify-button--disabled[data-variation='primary']:hover {
+	text-decoration: none;
+	scale: 1;
+	border-color: gray;
+}
+
+.amplify-button[data-variation='link'] {
+	padding-top: 0;
+	padding-bottom: 0;
+	color: black;
+}
+
+.amplify-button[data-variation='link']:hover {
+	color: black;
+	text-decoration: underline;
+	background-color: transparent;
+}
+
 
 @-webkit-keyframes spinner {
 	0% {
@@ -67,10 +88,4 @@ select {
 	100% {
 		transform: rotate(360deg);
 	}
-}
-
-.loader {
-	border-top-color: black;
-	-webkit-animation: spinner 1.5s linear infinite;
-	animation: spinner 1.5s linear infinite;
 }
