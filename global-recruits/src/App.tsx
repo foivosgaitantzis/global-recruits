@@ -1,35 +1,49 @@
-import React from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import LoadingPage from './pages/LoadingPage';
-import HomePage from './pages/HomePage';
-import NotFoundPage from './pages/NotFoundPage';
+import { AmplifyProvider, Authenticator } from '@aws-amplify/ui-react';
 import { Auth } from 'aws-amplify';
-import { ThemeProvider } from '@aws-amplify/ui-react';
-import AuthenticatedPage from './pages/protectedPages/AuthenticatedPage';
-import '@aws-amplify/ui-react/styles.css';
-import Theme from './components/amplify/Theme';
+import React, { Suspense } from 'react';
+import { Fragment } from 'react';
+import { Route, Routes, BrowserRouter } from 'react-router-dom';
+import { AuthenticatedRoutes } from './authenticated/routes';
+import { AmplifyComponents } from './shared/cognito/components';
+import { CognitoConfiguration } from './shared/cognito/configuration';
+import { AmplifyServices } from './shared/cognito/services';
+import { AmplifyTheme } from './shared/cognito/Theme';
+import "@aws-amplify/ui-react/styles.css";
+import { UnauthenticatedRoutes } from './unauthenticated/routes';
+import UnauthenticatedApp from './unauthenticated/UnauthenticatedApp/UnauthenticatedApp';
+import LoadingPage from './shared/pages/LoadingPage';
 
-//const RegisterPage = React.lazy(() => import('./protectedPages/RegisterPage'));
+const AuthenticatedApp = React.lazy(() => import("./authenticated/AuthenticatedApp/AuthenticatedApp"));
 
-Auth.configure({
-	region: "us-east-1",
-	userPoolId: "us-east-1_QgydbX3kW",
-	userPoolWebClientId: "5gi5p2gntl7dafj7t6hkim0es1"
-});
+// Setup Cognito Configuration
+Auth.configure(CognitoConfiguration);
 
 export default function App() {
 	return (
-		<React.Suspense fallback={<LoadingPage />}>
-			<ThemeProvider theme={Theme}>
-				<BrowserRouter>
-					<Routes>
-						<Route path="/" element={<HomePage />}></Route>
-						<Route path="/loading" element={<LoadingPage />}></Route>
-						<Route path="/profile" element={<AuthenticatedPage />}></Route>
-						<Route path="*" element={<NotFoundPage />}></Route>
-					</Routes>
-				</BrowserRouter>
-			</ThemeProvider>
-		</React.Suspense>
+		<Fragment>
+			<BrowserRouter>
+				<Routes>
+					<Route
+						path={`${AuthenticatedRoutes.defaultPath}/*`}
+						element={
+							<AmplifyProvider theme={AmplifyTheme}>
+								<Authenticator
+									className="gradient-theme font-custom text-[#4e2217] px-4 sm:px-0 h-full min-h-screen flex items-center justify-center flex-wrap m-auto"
+									loginMechanisms={["email"]}
+									components={AmplifyComponents}
+									services={AmplifyServices}
+									hideSignUp={true}
+								>
+									<Suspense fallback={<LoadingPage />}>
+										<AuthenticatedApp />
+									</Suspense>
+								</Authenticator>
+							</AmplifyProvider>
+						}
+					/>
+					<Route path={`${UnauthenticatedRoutes.defaultPath}/*`} element={<UnauthenticatedApp />} />
+				</Routes>
+			</BrowserRouter>
+		</Fragment>
 	)
 }

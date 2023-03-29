@@ -1,9 +1,9 @@
 {
   "name": "global-recruits",
   "author": "Foivos Gaitantzis",
-  "description": "The Original Global Recruits 1.0 Landing Page",
-  "version": "1.0.0",
-  "homepage": ".",
+  "description": "The Original Global Recruits 2.0 Landing Page",
+  "version": "2.0.0",
+  "homepage": "https://www.globalrecruits.net",
   "private": true,
   "dependencies": {
     "@aws-amplify/ui-react": "^4.1.0",
@@ -11,25 +11,32 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^27.5.2",
+    "@types/luxon": "^3.2.0",
     "@types/node": "^16.11.62",
     "@types/react": "^18.0.21",
     "@types/react-dom": "^18.0.6",
+    "@types/xmldom": "^0.1.31",
     "aws-amplify": "^5.0.5",
     "axios": "^0.27.2",
     "env-cmd": "^10.1.0",
+    "luxon": "^3.3.0",
     "nanoid": "^4.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-icons": "^4.7.1",
     "react-router-dom": "^6.4.1",
     "react-scripts": "^5.0.1",
     "typescript": "^4.8.3",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "xml-to-react": "^1.2.0-alpha.2",
+    "xmldom": "^0.6.0"
   },
   "scripts": {
     "start": "env-cmd --file .env.development react-scripts start",
     "build": "env-cmd --file .env.production react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "schema": "generateOpenAPIModels"
   },
   "eslintConfig": {
     "extends": [

@@ -1,0 +1,1119 @@
+openapi: "3.0.0"
+info:
+  version: "2.0.0"
+  title: Global Recruits API
+  description: The Global Recruits API Specification
+servers:
+  - url: https://api.globalrecruits.net
+    description: Production Environment
+  - url: http://localhost:7071
+    description: Development Environment
+security:
+  - BearerAuth: []
+
+paths:
+  /mailinglist:
+    post:
+      security: []
+      tags: [MailingList]
+      operationId: JoinMailingList
+      summary: Adds User to Mailing List
+      description: Adds an Email Address to the MailChimp Mailing List
+      requestBody:
+        $ref: "#/components/requestBodies/JoinMailingListRequestBody"
+      responses:
+        201:
+          description: Successfully Joined Mailing List
+        400:
+          $ref: "#/components/responses/ValidationErrorsResponse"
+        500:
+          $ref: "#/components/responses/MailChimpErrorResponse"
+  /members/invite: 
+    post: 
+      tags: [Member]
+      operationId: InviteMember
+      summary: Invite a Member
+      description: Uses Email Automation to Invite a Member to GlobalRecruits
+      requestBody:
+        $ref: "#/components/requestBodies/InviteMemberRequestBody"
+      responses:
+        201:
+          description: Successfully Invited an Athlete to the Platform
+        400:
+          $ref: "#/components/responses/ValidationErrorsResponse"
+        401: 
+          description: Unauthorized (Invalid or No Bearer Token Supplied)
+        403: 
+          description: Forbidden (User Access Control - Not Allowed to Perform Operation)
+        500:
+          $ref: "#/components/responses/InternalServerErrorResponse"
+  /members/{memberId}:
+    patch:
+      tags: [Member]
+      operationId: UpdateMemberDetails
+      summary: Patch a Member
+      description: Updates a Member's Personal Details
+      parameters:
+        - name: memberId
+          in: path
+          description: The Member Identifier
+          required: true
+          schema:
+            oneOf: 
+              - $ref: "#/components/schemas/MemberIdParameter"
+              - $ref: "#/components/schemas/MemberIdMeParameter"
+
+      requestBody:
+        $ref: "#/components/requestBodies/UpdateMemberDetailsRequestBody"
+      responses:
+        204:
+          description: Successfully Updated an Athlete's Details
+        400:
+          $ref: "#/components/responses/ValidationErrorsResponse"
+        401: 
+          description: Unauthorized (Invalid or No Bearer Token Supplied)
+        403: 
+          description: Forbidden (User Access Control - Not Allowed to Perform Operation)
+        404: 
+          description: Resource was NOT Found
+        500:
+          $ref: "#/components/responses/InternalServerErrorResponse"
+    get:
+      tags: [Member]
+      operationId: GetMemberDetails
+      summary: Gets a Member
+      description: Gets an Athlete or Staff's Personal Details
+      parameters:
+        - name: memberId
+          in: path
+          description: The Member Identifier
+          required: true
+          schema:
+            oneOf: 
+              - $ref: "#/components/schemas/MemberIdParameter"
+              - $ref: "#/components/schemas/MemberIdMeParameter"
+      responses:
+        200:
+          $ref: "#/components/responses/GetMemberDetailsResponse"
+        400:
+          $ref: "#/components/responses/ValidationErrorsResponse"
+        401: 
+          description: Unauthorized (Invalid or No Bearer Token Supplied)
+        403: 
+          description: Forbidden (User Access Control - Not Allowed to Perform Operation)
+        404: 
+          description: Resource was NOT Found
+        500:
+          $ref: "#/components/responses/InternalServerErrorResponse"
+  /members/{memberId}/profilepicture: 
+    post:
+      tags: [Member]
+      operationId: UploadMemberProfilePicture
+      summary: Upload a Member Profile Picture
+      description: Upload a Profile Picture and Attach it to Member
+      parameters:
+        - name: memberId
+          in: path
+          description: The Member Identifier
+          required: true
+          schema:
+            oneOf: 
+              - $ref: "#/components/schemas/MemberIdMeParameter"
+      requestBody:
+        $ref: "#/components/requestBodies/UploadMemberProfilePicture"
+      responses:
+        201:
+          description: Successfully Uploaded Member's Profile Picture
+        400:
+          $ref: "#/components/responses/ValidationErrorsResponse"
+        401: 
+          description: Unauthorized (Invalid or No Bearer Token Supplied)
+        403: 
+          description: Forbidden (User Access Control - Not Allowed to Perform Operation)
+        500:
+          $ref: "#/components/responses/InternalServerErrorResponse"
+    get:
+      tags: [Member]
+      operationId: GetMemberProfilePicture
+      summary: Gets a Member Profile Picture
+      description: Retrieves a Profile Picture Attached to a Member
+      parameters:
+        - name: memberId
+          in: path
+          description: The Member Identifier
+          required: true
+          schema:
+            oneOf: 
+              - $ref: "#/components/schemas/MemberIdParameter"
+              - $ref: "#/components/schemas/MemberIdMeParameter"
+      responses:
+        200:
+          $ref: "#/components/responses/GetMemberProfilePictureResponse"
+        400:
+          $ref: "#/components/responses/ValidationErrorsResponse"
+        401: 
+          description: Unauthorized (Invalid or No Bearer Token Supplied)
+        403: 
+          description: Forbidden (User Access Control - Not Allowed to Perform Operation)
+        500:
+          $ref: "#/components/responses/InternalServerErrorResponse"
+    delete:
+      tags: [Member]
+      operationId: DeleteMemberProfilePicture
+      summary: Deletes a Member Profile Picture
+      description: Deletes a Profile Picture Attached to a Member
+      parameters:
+        - name: memberId
+          in: path
+          description: The Member Identifier
+          required: true
+          schema:
+            oneOf: 
+              - $ref: "#/components/schemas/MemberIdParameter"
+              - $ref: "#/components/schemas/MemberIdMeParameter"
+      responses:
+        204:
+          description: "Successfully Updated a Member's Profile Picture"
+        400:
+          $ref: "#/components/responses/ValidationErrorsResponse"
+        401: 
+          description: Unauthorized (Invalid or No Bearer Token Supplied)
+        403: 
+          description: Forbidden (User Access Control - Not Allowed to Perform Operation)
+        500:
+          $ref: "#/components/responses/InternalServerErrorResponse"
+
+components:
+  requestBodies:
+    # POST /mailinglist
+    JoinMailingListRequestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/JoinMailingListRequestBody"
+          examples:
+            JoinMailingList:
+              $ref: "#/components/examples/JoinMailingListRequestBody"
+
+    # POST /members/invite
+    InviteMemberRequestBody:
+      required: true
+      content: 
+        application/json:
+          schema:
+            $ref: "#/components/schemas/InviteMemberRequestBody" 
+          examples:
+            InviteMemberRequestBody: 
+              $ref: "#/components/examples/InviteMemberRequestBody"
+
+    # PATCH /members/{memberId} 
+    UpdateMemberDetailsRequestBody:
+      required: true
+      content: 
+        application/json: 
+          schema: 
+            oneOf:
+              - $ref: "#/components/schemas/UpdateAthleteDetailsRequestBody"
+              - $ref: "#/components/schemas/UpdateStaffDetailsRequestBody"
+          examples:
+            UpdateAthleteDetails:
+              $ref: "#/components/examples/UpdateAthleteDetailsRequestBody"
+            UpdateStaffDetails:
+              $ref: "#/components/examples/UpdateStaffDetailsRequestBody"
+
+    # POST /members/{memberId}/profilepicture
+    UploadMemberProfilePicture:
+      required: true
+      content: 
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              profilePicture: 
+                type: object
+                format: binary
+          encoding: 
+            profilePicture:
+              contentType: image/png, image/jpeg
+  responses:
+    ValidationErrorsResponse:
+      description: A Wide-Spread Validation Error Response
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ValidationErrorsResponse"
+          examples:
+            ValidationErrors:
+              $ref: "#/components/examples/ValidationErrorsResponse"
+
+    InternalServerErrorResponse:
+      description: Generic Underlying Service Error Response
+      content:
+        application/json:
+          schema: 
+            $ref: "#/components/schemas/ErrorResponse"
+          examples: 
+            InternalServerError:
+              $ref: "#/components/examples/InternalServerErrorResponse"
+
+    # POST /mailinglist
+    MailChimpErrorResponse:
+      description: Join Mailing List MailChimp Error Response
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            MailChimpError:
+              $ref: "#/components/examples/MailChimpErrorResponse"
+
+    # GET /members/{memberId} 
+    GetMemberDetailsResponse:
+      description: Get Member Details Success Response
+      content: 
+        application/json: 
+          schema: 
+            oneOf:
+              - $ref: "#/components/schemas/GetAthleteDetailsResponse"
+              - $ref: "#/components/schemas/GetStaffDetailsResponse"
+          examples:
+            GetAthleteDetails:
+              $ref: "#/components/examples/GetAthleteDetailsResponse"
+            GetStaffDetails:
+              $ref: "#/components/examples/GetStaffDetailsResponse"
+    
+    # GET /members/{memberId}/profilepicture
+    GetMemberProfilePictureResponse:
+      description: Get Member Profile Picture Success Response
+      content: 
+        image/png:
+          schema:
+            type: string
+            format: binary
+        image/jpeg:
+          schema:
+            type: string
+            format: binary  
+
+  schemas:
+    ValidationErrorsResponse:
+      title: ValidationErrorsResponse
+      type: array
+      minItems: 1
+      items:
+        type: object
+        title: ValidationError
+        required:
+          - title
+          - detail
+          - pointer
+        properties:
+          title:
+            type: string
+          detail:
+            type: string
+          pointer:
+            type: string
+
+    ErrorResponse:
+      title: ErrorResponse
+      type: object
+      properties:
+        title:
+          type: string
+        detail:
+          type: string
+
+    MemberIdParameter:
+      title: MemberIdParameter
+      type: string
+      format: uuid
+
+    MemberIdMeParameter:
+      title: MemberIdMeParameter
+      type: string
+      enum: ["@me"]
+
+    MemberType:
+      title: MemberType
+      type: string
+      enum: [athlete, staff, administrator]
+
+    ActionType:
+      title: ActionType
+      type: string
+      enum: [add, edit, delete]
+
+    # TeamType
+    TeamType:
+      title: TeamType
+      type: string
+      enum: 
+        - elementary_school
+        - middle_school
+        - high_school
+        - prep_school
+        - college 
+        - club
+        - professional
+
+    # SubType 
+    CollegeSubType: 
+      title: CollegeSubType
+      type: string
+      enum: [ncaa, juco, naia, njcaa, community_college]
+
+    # Position
+    PositionType:
+      title: PositionType
+      enum: [pg, sg, sf, pf, c]
+
+    # Height
+    HeightUnit:
+      title: HeightUnit
+      type: string
+      enum: [meters, feet]
+    
+    HeightFeetMeasurementData:
+      type: object
+      required: 
+        - unit
+        - value
+      properties:
+        unit:
+          type: string
+          enum: [feet]
+        value: 
+          type: number
+          minimum: 4.00
+          maximum: 10.00
+
+    HeightMeterMeasurementData:
+      type: object
+      required: 
+        - unit
+        - value
+      properties:
+        unit:
+          type: string
+          enum: [meters]
+        value: 
+          type: number
+          minimum: 1.00
+          maximum: 2.50
+    
+    # Weight
+    WeightUnit:
+      title: WeightUnit
+      type: string
+      enum: [kg, pounds]
+
+    WeightKgMeasurementData:
+      type: object
+      required: 
+        - unit
+        - value
+      properties:
+        unit:
+          type: string
+          enum: [kg]
+        value: 
+          type: number
+          format: int32
+          minimum: 30
+          maximum: 200
+
+    WeightPoundMeasurementData:
+      type: object
+      required: 
+        - unit
+        - value
+      properties:
+        unit:
+          type: string
+          enum: [pounds]
+        value: 
+          type: number
+          format: int32
+          minimum: 60
+          maximum: 400    
+
+    # POST /mailinglist
+    JoinMailingListRequestBody:
+      title: JoinMailingListRequestBody
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: object
+          required:
+            - emailAddress
+          properties:
+            emailAddress:
+              type: string
+              format: email
+
+    # POST /members/invite
+    InviteMemberRequestBody:
+      title: InviteMemberRequestBody
+      type: object
+      required:
+        - type
+        - data
+      properties:
+        type: 
+          $ref: "#/components/schemas/MemberType"
+        data: 
+          type: object
+          required:
+            - emailAddress
+          properties:
+            emailAddress: 
+              type: string
+
+
+    # PATCH /members/{memberId} 
+
+    # PatchAthleteTeam
+    PatchAthleteTeam:
+      title: UpdateAthleteTeam
+      type: object
+      required:
+        - action      
+      properties: 
+        action:
+          $ref: "#/components/schemas/ActionType"
+        id:
+          type: string
+          format: uuid
+        data:
+          type: object
+          properties:
+            type: 
+              $ref: "#/components/schemas/TeamType"
+            subType: 
+              $ref: "#/components/schemas/CollegeSubType"
+            division: 
+              type: number
+              format: int32
+              minimum: 1
+              maximum: 3
+            classOf:
+              type: number
+              format: int32
+              minimum: 2000
+            name: 
+              type: string
+            position: 
+              $ref: "#/components/schemas/PositionType"
+            country:
+              type: string
+              minLength: 4
+              maxLength: 50
+            city:
+              type: string
+              minLength: 4
+              maxLength: 50
+            school: 
+              type: string
+              minLength: 4
+              maxLength: 100
+            years:
+              type: array
+              items:
+                $ref: "#/components/schemas/PatchAthleteTeamYear"            
+    
+    # PatchAthleteTeamYear
+    PatchAthleteTeamYear: 
+      title: PatchAthleteTeamYear
+      type: object
+      required:
+        - action
+      properties:
+        action: 
+          $ref: "#/components/schemas/ActionType"
+        id: 
+          type: string
+          format: uuid
+        data: 
+          type: object
+          properties:
+            year:
+              type: number
+              format: int32
+              minimum: 2000
+            stats: 
+              type: object
+              properties: 
+                avgPpg:
+                  type: number
+                  minimum: 0.0
+                  maximum: 100.0
+                avgApg:
+                  type: number
+                  minimum: 0.0
+                  maximum: 50.0
+                avgRpg: 
+                  type: number
+                  minimum: 0.0
+                  maximum: 50.0
+
+    UpdateAthleteDetailsRequestBody:
+      title: UpdateAthleteDetailsRequestBody
+      type: object
+      required:
+        - type
+        - data
+      properties:
+        type:
+          type: string
+          enum: [athlete]
+        data: 
+          type: object
+          properties: 
+            firstName:
+              type: string
+              minLength: 0
+              maxLength: 50
+            lastName:
+              type: string
+              minLength: 0
+              maxLength: 50
+            dateOfBirth: 
+              type: string
+              format: date
+            country:
+              type: string
+              minLength: 4
+              maxLength: 50
+            city:
+              type: string
+              minLength: 4
+              maxLength: 50
+            summary:
+              type: string
+              minLength: 1
+              nullable: true
+            height: 
+              oneOf:
+                - $ref: "#/components/schemas/HeightFeetMeasurementData"
+                - $ref: "#/components/schemas/HeightMeterMeasurementData"
+            weight:
+              oneOf: 
+                - $ref: "#/components/schemas/WeightKgMeasurementData"
+                - $ref: "#/components/schemas/WeightPoundMeasurementData"
+            teams:
+              type: array
+              items: 
+                $ref: "#/components/schemas/PatchAthleteTeam"                
+            highlights:
+              type: array
+              items: 
+                type: object
+                required:
+                  - action      
+                properties: 
+                  action:
+                    $ref: "#/components/schemas/ActionType"
+                  id:
+                    type: string
+                    format: uuid
+                  data:
+                    type: string
+    
+    UpdateStaffDetailsRequestBody:
+      title: UpdateStaffDetailsRequestBody
+      type: object
+      required:
+        - type
+        - data
+      properties:
+        type: 
+          type: string
+          enum: [staff]
+        data: 
+          type: object
+          properties: 
+            firstName:
+              type: string
+              minLength: 0
+              maxLength: 50
+            lastName:
+              type: string
+              minLength: 0
+              maxLength: 50
+            team:
+              type: object
+              properties:
+                type: 
+                  $ref: "#/components/schemas/TeamType"
+                subType: 
+                  $ref: "#/components/schemas/CollegeSubType"
+                division: 
+                  type: number
+                  format: int32
+                  minimum: 1
+                  maximum: 3
+                classOf:
+                  type: number
+                  format: int32
+                  minimum: 2000
+                name:
+                  type: string
+                  minLength: 4
+                  maxLength: 200
+                school: 
+                  type: string
+                  nullable: true
+                  minLength: 4
+                  maxLength: 100
+                position:
+                  type: string
+                  minLength: 4
+                  maxLength: 50
+                country:
+                  type: string
+                  nullable: true
+                  minLength: 4
+                  maxLength: 50
+                city:
+                  type: string
+                  nullable: true
+                  minLength: 4
+                  maxLength: 50
+
+    # GET /members/{memberId} 
+    
+    # AthleteTeam
+    AthleteTeam:
+      title: AthleteTeam
+      type: object
+      required:
+        - id
+        - data      
+      properties:
+        id:
+          type: string
+          format: uuid
+        data:
+          type: object
+          required: 
+            - type
+            - name
+            - position
+          properties:
+            type: 
+              $ref: "#/components/schemas/TeamType"
+            subType: 
+              $ref: "#/components/schemas/CollegeSubType"
+            division: 
+              type: number
+              format: int32
+            classOf:
+              type: number
+              format: int32
+            name: 
+              type: string
+            position: 
+              $ref: "#/components/schemas/PositionType"
+            country:
+              type: string
+            city:
+              type: string
+            school: 
+              type: string
+            years:
+              type: array
+              items:
+                $ref: "#/components/schemas/AthleteTeamYear"
+    
+    # AthleteTeamYear
+    AthleteTeamYear:
+      type: object
+      required:
+        - id
+        - data
+      properties:
+        id: 
+          type: string
+          format: uuid
+        data: 
+          type: object
+          required: 
+            - year
+            - stats
+          properties: 
+            year:
+              type: number
+              format: int32
+            stats: 
+              type: object
+              required:
+                - avgPpg
+                - avgApg
+                - avgRpg
+              properties: 
+                avgPpg:
+                  type: number
+                avgApg:
+                  type: number
+                avgRpg: 
+                  type: number
+    
+    # AthleteSignificantStats
+    AthleteSignificantStats:
+      title: AthleteSignificantStats
+      type: object
+      required: 
+        - team
+        - year
+        - stats
+      properties:
+        team: 
+          type: object
+          required: 
+          - type
+          - name
+          - position
+          properties:
+            type: 
+              $ref: "#/components/schemas/TeamType"
+            subType: 
+              $ref: "#/components/schemas/CollegeSubType"
+            division: 
+              type: number
+              format: int32
+            classOf:
+              type: number
+              format: int32
+            name: 
+              type: string
+            position: 
+              $ref: "#/components/schemas/PositionType"
+            country:
+              type: string
+            city:
+              type: string
+            school: 
+              type: string
+        year:
+          type: number
+          format: int32
+        stats: 
+          type: object
+          required:
+            - avgPpg
+            - avgApg
+            - avgRpg
+          properties: 
+            avgPpg:
+              type: number
+              format: int32
+            avgApg:
+              type: number
+              format: int32
+            avgRpg: 
+              type: number
+              format: int32
+    
+    GetAthleteDetailsResponse:
+      title: GetAthleteDetailsResponse
+      type: object
+      required:
+        - type
+        - data
+      properties:
+        type:
+          type: string
+          enum: [athlete]
+        data: 
+          type: object
+          required: 
+            - emailAddress
+          properties: 
+            emailAddress:
+              type: string
+              format: email
+            firstName:
+              type: string
+            lastName:
+              type: string
+            dateOfBirth: 
+              type: string
+              format: date
+            country:
+              type: string
+            city:
+              type: string
+            height: 
+              oneOf:
+                - $ref: "#/components/schemas/HeightFeetMeasurementData"
+                - $ref: "#/components/schemas/HeightMeterMeasurementData"
+            weight:
+              oneOf: 
+                - $ref: "#/components/schemas/WeightKgMeasurementData"
+                - $ref: "#/components/schemas/WeightPoundMeasurementData"
+            summary:
+              type: string
+            teams:
+              type: array
+              items: 
+                $ref: "#/components/schemas/AthleteTeam"
+            significantStats: 
+              $ref: "#/components/schemas/AthleteSignificantStats"
+            highlights:
+              type: array
+              items: 
+                type: object
+                required:
+                  - id
+                  - data      
+                properties: 
+                  id:
+                    type: string
+                    format: uuid
+                  data:
+                    type: string
+    
+    # StaffTeam
+    StaffTeam: 
+      title: StaffTeam
+      type: object
+      properties:
+        type: 
+          $ref: "#/components/schemas/TeamType"
+        subType: 
+          $ref: "#/components/schemas/CollegeSubType"
+        division: 
+          type: number
+          format: int32
+        classOf:
+          type: number
+          format: int32
+        name:
+          type: string
+        school: 
+          type: string
+        position:
+          type: string
+        country:
+          type: string
+        city:
+          type: string
+
+    GetStaffDetailsResponse: 
+      title: GetStaffDetailsResponse
+      type: object
+      required:
+        - type
+        - data
+      properties:
+        type: 
+          type: string
+          enum: [staff]
+        data: 
+          type: object
+          required: 
+            - emailAddress
+          properties: 
+            emailAddress:
+              type: string
+              format: email
+            firstName:
+              type: string
+            lastName:
+              type: string
+            team:
+              $ref: "#/components/schemas/StaffTeam"
+
+  examples:
+    ValidationErrorsResponse:
+      value:
+        [
+          {
+            title: "VALIDATION_ERROR",
+            detail: "must have required property 'emailAddress'",
+            pointer: "/data",
+          },
+        ]
+    InternalServerErrorResponse:
+      value:
+        {
+          title: "Internal Server Error"
+        }
+
+    # POST /mailinglist
+    JoinMailingListRequestBody:
+      value: 
+        { 
+          data: { 
+            emailAddress: "contact@globalrecruits.net" 
+          }
+        }
+    MailChimpErrorResponse:
+      value:
+        {
+          title: "Member Exists",
+          detail: "contact@globalrecruits.net is already a list member. Use PUT to insert or update list members."
+        }
+
+    # POST /members/invite
+    InviteMemberRequestBody: 
+      value: {
+        type: "athlete",
+        data: {
+          emailAddress: "contact@globalrecruits.net"
+        }
+      }
+
+    # PATCH /members/{memberId}  
+    UpdateAthleteDetailsRequestBody:
+      value: {
+        type: "athlete",
+        data: {
+          firstName: "Joe",
+          lastName: "Jobbings",
+          dateOfBirth: "1999-08-11",
+          country: "United States",
+          city: "Miami",
+          height: {
+            unit: "meters",
+            value: 1.91
+          },
+          weight: {
+            unit: "kg",
+            value: 90
+          },
+          teams: [
+            {
+              action: "add",
+              data: {
+                type: "high_school",
+                classOf: 2023,
+                name: "Miami Hurricanes",
+                country: "United States",
+                city: "Miami",
+                school: "Miami School",
+                position: "pg",
+                years: [
+                  {
+                    action: "add",
+                    data: {
+                      year: 2022,
+                      stats: {
+                      avgPpg: 20,
+                      avgApg: 5,
+                      avgRpg: 2 
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          highlights: [
+            {
+              action: "edit",
+              id: "81dad62b-75a2-44d6-9098-403edec32c1c",
+              data: "https://www.youtube.com/watch?v=LHBABV3QgGc"
+            }
+          ]
+        }
+      }
+    
+    UpdateStaffDetailsRequestBody:
+      value: {
+        type: "staff",
+        data: {
+          firstName: "Staff",
+          lastName: "Jobbings",
+          team: {
+              name: "Miami Hurricanes",
+              type: "college",
+              country: "United States",
+              city: "Miami",
+              school: "University of Miami",
+              position: "Head Coach"
+          }
+        }
+      }
+
+    # GET /members/{memberId} 
+    GetAthleteDetailsResponse:
+      value: {
+        type: "athlete",
+        data: {
+          emailAddress: "joe.jobbings@mailslurp.com",
+          firstName: "Joe",
+          lastName: "Jobbings",
+          dateOfBirth: "1999-08-11",
+          country: "United States",
+          city: "Miami",
+          height: {
+            unit: "meters",
+            value: 1.91
+          },
+          weight: {
+            unit: "kg",
+            value: 90
+          },
+          teams: [
+            {
+              id: "81dad62b-75a2-44d6-9098-403edec32c1c",
+              data: {
+                type: "high_school",
+                classOf: 2023,
+                name: "Miami School Team",
+                position: "pg",
+                country: "United States",
+                city: "Miami",
+                school: "University of Miami",
+                years: [
+                  {
+                    id: "81dad62b-75a2-44d6-9098-403edec32c1c",
+                    data: {
+                      year: 2022,
+                      stats: {
+                      avgPpg: 20,
+                      avgApg: 5,
+                      avgRpg: 2 
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          highlights: [
+            {
+              id: "81dad62b-75a2-44d6-9098-403edec32c1c",
+              data: "https://www.youtube.com/watch?v=LHBABV3QgGc"
+            }
+          ]
+        }
+      }
+
+    GetStaffDetailsResponse:
+      value: {
+        type: "staff",
+        data: {
+          emailAddress: "staff.jobbings@mailslurp.com",
+          firstName: "Staff",
+          lastName: "Jobbings",
+          team: {
+              name: "Miami Hurricanes",
+              type: "college",
+              country: "United States",
+              city: "Miami",
+              school: "University of Miami",
+              position: "Head Coach"
+          }
+        }
+      }
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
