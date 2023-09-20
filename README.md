@@ -45,7 +45,7 @@ This repository serves as a comprehensive resource for studying the architecture
 
 <h3 align="center">Landing Page</h3>
 
-<p align="center"><img src="demo/LandingPageOne.png?raw=true" alt="Landing Page One"></p>
+<p align="center"><img src="demo/LandingPageOne.PNG?raw=true" alt="Landing Page One"></p>
 <p align="center"><img src="demo/LandingPageTwo.png?raw=true" alt="Landing Page Two"></p>
 <p align="center"><img src="demo/LandingPageThree.png?raw=true" alt="Landing Page Three"></p>
 
