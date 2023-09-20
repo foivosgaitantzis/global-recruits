@@ -46,18 +46,18 @@ This repository serves as a comprehensive resource for studying the architecture
 <h3 align="center">Landing Page</h3>
 
 <p align="center"><img src="demo/LandingPageOne.PNG?raw=true" alt="Landing Page One"></p>
-<p align="center"><img src="demo/LandingPageTwo.png?raw=true" alt="Landing Page Two"></p>
-<p align="center"><img src="demo/LandingPageThree.png?raw=true" alt="Landing Page Three"></p>
+<p align="center"><img src="demo/LandingPageTwo.PNG?raw=true" alt="Landing Page Two"></p>
+<p align="center"><img src="demo/LandingPageThree.PNG?raw=true" alt="Landing Page Three"></p>
 
 <h3 align="center">Invite Only Authentication</h3>
 
-<p align="center"><img src="demo/Authentication.png?raw=true" alt="Invite Only Authentication"></p>
+<p align="center"><img src="demo/Authentication.PNG?raw=true" alt="Invite Only Authentication"></p>
 
 <h3 align="center">Onboarding</h3>
 
-<p align="center"><img src="demo/OnboardingOne.png?raw=true" alt="Onboarding Page Two"></p>
-<p align="center"><img src="demo/OnboardingTwo.png?raw=true" alt="Onboarding Team Page"></p>
+<p align="center"><img src="demo/OnboardingOne.PNG?raw=true" alt="Onboarding Page Two"></p>
+<p align="center"><img src="demo/OnboardingTwo.PNG?raw=true" alt="Onboarding Team Page"></p>
 
 <h3 align="center">Email Forgot Password Template</h3>
 
-<p align="center"><img src="demo/EmailTemplate.png?raw=true" alt="Forgot Password Email"></p>
+<p align="center"><img src="demo/EmailTemplate.PNG?raw=true" alt="Forgot Password Email"></p>
